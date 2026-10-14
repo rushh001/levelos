@@ -1,0 +1,9 @@
+# Normalise line endings: LF in the repo and in working copies (Dockerfile, shell, JSON, source).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.mp3 binary
+*.ogg binary
+*.wav binary
+*.webm binary
+*.woff2 binary
