@@ -1,0 +1,75 @@
+{
+  "_comment": "Per-language data pack config. tier 1 = validated (eval set + teacher testing); tier 2 = supported, labelled beta. Vendor locale codes marked VERIFY are to be confirmed in the Day-1 spike.",
+  "hi": {
+    "name": "हिन्दी",
+    "english_name": "Hindi",
+    "script": "Devanagari",
+    "direction": "ltr",
+    "tier": 1,
+    "ui": true,
+    "vendors": { "sarvam": "hi-IN", "azure_stt": "hi-IN", "azure_pa": "hi-IN", "gemini": "Hindi" }
+  },
+  "en": {
+    "name": "English",
+    "english_name": "English",
+    "script": "Latin",
+    "direction": "ltr",
+    "tier": 1,
+    "ui": true,
+    "vendors": { "sarvam": "en-IN", "azure_stt": "en-IN", "azure_pa": "en-IN", "gemini": "Indian English" }
+  },
+  "mr": {
+    "name": "मराठी",
+    "english_name": "Marathi",
+    "script": "Devanagari",
+    "direction": "ltr",
+    "tier": 2,
+    "ui": false,
+    "vendors": { "sarvam": "mr-IN", "azure_stt": "mr-IN", "azure_pa": null, "gemini": "Marathi" }
+  },
+  "gu": {
+    "name": "ગુજરાતી",
+    "english_name": "Gujarati",
+    "script": "Gujarati",
+    "direction": "ltr",
+    "tier": 2,
+    "ui": false,
+    "vendors": { "sarvam": "gu-IN", "azure_stt": "gu-IN", "azure_pa": null, "gemini": "Gujarati" }
+  },
+  "kn": {
+    "name": "ಕನ್ನಡ",
+    "english_name": "Kannada",
+    "script": "Kannada",
+    "direction": "ltr",
+    "tier": 2,
+    "ui": false,
+    "vendors": { "sarvam": "kn-IN", "azure_stt": "kn-IN", "azure_pa": null, "gemini": "Kannada" }
+  },
+  "ta": {
+    "name": "தமிழ்",
+    "english_name": "Tamil",
+    "script": "Tamil",
+    "direction": "ltr",
+    "tier": 2,
+    "ui": false,
+    "vendors": { "sarvam": "ta-IN", "azure_stt": "ta-IN", "azure_pa": "ta-IN", "gemini": "Tamil" }
+  },
+  "te": {
+    "name": "తెలుగు",
+    "english_name": "Telugu",
+    "script": "Telugu",
+    "direction": "ltr",
+    "tier": 2,
+    "ui": false,
+    "vendors": { "sarvam": "te-IN", "azure_stt": "te-IN", "azure_pa": null, "gemini": "Telugu" }
+  },
+  "or": {
+    "name": "ଓଡ଼ିଆ",
+    "english_name": "Odia",
+    "script": "Odia",
+    "direction": "ltr",
+    "tier": 2,
+    "ui": false,
+    "vendors": { "sarvam": "od-IN", "azure_stt": "VERIFY", "azure_pa": null, "gemini": "Odia" }
+  }
+}

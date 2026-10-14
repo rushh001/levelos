@@ -1,0 +1,7 @@
+{
+  "appName": "LevelOS",
+  "tagline": "A 3-minute reading check that shows each child's real level and what to do next.",
+  "online": "Online",
+  "offline": "Offline",
+  "pendingUploads": "{{count}} check-ins waiting to sync"
+}

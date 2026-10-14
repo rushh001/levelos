@@ -1,0 +1,152 @@
+"""Database models. IDs are uuid4 hex strings so SQLite (dev) and Postgres (prod) behave the same."""
+
+from __future__ import annotations
+
+import uuid
+from datetime import datetime, timezone
+
+from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from .db import Base
+
+# ASER reading levels, lowest to highest.
+LEVELS = ["beginner", "letter", "word", "paragraph", "story"]
+
+
+def new_id() -> str:
+    return uuid.uuid4().hex
+
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+class Teacher(Base):
+    __tablename__ = "teachers"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    login: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(120))
+    pin_hash: Mapped[str] = mapped_column(String(128))
+    ui_lang: Mapped[str] = mapped_column(String(8), default="hi")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    classrooms: Mapped[list[Classroom]] = relationship(back_populates="teacher")
+
+
+class Classroom(Base):
+    __tablename__ = "classrooms"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    teacher_id: Mapped[str] = mapped_column(ForeignKey("teachers.id"), index=True)
+    name: Mapped[str] = mapped_column(String(120))
+    grade: Mapped[int] = mapped_column(Integer, default=2)
+    language: Mapped[str] = mapped_column(String(8), default="hi")  # default assessment language
+
+    teacher: Mapped[Teacher] = relationship(back_populates="classrooms")
+    students: Mapped[list[Student]] = relationship(back_populates="classroom", order_by="Student.first_name")
+
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    classroom_id: Mapped[str] = mapped_column(ForeignKey("classrooms.id"), index=True)
+    first_name: Mapped[str] = mapped_column(String(80))  # pseudonymous: first name + avatar only
+    avatar: Mapped[str] = mapped_column(String(32), default="🙂")
+    grade: Mapped[int] = mapped_column(Integer, default=2)
+    home_lang: Mapped[str] = mapped_column(String(8), default="hi")
+    provisional_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    confirmed_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    cohort_override: Mapped[str | None] = mapped_column(String(16), nullable=True)  # teacher drag between groups
+
+    classroom: Mapped[Classroom] = relationship(back_populates="students")
+    checkins: Mapped[list[Checkin]] = relationship(back_populates="student", order_by="Checkin.started_at.desc()")
+
+
+class Checkin(Base):
+    __tablename__ = "checkins"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    student_id: Mapped[str] = mapped_column(ForeignKey("students.id"), index=True)
+    local_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)  # idempotency key from the PWA queue
+    language: Mapped[str] = mapped_column(String(8))
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    scored_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # queued | scoring | scored | needs_review | failed
+    status: Mapped[str] = mapped_column(String(16), default="queued", index=True)
+    source: Mapped[str] = mapped_column(String(16), default="ai")  # ai | offline_marks | teacher
+    level_suggested: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    level_final: Mapped[str | None] = mapped_column(String(16), nullable=True)  # after teacher override, if any
+    teacher_overrode: Mapped[bool] = mapped_column(Boolean, default=False)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    student: Mapped[Student] = relationship(back_populates="checkins")
+    items: Mapped[list[ItemResult]] = relationship(back_populates="checkin", order_by="ItemResult.position")
+    diagnosis: Mapped[Diagnosis | None] = relationship(back_populates="checkin", uselist=False)
+
+
+class ItemResult(Base):
+    __tablename__ = "item_results"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    checkin_id: Mapped[str] = mapped_column(ForeignKey("checkins.id"), index=True)
+    position: Mapped[int] = mapped_column(Integer)
+    item_id: Mapped[str] = mapped_column(String(64))
+    item_level: Mapped[str] = mapped_column(String(16))  # letter | word | paragraph | story
+    duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    path_outputs: Mapped[dict] = mapped_column(JSON, default=dict)  # {"sarvam": {...}, "azure": {...}, "gemini": {...}}
+    words: Mapped[list] = mapped_column(JSON, default=list)  # [{ref, heard, label, uncertain, teacher_label?, start_ms?, end_ms?}]
+    offline_marks: Mapped[list | None] = mapped_column(JSON, nullable=True)  # teacher tap-to-mark booleans, if recorded offline
+    errors: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    hesitations: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    wcpm: Mapped[float | None] = mapped_column(Float, nullable=True)
+    passed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    audio_kept_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    checkin: Mapped[Checkin] = relationship(back_populates="items")
+
+
+class Diagnosis(Base):
+    __tablename__ = "diagnoses"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    checkin_id: Mapped[str] = mapped_column(ForeignKey("checkins.id"), unique=True, index=True)
+    error_patterns: Mapped[list] = mapped_column(JSON, default=list)  # ordered, most important first
+    evidence: Mapped[list] = mapped_column(JSON, default=list)
+    summary: Mapped[dict] = mapped_column(JSON, default=dict)  # {"hi": "...", "en": "..."}
+    confidence: Mapped[str] = mapped_column(String(8), default="low")  # low | medium | high
+    model: Mapped[str] = mapped_column(String(64))
+    prompt_version: Mapped[str] = mapped_column(String(16))
+    raw: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    checkin: Mapped[Checkin] = relationship(back_populates="diagnosis")
+
+
+class LevelHistory(Base):
+    __tablename__ = "level_history"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    student_id: Mapped[str] = mapped_column(ForeignKey("students.id"), index=True)
+    checkin_id: Mapped[str | None] = mapped_column(ForeignKey("checkins.id"), nullable=True)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    provisional: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    confirmed: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    source: Mapped[str] = mapped_column(String(16))  # ai | offline_marks | teacher
+
+
+class GeneratedActivity(Base):
+    __tablename__ = "generated_activities"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    classroom_id: Mapped[str] = mapped_column(ForeignKey("classrooms.id"), index=True)
+    cohort: Mapped[str] = mapped_column(String(16))  # letter | word | paragraph
+    language: Mapped[str] = mapped_column(String(8))
+    source_activity_id: Mapped[str] = mapped_column(String(64))
+    plan: Mapped[dict] = mapped_column(JSON, default=dict)
+    validation: Mapped[dict] = mapped_column(JSON, default=dict)
+    accepted: Mapped[bool] = mapped_column(Boolean, default=True)  # false = validator rejected, raw bank entry served
+    teacher_rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

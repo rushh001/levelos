@@ -1,0 +1,28 @@
+# JS
+node_modules/
+dist/
+dev-dist/
+*.tsbuildinfo
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets & local config
+.env
+.env.*
+!.env.example
+
+# Local data
+*.db
+*.db-journal
+eval/clips/
+tmp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
