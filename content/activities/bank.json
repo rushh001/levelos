@@ -1,0 +1,280 @@
+{
+  "version": "0.1.0",
+  "status": "draft: every entry must be checked against its source by a team member before the demo",
+  "_comment": "Curated 10-minute activities for TaRL-style groups. Each entry is adapted (shortened to ~10 minutes, made concrete) from an activity described in the cited source; the generator must cite one of these ids and the validator checks faithfulness to it. cohorts: letter | word | paragraph (dashboard groups). patterns: error patterns the activity targets (app/llm/patterns.py).",
+  "sources": {
+    "tarl_sessions": {
+      "name": "Pratham / TaRL Africa — Planning TaRL Sessions (Dec 2021)",
+      "url": "https://assets-global.website-files.com/61366d43ebd6df56d9b67a11/61b1ea8ea66c7e20310e4ffd_Planning%20TaRL%20Sessions_Dec_2021.pdf"
+    },
+    "tarl_tlm": {
+      "name": "Pratham / TaRL Africa — Literacy Teaching-Learning Materials Note (Nov 2021)",
+      "url": "https://assets-global.website-files.com/61366d43ebd6df56d9b67a11/61a10edb3d8918dd5cc508a2_Literacy%20TLM%20Note_25%20Nov.pdf"
+    },
+    "aser_2024": {
+      "name": "ASER Centre — ASER 2024 Assessment Tasks (reading procedure)",
+      "url": "https://asercentre.org/wp-content/uploads/2022/12/ASER-2024-assessment-tasks.pdf"
+    },
+    "storyweaver": {
+      "name": "Pratham Books — StoryWeaver (free levelled storybooks in Indian languages)",
+      "url": "https://storyweaver.org.in"
+    }
+  },
+  "activities": [
+    {
+      "id": "letter-basket-game",
+      "title": { "en": "Letter basket game", "hi": "अक्षर टोकरी खेल" },
+      "cohorts": ["letter"],
+      "patterns": ["letter_recognition"],
+      "minutes": 10,
+      "materials": { "en": ["Letter flashcards (10–15)", "A basket or box"], "hi": ["अक्षर कार्ड (10–15)", "एक टोकरी या डिब्बा"] },
+      "steps": [
+        { "minutes": 2, "en": "Sit in a circle. Show each card once and say the letter together.", "hi": "गोल घेरे में बैठें। हर कार्ड एक बार दिखाकर सब मिलकर अक्षर बोलें।" },
+        { "minutes": 6, "en": "Put the cards in the basket. Each child picks a card, reads it aloud and shows it to the group; the group says yes or helps.", "hi": "कार्ड टोकरी में डालें। हर बच्चा एक कार्ड निकाले, ज़ोर से पढ़े और सबको दिखाए; समूह हाँ कहे या मदद करे।" },
+        { "minutes": 2, "en": "Keep aside the cards that caused trouble and read only those once more together.", "hi": "जिन कार्डों में दिक्कत हुई उन्हें अलग रखें और सिर्फ़ उन्हें एक बार फिर साथ पढ़ें।" }
+      ],
+      "watch_for": { "en": "Children who wait for others before answering; give them the next turn with an easier card.", "hi": "जो बच्चे दूसरों के बोलने का इंतज़ार करते हैं; उन्हें अगली बारी आसान कार्ड से दें।" },
+      "source": { "ref": "tarl_sessions", "note": "Basket / flashcard game in the Beginner + Letter session outline." }
+    },
+    {
+      "id": "look-alike-letter-pairs",
+      "title": { "en": "Look-alike letter pairs", "hi": "मिलते-जुलते अक्षरों की जोड़ी" },
+      "cohorts": ["letter", "word"],
+      "patterns": ["letter_recognition"],
+      "minutes": 10,
+      "materials": { "en": ["Flashcards for 2–3 look-alike pairs (e.g. ब/व, घ/ध, म/भ; b/d)", "Board or slate"], "hi": ["2–3 मिलते-जुलते अक्षर जोड़ियों के कार्ड (जैसे ब/व, घ/ध, म/भ)", "बोर्ड या स्लेट"] },
+      "steps": [
+        { "minutes": 3, "en": "Write one pair large on the board. Point to the one small difference and say both letters with the group.", "hi": "एक जोड़ी बोर्ड पर बड़ा लिखें। दोनों में छोटा-सा अंतर दिखाएँ और समूह के साथ दोनों अक्षर बोलें।" },
+        { "minutes": 5, "en": "Mix the cards of the pair. Children take turns: pick a card, read it, put it on the correct side.", "hi": "जोड़ी के कार्ड मिला दें। बच्चे बारी-बारी से कार्ड उठाएँ, पढ़ें और सही तरफ़ रखें।" },
+        { "minutes": 2, "en": "Say a letter; children point to it on the board or write it on their slate.", "hi": "आप एक अक्षर बोलें; बच्चे बोर्ड पर उसकी ओर इशारा करें या स्लेट पर लिखें।" }
+      ],
+      "watch_for": { "en": "Whether a child looks at the distinguishing stroke before answering.", "hi": "क्या बच्चा जवाब देने से पहले अलग पहचान वाली रेखा देखता है।" },
+      "source": { "ref": "tarl_sessions", "note": "Adapted from the flashcard game; the look-alike pairs focus comes from the child's own errors." }
+    },
+    {
+      "id": "picture-talk-first-sound",
+      "title": { "en": "Picture talk: first sounds", "hi": "चित्र बातचीत: पहली ध्वनि" },
+      "cohorts": ["letter"],
+      "patterns": ["letter_recognition", "blending_scaffolding"],
+      "minutes": 10,
+      "materials": { "en": ["One large picture (market, village, school)", "Letter cards"], "hi": ["एक बड़ा चित्र (बाज़ार, गाँव, स्कूल)", "अक्षर कार्ड"] },
+      "steps": [
+        { "minutes": 3, "en": "Talk about the picture: children name things they see.", "hi": "चित्र पर बातचीत करें: बच्चे जो चीज़ें देखें उनके नाम बोलें।" },
+        { "minutes": 4, "en": "For each named thing, ask: what sound does it start with? Hold up the matching letter card.", "hi": "हर नाम के लिए पूछें: यह किस ध्वनि से शुरू होता है? उससे मिलता अक्षर कार्ड दिखाएँ।" },
+        { "minutes": 3, "en": "Show a letter card; children find something in the picture starting with that sound.", "hi": "एक अक्षर कार्ड दिखाएँ; बच्चे चित्र में उस ध्वनि से शुरू होने वाली चीज़ ढूँढें।" }
+      ],
+      "watch_for": { "en": "Children who know the sound but not the letter shape, or the reverse.", "hi": "जिन बच्चों को ध्वनि पता है पर अक्षर का आकार नहीं, या उल्टा।" },
+      "source": { "ref": "tarl_sessions", "note": "Chat / story / picture reading activity in the Beginner + Letter session outline." }
+    },
+    {
+      "id": "beginning-ending-sound-game",
+      "title": { "en": "Beginning and ending sound game", "hi": "शुरू और आख़िरी ध्वनि का खेल" },
+      "cohorts": ["letter", "word"],
+      "patterns": ["blending_scaffolding", "letter_recognition"],
+      "minutes": 10,
+      "materials": { "en": ["None (oral game)", "Board for writing the words at the end"], "hi": ["कुछ नहीं (मौखिक खेल)", "अंत में शब्द लिखने के लिए बोर्ड"] },
+      "steps": [
+        { "minutes": 4, "en": "Say a word (कमल). The next child says a word that starts with its last sound (लड्डू), and so on round the circle.", "hi": "एक शब्द बोलें (कमल)। अगला बच्चा उसकी आख़िरी ध्वनि से शुरू होने वाला शब्द बोले (लड्डू), ऐसे ही घेरे में आगे।" },
+        { "minutes": 3, "en": "Rhyme round: say a word; children say words that rhyme (मोर, चोर, शोर).", "hi": "तुकबंदी: एक शब्द बोलें; बच्चे तुक मिलाते शब्द बोलें (मोर, चोर, शोर)।" },
+        { "minutes": 3, "en": "Write 4 of the words on the board and read them together, pointing at each letter.", "hi": "इनमें से 4 शब्द बोर्ड पर लिखें और हर अक्षर पर उँगली रखकर साथ पढ़ें।" }
+      ],
+      "watch_for": { "en": "Children who cannot hear the last sound: say the word slowly, stretching it.", "hi": "जो बच्चे आख़िरी ध्वनि नहीं पकड़ पाते: शब्द को धीरे, खींचकर बोलें।" },
+      "source": { "ref": "tarl_sessions", "note": "Mind map / rhyming words / beginning–ending sound game in the Beginner + Letter session outline." }
+    },
+    {
+      "id": "barakhadi-chart-reading",
+      "title": { "en": "Barakhadi chart reading", "hi": "बारहखड़ी चार्ट पढ़ना" },
+      "cohorts": ["letter", "word"],
+      "patterns": ["matra_vowel_sign", "letter_recognition"],
+      "minutes": 10,
+      "materials": { "en": ["Barakhadi chart (consonants × vowel signs)", "A pointer stick"], "hi": ["बारहखड़ी चार्ट (व्यंजन × मात्राएँ)", "एक छड़ी"] },
+      "steps": [
+        { "minutes": 3, "en": "Read one row across together (क का कि की कु कू …), pointing at each cell.", "hi": "एक पंक्ति साथ में आड़ी पढ़ें (क का कि की कु कू …), हर खाने पर छड़ी रखें।" },
+        { "minutes": 3, "en": "Read one column down (का खा गा घा …) so the same vowel sign repeats.", "hi": "एक कॉलम नीचे की ओर पढ़ें (का खा गा घा …) ताकि एक ही मात्रा दोहराई जाए।" },
+        { "minutes": 4, "en": "Children take turns: point diagonally or zig-zag to cells and the child reads each one.", "hi": "बच्चे बारी-बारी से: तिरछे या टेढ़े-मेढ़े खानों पर छड़ी रखें और बच्चा हर खाना पढ़े।" }
+      ],
+      "watch_for": { "en": "Mixing short and long vowel signs (ि/ी, ु/ू) — slow down on those columns.", "hi": "छोटी-बड़ी मात्रा (ि/ी, ु/ू) में भ्रम — उन कॉलम पर धीरे चलें।" },
+      "source": { "ref": "tarl_tlm", "note": "Barakhadi chart read horizontally, vertically, diagonally and zig-zag." }
+    },
+    {
+      "id": "syllable-strings",
+      "title": { "en": "Syllable strings to words", "hi": "मात्रा-शृंखला से शब्द बनाना" },
+      "cohorts": ["letter", "word"],
+      "patterns": ["blending_scaffolding", "matra_vowel_sign"],
+      "minutes": 10,
+      "materials": { "en": ["Board or slates", "A two-syllable word from the paragraph the group read"], "hi": ["बोर्ड या स्लेट", "समूह के पढ़े अनुच्छेद का दो-अक्षर वाला शब्द"] },
+      "steps": [
+        { "minutes": 3, "en": "Take a word (कमल). Write the string for its first letter: क का कि की कु कू के कै को कौ. Read it together.", "hi": "एक शब्द लें (कमल)। पहले अक्षर की शृंखला लिखें: क का कि की कु कू के कै को कौ। साथ पढ़ें।" },
+        { "minutes": 2, "en": "Do the same for its second letter (म मा मि मी …).", "hi": "दूसरे अक्षर के लिए भी यही करें (म मा मि मी …)।" },
+        { "minutes": 5, "en": "Children join one piece from each string to make words (कमा, काम, मामा) and read them. Made-up words are fine — they are still blending.", "hi": "बच्चे हर शृंखला से एक-एक टुकड़ा जोड़कर शब्द बनाएँ (कमा, काम, मामा) और पढ़ें। बिना अर्थ वाले शब्द भी ठीक हैं — इससे भी जोड़ना सीखते हैं।" }
+      ],
+      "watch_for": { "en": "A child who reads each piece but pauses before joining: say the two pieces faster and faster until they merge.", "hi": "जो बच्चा टुकड़े पढ़ता है पर जोड़ने से पहले रुकता है: दोनों टुकड़े तेज़-तेज़ बोलें जब तक वे जुड़ न जाएँ।" },
+      "source": { "ref": "tarl_sessions", "note": "Alternative activity: take a two-syllable word from a paragraph, write its syllable strings, read them, build words (nonsense words allowed)." }
+    },
+    {
+      "id": "word-building-cards",
+      "title": { "en": "Build words with letter and matra cards", "hi": "अक्षर और मात्रा कार्ड से शब्द बनाना" },
+      "cohorts": ["word"],
+      "patterns": ["matra_vowel_sign", "blending_scaffolding"],
+      "minutes": 10,
+      "materials": { "en": ["Consonant cards", "Vowel-sign (matra) cards"], "hi": ["व्यंजन कार्ड", "मात्रा कार्ड"] },
+      "steps": [
+        { "minutes": 3, "en": "Make a word with cards on the floor (प + ा + न + ी = पानी). Read it together.", "hi": "ज़मीन पर कार्डों से एक शब्द बनाएँ (प + ा + न + ी = पानी)। साथ पढ़ें।" },
+        { "minutes": 4, "en": "Swap one matra card (पानी → पनी → पीना) and ask: what does it say now?", "hi": "एक मात्रा कार्ड बदलें (पानी → पनी → पीना) और पूछें: अब क्या पढ़ा जाएगा?" },
+        { "minutes": 3, "en": "Children make a word for the group to read, using the misread words from the check where possible.", "hi": "बच्चे समूह के पढ़ने के लिए शब्द बनाएँ; जहाँ हो सके जाँच में गलत पढ़े शब्द ही लें।" }
+      ],
+      "watch_for": { "en": "Children who ignore the matra and read only the consonants.", "hi": "जो बच्चे मात्रा छोड़कर सिर्फ़ व्यंजन पढ़ते हैं।" },
+      "source": { "ref": "tarl_tlm", "note": "Consonant and vowel flashcards in the literacy teaching-learning materials." }
+    },
+    {
+      "id": "matra-change-chain",
+      "title": { "en": "Change one matra", "hi": "एक मात्रा बदलो" },
+      "cohorts": ["word"],
+      "patterns": ["matra_vowel_sign"],
+      "minutes": 10,
+      "materials": { "en": ["Board or slates"], "hi": ["बोर्ड या स्लेट"] },
+      "steps": [
+        { "minutes": 2, "en": "Write a word (मेला). Read it together.", "hi": "एक शब्द लिखें (मेला)। साथ पढ़ें।" },
+        { "minutes": 6, "en": "Change only one vowel sign at a time (मेला → मैला → मला → माला). After each change, a child reads the new word and says what changed.", "hi": "हर बार केवल एक मात्रा बदलें (मेला → मैला → मला → माला)। हर बदलाव के बाद एक बच्चा नया शब्द पढ़े और बताए क्या बदला।" },
+        { "minutes": 2, "en": "Children write the last word on their slates and read it to a partner.", "hi": "बच्चे आख़िरी शब्द स्लेट पर लिखें और साथी को पढ़कर सुनाएँ।" }
+      ],
+      "watch_for": { "en": "Whether children look at the matra position (ि before the letter, ी after).", "hi": "क्या बच्चे मात्रा की जगह देखते हैं (ि अक्षर से पहले, ी बाद में)।" },
+      "source": { "ref": "tarl_tlm", "note": "Adapted from barakhadi practice: one consonant frame, vowel sign changed one at a time." }
+    },
+    {
+      "id": "conjunct-break-and-join",
+      "title": { "en": "Break and join conjunct words", "hi": "संयुक्त अक्षर: तोड़ो और जोड़ो" },
+      "cohorts": ["word", "paragraph"],
+      "patterns": ["conjunct"],
+      "minutes": 10,
+      "materials": { "en": ["Board", "4–5 words with a conjunct from the group's reading (बच्चे, रास्ता, विद्यालय)"], "hi": ["बोर्ड", "समूह के पाठ से संयुक्त अक्षर वाले 4–5 शब्द (बच्चे, रास्ता, विद्यालय)"] },
+      "steps": [
+        { "minutes": 3, "en": "Write a word and split it: बच्चे → ब + च् + चे. Read the parts, then the whole word.", "hi": "एक शब्द लिखें और तोड़ें: बच्चे → ब + च् + चे। पहले टुकड़े पढ़ें, फिर पूरा शब्द।" },
+        { "minutes": 4, "en": "Children split the next words themselves on slates and read them back.", "hi": "बच्चे अगले शब्द खुद स्लेट पर तोड़ें और पढ़कर सुनाएँ।" },
+        { "minutes": 3, "en": "Read a sentence containing these words, pointing at each word.", "hi": "इन शब्दों वाला एक वाक्य हर शब्द पर उँगली रखकर पढ़ें।" }
+      ],
+      "watch_for": { "en": "Reading the half-letter as a full letter (बचचे).", "hi": "आधे अक्षर को पूरा पढ़ना (बचचे)।" },
+      "source": { "ref": "tarl_sessions", "note": "Adapted from the syllable-string approach (identify → blend → segment) to conjunct aksharas." }
+    },
+    {
+      "id": "sight-word-flash",
+      "title": { "en": "Quick-flash common words", "hi": "आम शब्द झटपट पढ़ो" },
+      "cohorts": ["word", "paragraph"],
+      "patterns": ["sight_word"],
+      "minutes": 10,
+      "materials": { "en": ["Flashcards of 8–10 common words the group misread (है, का, में; the, was, said)"], "hi": ["समूह के गलत पढ़े 8–10 आम शब्दों के कार्ड (है, का, में)"] },
+      "steps": [
+        { "minutes": 3, "en": "Show each card for two seconds; the group reads it together.", "hi": "हर कार्ड दो सेकंड दिखाएँ; समूह साथ में पढ़े।" },
+        { "minutes": 4, "en": "Children take turns reading cards as fast as they can; a correct card goes to their pile.", "hi": "बच्चे बारी-बारी से जितना जल्दी हो सके कार्ड पढ़ें; सही पढ़ा कार्ड उनके ढेर में जाए।" },
+        { "minutes": 3, "en": "Children find these words in a short paragraph and read the sentence they are in.", "hi": "बच्चे एक छोटे अनुच्छेद में ये शब्द ढूँढें और उनका वाक्य पढ़ें।" }
+      ],
+      "watch_for": { "en": "Words still being sounded out letter by letter — keep those cards for tomorrow.", "hi": "जो शब्द अभी भी अक्षर-अक्षर करके पढ़े जा रहे हैं — वे कार्ड कल के लिए रखें।" },
+      "source": { "ref": "tarl_sessions", "note": "Flashcard game applied to high-frequency words." }
+    },
+    {
+      "id": "correct-the-incorrect",
+      "title": { "en": "Correct the incorrect", "hi": "गलत को सही करो" },
+      "cohorts": ["word", "paragraph"],
+      "patterns": ["matra_vowel_sign", "guessing_from_first_akshara"],
+      "minutes": 10,
+      "materials": { "en": ["Board"], "hi": ["बोर्ड"] },
+      "steps": [
+        { "minutes": 2, "en": "Write a sentence from the group's reading with one word changed (गाय का रंग सफाद है).", "hi": "समूह के पाठ का एक वाक्य लिखें जिसमें एक शब्द बदला हो (गाय का रंग सफाद है)।" },
+        { "minutes": 5, "en": "Children read it word by word, find the wrong word and say how to fix it. Do 3–4 sentences, using words the children actually misread.", "hi": "बच्चे शब्द-शब्द पढ़ें, गलत शब्द ढूँढें और बताएँ कैसे ठीक करें। 3–4 वाक्य करें; वही शब्द लें जो बच्चों ने गलत पढ़े थे।" },
+        { "minutes": 3, "en": "A child writes the corrected word on the board; everyone reads the full sentence.", "hi": "एक बच्चा सही शब्द बोर्ड पर लिखे; सब पूरा वाक्य पढ़ें।" }
+      ],
+      "watch_for": { "en": "Children who guess from the first letter will miss the error — ask them to read every letter of each word.", "hi": "पहले अक्षर से अनुमान लगाने वाले बच्चे गलती नहीं पकड़ेंगे — उनसे हर शब्द का हर अक्षर पढ़वाएँ।" },
+      "source": { "ref": "tarl_sessions", "note": "'Correct the incorrect' in the Word + Paragraph session outline." }
+    },
+    {
+      "id": "finger-point-reading",
+      "title": { "en": "Finger-point reading", "hi": "उँगली रखकर पढ़ना" },
+      "cohorts": ["word", "paragraph"],
+      "patterns": ["guessing_from_first_akshara", "sight_word"],
+      "minutes": 10,
+      "materials": { "en": ["A 4-sentence paragraph per pair of children"], "hi": ["हर दो बच्चों के लिए एक 4-वाक्य अनुच्छेद"] },
+      "steps": [
+        { "minutes": 2, "en": "Read the paragraph aloud once while children follow with a finger under each word.", "hi": "अनुच्छेद एक बार ज़ोर से पढ़ें; बच्चे हर शब्द के नीचे उँगली चलाएँ।" },
+        { "minutes": 5, "en": "In pairs, one child reads pointing at every word; the partner watches the finger and stops them if a word is skipped or guessed.", "hi": "जोड़ियों में एक बच्चा हर शब्द पर उँगली रखकर पढ़े; साथी उँगली देखे और शब्द छूटने या अनुमान लगाने पर रोके।" },
+        { "minutes": 3, "en": "Swap roles.", "hi": "भूमिका बदलें।" }
+      ],
+      "watch_for": { "en": "The finger running ahead of or behind the voice — that is where guessing happens.", "hi": "उँगली आवाज़ से आगे या पीछे चलना — वहीं अनुमान लगता है।" },
+      "source": { "ref": "aser_2024", "note": "ASER asks the child to read with a finger on the text; used here as a practice routine." }
+    },
+    {
+      "id": "paragraph-repeated-reading",
+      "title": { "en": "Echo and repeated reading", "hi": "दोहराकर पढ़ना" },
+      "cohorts": ["paragraph", "word"],
+      "patterns": ["fluency_only", "blending_scaffolding"],
+      "minutes": 10,
+      "materials": { "en": ["A 4-sentence paragraph (4–5 words per sentence) written on the board"], "hi": ["बोर्ड पर लिखा 4-वाक्य अनुच्छेद (हर वाक्य में 4–5 शब्द)"] },
+      "steps": [
+        { "minutes": 3, "en": "Read one sentence with expression; the group echoes it. Do all four sentences.", "hi": "एक वाक्य भाव के साथ पढ़ें; समूह दोहराए। चारों वाक्य ऐसे करें।" },
+        { "minutes": 4, "en": "The group reads the whole paragraph together twice, a little faster the second time.", "hi": "समूह पूरा अनुच्छेद साथ में दो बार पढ़े, दूसरी बार थोड़ा तेज़।" },
+        { "minutes": 3, "en": "Two or three children read it alone; praise smooth reading, not just correct words.", "hi": "दो-तीन बच्चे अकेले पढ़ें; सिर्फ़ सही शब्दों की नहीं, धारा-प्रवाह पढ़ने की भी तारीफ़ करें।" }
+      ],
+      "watch_for": { "en": "Long pauses before the same words each time — add them to tomorrow's word practice.", "hi": "हर बार उन्हीं शब्दों से पहले लंबा रुकना — उन्हें कल के शब्द अभ्यास में जोड़ें।" },
+      "source": { "ref": "tarl_tlm", "note": "Paragraph reading with TaRL paragraphs of 4 sentences × 4–5 words." }
+    },
+    {
+      "id": "story-mind-map",
+      "title": { "en": "Story mind map", "hi": "कहानी का माइंड मैप" },
+      "cohorts": ["paragraph"],
+      "patterns": ["fluency_only"],
+      "minutes": 10,
+      "materials": { "en": ["A short story (60–80 words) with 2–3 questions", "Board"], "hi": ["एक छोटी कहानी (60–80 शब्द) और 2–3 सवाल", "बोर्ड"] },
+      "steps": [
+        { "minutes": 4, "en": "Children read the story in pairs, taking turns sentence by sentence.", "hi": "बच्चे जोड़ियों में कहानी पढ़ें, बारी-बारी से एक-एक वाक्य।" },
+        { "minutes": 4, "en": "Draw the main character in the middle of the board; children add who, where, what happened, how it ended.", "hi": "बोर्ड के बीच में मुख्य पात्र बनाएँ; बच्चे जोड़ें — कौन, कहाँ, क्या हुआ, अंत कैसे हुआ।" },
+        { "minutes": 2, "en": "Ask the story's 2–3 questions; children answer by finding the sentence in the text.", "hi": "कहानी के 2–3 सवाल पूछें; बच्चे पाठ में वाक्य ढूँढकर जवाब दें।" }
+      ],
+      "watch_for": { "en": "Children who read fluently but cannot say what happened — they need slower, meaning-focused reading.", "hi": "जो बच्चे धाराप्रवाह पढ़ते हैं पर बता नहीं पाते क्या हुआ — उन्हें धीरे, अर्थ पर ध्यान देकर पढ़ना है।" },
+      "source": { "ref": "tarl_sessions", "note": "Mind maps for comprehension in the Story and Word + Paragraph session outlines; stories of 60–80 words with 2–3 questions from the TLM note." }
+    },
+    {
+      "id": "four-word-story-making",
+      "title": { "en": "Make a story from four words", "hi": "चार शब्दों से कहानी बनाओ" },
+      "cohorts": ["paragraph"],
+      "patterns": ["fluency_only", "sight_word"],
+      "minutes": 10,
+      "materials": { "en": ["Board", "Slates"], "hi": ["बोर्ड", "स्लेट"] },
+      "steps": [
+        { "minutes": 2, "en": "Write four words on the board (बारिश, नाव, बच्चे, पानी). Read them together.", "hi": "बोर्ड पर चार शब्द लिखें (बारिश, नाव, बच्चे, पानी)। साथ पढ़ें।" },
+        { "minutes": 5, "en": "In pairs, children make up and write a 3–4 sentence story using all four words.", "hi": "जोड़ियों में बच्चे चारों शब्दों से 3–4 वाक्य की कहानी बनाकर लिखें।" },
+        { "minutes": 3, "en": "Two pairs read their story aloud; the group checks all four words were used.", "hi": "दो जोड़ियाँ अपनी कहानी पढ़कर सुनाएँ; समूह देखे कि चारों शब्द आए या नहीं।" }
+      ],
+      "watch_for": { "en": "Spelling of the words they copy — it shows which matras are still shaky.", "hi": "नकल किए शब्दों की वर्तनी — इससे पता चलता है कौन-सी मात्राएँ अभी कच्ची हैं।" },
+      "source": { "ref": "tarl_sessions", "note": "Story-making in the Word + Paragraph session outline." }
+    },
+    {
+      "id": "dictation-target-words",
+      "title": { "en": "Dictation of tricky words", "hi": "कठिन शब्दों का श्रुतलेख" },
+      "cohorts": ["word", "paragraph"],
+      "patterns": ["matra_vowel_sign", "conjunct"],
+      "minutes": 10,
+      "materials": { "en": ["Slates or notebooks", "6 words the group misread"], "hi": ["स्लेट या कॉपी", "समूह के गलत पढ़े 6 शब्द"] },
+      "steps": [
+        { "minutes": 5, "en": "Say each word clearly twice; children write it.", "hi": "हर शब्द साफ़-साफ़ दो बार बोलें; बच्चे लिखें।" },
+        { "minutes": 3, "en": "Write the correct words on the board; children check their own and circle mistakes.", "hi": "बोर्ड पर सही शब्द लिखें; बच्चे अपना लिखा मिलाएँ और गलती पर गोला बनाएँ।" },
+        { "minutes": 2, "en": "Each child reads their corrected words to a partner.", "hi": "हर बच्चा सुधारे हुए शब्द साथी को पढ़कर सुनाए।" }
+      ],
+      "watch_for": { "en": "Errors that repeat in writing and reading point to the same matra or conjunct.", "hi": "लिखने और पढ़ने दोनों में दोहराई गलती एक ही मात्रा या संयुक्त अक्षर की ओर इशारा करती है।" },
+      "source": { "ref": "tarl_sessions", "note": "Copying / dictation in the Word + Paragraph session outline." }
+    },
+    {
+      "id": "levelled-storybook-reading",
+      "title": { "en": "Levelled storybook reading", "hi": "स्तर के अनुसार कहानी की किताब पढ़ना" },
+      "cohorts": ["paragraph"],
+      "patterns": ["fluency_only"],
+      "minutes": 10,
+      "materials": { "en": ["A Level 1–2 StoryWeaver book in the class language (printed or on the phone)"], "hi": ["कक्षा की भाषा में StoryWeaver की स्तर 1–2 की किताब (छपी हुई या फ़ोन पर)"] },
+      "steps": [
+        { "minutes": 2, "en": "Look at the cover and pictures; children guess what the story is about.", "hi": "कवर और चित्र देखें; बच्चे अनुमान लगाएँ कहानी किस बारे में है।" },
+        { "minutes": 6, "en": "Children read a page each, in turn, pointing at the words; help only after a 3-second pause.", "hi": "बच्चे बारी-बारी से एक-एक पन्ना शब्दों पर उँगली रखकर पढ़ें; 3 सेकंड रुकने के बाद ही मदद करें।" },
+        { "minutes": 2, "en": "Ask: what was your favourite part? Was their guess right?", "hi": "पूछें: सबसे अच्छा हिस्सा कौन-सा लगा? क्या अनुमान सही निकला?" }
+      ],
+      "watch_for": { "en": "Pages where most children stop — the book may be one level too hard.", "hi": "जिन पन्नों पर ज़्यादातर बच्चे रुकते हैं — किताब शायद एक स्तर कठिन है।" },
+      "source": { "ref": "storyweaver", "note": "Free levelled storybooks; TaRL lists StoryWeaver among open reading resources." }
+    }
+  ]
+}

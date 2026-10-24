@@ -1,20 +1,36 @@
 import Dexie, { type Table } from 'dexie'
+import type { ItemLevel, Level } from './lib/types'
 
-/** A check-in started on the phone. Lives here until the server has accepted it. */
+/** One item of a check-in run offline: the teacher's tap-marks, plus the recording if one was made. */
+export interface OfflineItem {
+  itemId: string
+  level: ItemLevel
+  marks: boolean[]
+  durationMs: number | null
+  clipId?: number
+  audioUploaded?: boolean
+}
+
+/** A check-in started on the phone without network. Lives here until the server has it (and its audio). */
 export interface QueuedCheckin {
   localId: string
   studentId: string
+  classId: string
+  studentName: string
+  avatar: string
   language: string
+  startLevel: ItemLevel
   startedAt: number
-  itemIds: string[]
-  /** Teacher tap-to-mark results captured offline, per item: true = read correctly. */
-  offlineMarks?: Record<string, boolean[]>
-  status: 'recording' | 'queued' | 'uploading' | 'uploaded' | 'failed'
+  items: OfflineItem[]
+  status: 'in_progress' | 'queued' | 'failed' | 'synced'
+  provisionalLevel?: Level | null
+  teacherLevel?: Level | null
   serverId?: string
   error?: string
+  attempts?: number
 }
 
-/** One recorded clip (one item) belonging to a queued check-in. */
+/** One recorded clip. Deleted as soon as the server has scored it (children's audio is not kept). */
 export interface QueuedClip {
   id?: number
   checkinLocalId: string
@@ -25,7 +41,7 @@ export interface QueuedClip {
   recordedAt: number
 }
 
-/** Last-known server documents (roster, dashboard) so the app opens offline. */
+/** Last-known server documents (roster, dashboard, child pages) so the app opens offline. */
 export interface CachedDoc {
   key: string
   value: unknown

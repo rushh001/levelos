@@ -1,0 +1,67 @@
+{
+  "language": "hi",
+  "version": "0.1.0",
+  "status": "draft: awaiting educator review",
+  "spec": "ASER 2024 reading tool. Letters: commonly used letters, 5 per card. Words: familiar words of 2 letters + 1-2 matras, no conjuncts, 5 per card. Paragraph (Std I level): 4 linked sentences of at most 6 words. Story (Std II level): 7-10 linked sentences, few conjuncts. Original text written for LevelOS, not copied from ASER Centre tools.",
+  "instructions": {
+    "letter": { "hi": "इन अक्षरों को एक-एक करके पढ़ो।", "en": "Read these letters one by one." },
+    "word": { "hi": "इन शब्दों को एक-एक करके पढ़ो।", "en": "Read these words one by one." },
+    "paragraph": { "hi": "इसे ज़ोर से पढ़ो। उँगली रखकर पढ़ सकते हो।", "en": "Read this aloud. You can keep your finger on the words." },
+    "story": { "hi": "यह कहानी ज़ोर से पढ़ो।", "en": "Read this story aloud." }
+  },
+  "items": [
+    { "id": "hi-letter-a", "level": "letter", "units": ["क", "म", "स", "र", "ल"] },
+    { "id": "hi-letter-b", "level": "letter", "units": ["न", "प", "ग", "त", "ब"] },
+    { "id": "hi-letter-c", "level": "letter", "units": ["ह", "ज", "द", "च", "व"] },
+
+    { "id": "hi-word-a", "level": "word", "units": ["गाय", "पानी", "मोर", "केला", "दिन"] },
+    { "id": "hi-word-b", "level": "word", "units": ["रोटी", "नाव", "सीटी", "धूप", "मेला"] },
+    { "id": "hi-word-c", "level": "word", "units": ["तोता", "कान", "जूता", "बेर", "नीला"] },
+
+    {
+      "id": "hi-para-a",
+      "level": "paragraph",
+      "title": "रीना की गाय",
+      "sentences": ["मेरा नाम रीना है।", "मेरे पास एक गाय है।", "गाय का रंग सफेद है।", "वह रोज घास खाती है।"]
+    },
+    {
+      "id": "hi-para-b",
+      "level": "paragraph",
+      "title": "कागज की नाव",
+      "sentences": ["आज बहुत बारिश हुई।", "सड़क पर पानी भर गया।", "मोहन ने कागज की नाव बनाई।", "नाव पानी में तैरने लगी।"]
+    },
+
+    {
+      "id": "hi-story-a",
+      "level": "story",
+      "title": "मेले में मोनू",
+      "sentences": [
+        "सोनू का एक छोटा भाई है।",
+        "उसका नाम मोनू है।",
+        "एक दिन दोनों मेला देखने गए।",
+        "मेले में बहुत भीड़ थी।",
+        "मोनू ने गुब्बारे वाले को देखा।",
+        "वह गुब्बारा लेने दौड़ा और खो गया।",
+        "सोनू बहुत डर गया।",
+        "उसने मोनू को हर जगह ढूँढा।",
+        "मोनू गुब्बारे वाले के पास खड़ा था।",
+        "सोनू ने उसे गले से लगा लिया।"
+      ]
+    },
+    {
+      "id": "hi-story-b",
+      "level": "story",
+      "title": "रानी और बंदर",
+      "sentences": [
+        "रानी के घर के पास एक बगीचा है।",
+        "बगीचे में आम का एक बड़ा पेड़ है।",
+        "गर्मी में पेड़ पर बहुत आम लगते हैं।",
+        "एक दिन रानी अपनी सहेली के साथ बगीचे में गई।",
+        "दोनों पेड़ के नीचे बैठकर आम खाने लगीं।",
+        "तभी एक बंदर पेड़ से नीचे उतरा।",
+        "बंदर ने रानी का आम छीन लिया।",
+        "दोनों सहेलियाँ ज़ोर से हँसने लगीं।"
+      ]
+    }
+  ]
+}

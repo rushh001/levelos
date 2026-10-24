@@ -1,0 +1,65 @@
+{
+  "language": "en",
+  "version": "0.1.0",
+  "status": "draft: awaiting educator review",
+  "spec": "Same five-level ladder as the regional-language tool (letter, word, paragraph, story) so one engine and one dashboard serve every language. ASER's own English tool uses a different ladder (capital letters, small letters, words, sentences); this deviation is stated in the README. Letters: lowercase, 5 per card, letter name or sound both accepted. Words: familiar 3-letter CVC words, 5 per card. Paragraph: 4 linked sentences of at most 6 words. Story: 7-10 linked sentences. Original text written for LevelOS.",
+  "instructions": {
+    "letter": { "hi": "इन अंग्रेज़ी अक्षरों को एक-एक करके पढ़ो।", "en": "Read these letters one by one." },
+    "word": { "hi": "इन अंग्रेज़ी शब्दों को एक-एक करके पढ़ो।", "en": "Read these words one by one." },
+    "paragraph": { "hi": "इसे ज़ोर से पढ़ो।", "en": "Read this aloud. You can keep your finger on the words." },
+    "story": { "hi": "यह कहानी ज़ोर से पढ़ो।", "en": "Read this story aloud." }
+  },
+  "items": [
+    { "id": "en-letter-a", "level": "letter", "units": ["s", "m", "t", "a", "p"] },
+    { "id": "en-letter-b", "level": "letter", "units": ["d", "b", "n", "e", "g"] },
+    { "id": "en-letter-c", "level": "letter", "units": ["h", "r", "l", "o", "c"] },
+
+    { "id": "en-word-a", "level": "word", "units": ["cat", "sun", "pen", "bus", "hat"] },
+    { "id": "en-word-b", "level": "word", "units": ["dog", "cup", "red", "bag", "sit"] },
+    { "id": "en-word-c", "level": "word", "units": ["pot", "net", "fan", "big", "mud"] },
+
+    {
+      "id": "en-para-a",
+      "level": "paragraph",
+      "title": "My red ball",
+      "sentences": ["I have a red ball.", "I play with it every day.", "My dog likes my ball.", "He runs after it."]
+    },
+    {
+      "id": "en-para-b",
+      "level": "paragraph",
+      "title": "A hot day",
+      "sentences": ["It is a hot day.", "Ravi drinks cold water.", "He sits under a tree.", "A bird sings on the tree."]
+    },
+
+    {
+      "id": "en-story-a",
+      "level": "story",
+      "title": "Meena's garden",
+      "sentences": [
+        "Meena has a little garden.",
+        "She grows red tomatoes and green beans.",
+        "Every morning she waters the plants.",
+        "One day she saw a small rabbit.",
+        "The rabbit was eating her beans.",
+        "Meena did not shout at the rabbit.",
+        "She gave it a carrot instead.",
+        "Now the rabbit comes to visit every day."
+      ]
+    },
+    {
+      "id": "en-story-b",
+      "level": "story",
+      "title": "Arjun's kite",
+      "sentences": [
+        "Arjun wanted to fly a kite.",
+        "His sister helped him make one.",
+        "They used paper, sticks and string.",
+        "The wind was strong on the roof.",
+        "The kite went up high in the sky.",
+        "Suddenly the string broke.",
+        "The kite flew away over the trees.",
+        "Arjun laughed and said, \"We will make another one.\""
+      ]
+    }
+  ]
+}

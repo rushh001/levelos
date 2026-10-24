@@ -39,8 +39,13 @@ class Thresholds:
     discrete_pass_fraction: float = 0.8
     # Paragraph and story: maximum mistakes (substitutions + omissions). ASER: 3.
     passage_max_errors: int = 3
-    # Pauses longer than this between words count as hesitations (EGRA uses 3 s).
+    # Pauses longer than this between words count as hesitations (EGRA uses 3 s). Used when we cannot tell where
+    # in the text a pause fell (silence detected in the audio only).
     hesitation_ms: int = 3000
+    # When word timings place each pause, only pauses INSIDE a sentence count: ASER's criterion is reading "as
+    # sentences", and a long mid-sentence pause is word-by-word reading, while a pause between sentences is not.
+    # Calibrated on a real recording: three deliberate mid-sentence pauses measured 3.3 s, 2.9 s and 3.4 s.
+    mid_sentence_pause_ms: int = 2500
     # More hesitations than this = "halting" reading.
     passage_max_hesitations: int = 2
     # Below this WCPM we treat the reading as a string of words rather than sentences. Very low on purpose:

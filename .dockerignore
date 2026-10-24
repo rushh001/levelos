@@ -1,0 +1,14 @@
+# The API image only needs api/requirements.txt, api/app, api/scripts and content/ (see api/Dockerfile).
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.cache
+**/*.db
+**/.env
+**/.env.*
+web/
+eval/
+recordings/
+docs/
+.git/

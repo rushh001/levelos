@@ -1,64 +1,58 @@
-import { useEffect, useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { useEffect, type ReactNode } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Page, Spinner } from './components/ui'
+import { AuthProvider, useAuth } from './lib/auth'
+import { syncAll } from './lib/offline'
+import ActivityPage from './pages/ActivityPage'
+import Checkin from './pages/Checkin'
+import ClassDashboard from './pages/ClassDashboard'
+import Classes from './pages/Classes'
+import Login from './pages/Login'
+import OfflineCheckin from './pages/OfflineCheckin'
+import Result from './pages/Result'
+import Student from './pages/Student'
 
-function useOnline() {
-  const [online, setOnline] = useState(navigator.onLine)
-  useEffect(() => {
-    const up = () => setOnline(true)
-    const down = () => setOnline(false)
-    window.addEventListener('online', up)
-    window.addEventListener('offline', down)
-    return () => {
-      window.removeEventListener('online', up)
-      window.removeEventListener('offline', down)
-    }
-  }, [])
-  return online
+function RequireTeacher({ children }: { children: ReactNode }) {
+  const { teacher, ready } = useAuth()
+  const { t } = useTranslation()
+  if (!teacher && !ready) return <Page><Spinner label={t('loading')} /></Page>
+  if (!teacher) return <Navigate to="/login" replace />
+  return <>{children}</>
 }
 
-function Shell() {
-  const { t, i18n } = useTranslation()
-  const online = useOnline()
-
-  const toggleLang = () => {
-    const next = i18n.language === 'hi' ? 'en' : 'hi'
-    i18n.changeLanguage(next)
-    try {
-      localStorage.setItem('levelos.uiLang', next)
-    } catch {
-      /* storage unavailable (private mode) — language still switches for this session */
+/** Sends check-ins made offline whenever the network is back (and on start, and every minute). */
+function SyncRunner() {
+  const { teacher } = useAuth()
+  useEffect(() => {
+    if (!teacher) return
+    const run = () => void syncAll()
+    run()
+    window.addEventListener('online', run)
+    const timer = window.setInterval(run, 60_000)
+    return () => {
+      window.removeEventListener('online', run)
+      window.clearInterval(timer)
     }
-  }
-
-  return (
-    <div className="mx-auto flex min-h-full max-w-md flex-col px-4 py-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-blue-700">{t('appName')}</h1>
-        <div className="flex items-center gap-2">
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-              online ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-            }`}
-          >
-            {online ? t('online') : t('offline')}
-          </span>
-          <button onClick={toggleLang} className="rounded-md border px-2 py-0.5 text-xs">
-            {i18n.language === 'hi' ? 'EN' : 'हि'}
-          </button>
-        </div>
-      </header>
-      <main className="mt-8 flex-1">
-        <p className="text-slate-600">{t('tagline')}</p>
-      </main>
-    </div>
-  )
+  }, [teacher])
+  return null
 }
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="*" element={<Shell />} />
-    </Routes>
+    <AuthProvider>
+      <SyncRunner />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<RequireTeacher><Classes /></RequireTeacher>} />
+        <Route path="/class/:id" element={<RequireTeacher><ClassDashboard /></RequireTeacher>} />
+        <Route path="/class/:id/activity/:cohort" element={<RequireTeacher><ActivityPage /></RequireTeacher>} />
+        <Route path="/student/:id" element={<RequireTeacher><Student /></RequireTeacher>} />
+        <Route path="/checkin/:id" element={<RequireTeacher><Checkin /></RequireTeacher>} />
+        <Route path="/offline/:localId" element={<RequireTeacher><OfflineCheckin /></RequireTeacher>} />
+        <Route path="/result/:id" element={<RequireTeacher><Result /></RequireTeacher>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
   )
 }

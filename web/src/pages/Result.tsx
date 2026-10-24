@@ -1,0 +1,193 @@
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useParams } from 'react-router-dom'
+import { Api } from '../api'
+import { ReviewPanel } from '../components/ReviewPanel'
+import { WordChips, WordLegend, wordCorrect } from '../components/WordChips'
+import { ErrorBox, LevelBadge, Page, Spinner } from '../components/ui'
+import type { Checkin, Level, Word } from '../lib/types'
+import { useAsync } from '../lib/useAsync'
+
+const LEVELS: Level[] = ['beginner', 'letter', 'word', 'paragraph', 'story']
+
+export default function Result() {
+  const { id = '' } = useParams()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language === 'hi' ? 'hi' : 'en'
+  const { data: checkin, setData: setCheckin, error, reload } = useAsync(() => Api.checkin(id), [id])
+  const { data: student, reload: reloadStudent } = useAsync(
+    () => (checkin ? Api.student(checkin.student_id) : Promise.resolve(null)),
+    [checkin?.student_id],
+  )
+  const { data: health } = useAsync(() => Api.health().catch(() => null))
+  const [saving, setSaving] = useState(false)
+  const [actionError, setActionError] = useState<Error | null>(null)
+
+  // The quick (rule-based) analysis is replaced by Claude's a few seconds later: poll briefly for it.
+  const waitingForAi = !!health?.claude && checkin?.diagnosis?.model === 'rules'
+  useEffect(() => {
+    if (!waitingForAi) return
+    let tries = 0
+    const timer = window.setInterval(async () => {
+      tries += 1
+      const fresh = await Api.checkin(id).catch(() => null)
+      if (fresh) setCheckin(fresh)
+      if (tries >= 10 || (fresh && fresh.diagnosis?.model !== 'rules')) window.clearInterval(timer)
+    }, 4000)
+    return () => window.clearInterval(timer)
+  }, [waitingForAi, id, setCheckin])
+
+  const act = async (fn: () => Promise<Checkin>) => {
+    setSaving(true)
+    setActionError(null)
+    try {
+      setCheckin(await fn())
+      await reloadStudent()
+    } catch (e) {
+      setActionError(e as Error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (!checkin) {
+    return <Page back>{error ? <ErrorBox error={error} onRetry={reload} /> : <Spinner label={t('loading')} />}</Page>
+  }
+
+  const tapWord = (itemResultId: string, w: Word) =>
+    void act(() => Api.review(checkin.id, [{ item_result_id: itemResultId, i: w.i, correct: !wordCorrect(w) }]))
+
+  const d = checkin.diagnosis
+  const confirmedNow = student && checkin.level_final && student.confirmed_level === checkin.level_final
+
+  return (
+    <Page title={student ? `${student.avatar} ${student.first_name}` : undefined} back={`/student/${checkin.student_id}`}>
+      <ErrorBox error={actionError} />
+
+      <section className="rounded-2xl bg-white p-4 shadow-sm">
+        <div className="text-sm text-slate-600">{t('result.level')}</div>
+        {checkin.status === 'needs_review' ? (
+          <div className="mt-1 text-lg font-semibold text-amber-800">{t('result.needsReview')}</div>
+        ) : (
+          <div className="mt-1 flex items-center gap-2">
+            <LevelBadge level={checkin.level_final} large />
+            {checkin.teacher_overrode && <span className="text-xs text-slate-500">({t('result.overrode')})</span>}
+          </div>
+        )}
+        {checkin.status === 'scored' && student && (
+          <p className="mt-2 text-sm text-slate-600">{confirmedNow ? t('result.confirmedNote') : t('result.provisionalNote')}</p>
+        )}
+        <label className="mt-3 flex items-center justify-between gap-2 text-sm">
+          <span className="text-slate-600">{t('result.changeLevel')}</span>
+          <select
+            disabled={saving}
+            value={checkin.teacher_overrode ? checkin.level_final ?? '' : ''}
+            onChange={(e) => void act(() => Api.override(checkin.id, (e.target.value || null) as Level | null))}
+            className="rounded-lg border bg-white px-2 py-1.5"
+          >
+            <option value="">{t('result.clearOverride')}</option>
+            {LEVELS.map((l) => (
+              <option key={l} value={l}>
+                {t(`level.${l}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
+
+      {checkin.status === 'needs_review' && (
+        <div className="mt-4">
+          <ReviewPanel
+            items={checkin.items.filter((r) => r.needs_review)}
+            busy={saving}
+            onDone={(marks) => void act(() => Api.review(checkin.id, marks))}
+          />
+        </div>
+      )}
+
+      {d && (
+        <section className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold">{t('result.diagnosis')}</h2>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+              {d.model === 'rules' ? t('result.quick') : t('result.ai')}
+            </span>
+          </div>
+          {d.error_patterns.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {d.error_patterns.map((p) => (
+                <span key={p} className="rounded-full bg-violet-100 px-2 py-0.5 text-sm text-violet-900">
+                  {t(`pattern.${p}`)}
+                </span>
+              ))}
+            </div>
+          )}
+          <p className="mt-2 text-slate-800">{d.summary[lang] ?? d.summary.en}</p>
+          {d.evidence.some((e) => e.words.length) && (
+            <ul className="mt-2 space-y-1 text-sm text-slate-600">
+              {d.evidence
+                .filter((e) => e.words.length)
+                .map((e, k) => (
+                  <li key={k}>
+                    <span className="font-medium">{t(`pattern.${e.pattern}`)}:</span>{' '}
+                    {e.words.map((w) => `${w.ref} → ${w.heard ?? '—'}`).join(', ')}
+                    {(lang === 'hi' ? e.note_hi : e.note_en) && <span> — {lang === 'hi' ? e.note_hi : e.note_en}</span>}
+                  </li>
+                ))}
+            </ul>
+          )}
+          {waitingForAi && <p className="mt-2 text-xs text-slate-500">{t('result.updating')}</p>}
+        </section>
+      )}
+
+      <section className="mt-4">
+        <h2 className="font-semibold">{t('result.items')}</h2>
+        <p className="text-xs text-slate-500">{t('result.tapWord')}</p>
+        <div className="mt-2">
+          <WordLegend />
+        </div>
+        <div className="mt-3 space-y-3">
+          {checkin.items.map((r) => {
+            const s = r.result
+            return (
+              <div key={r.id} className="rounded-2xl bg-white p-3 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">
+                    {t(`itemLevel.${r.item_level}`)} {r.passed ? '✓' : '✗'}
+                  </span>
+                  <span className="text-sm text-slate-600">
+                    {s.counts.correct}/{s.counts.total}
+                  </span>
+                </div>
+                <div className="mt-2">
+                  <WordChips
+                    words={s.words}
+                    onTap={saving ? undefined : (w) => tapWord(r.id, w)}
+                    markedByHand={r.source === 'offline_marks' && !s.ai_scored}
+                  />
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-slate-500">
+                  {r.source === 'offline_marks' && (
+                    <span>{s.ai_scored ? t('result.markedAndChecked') : t('result.markedByTeacher')}</span>
+                  )}
+                  {(r.item_level === 'paragraph' || r.item_level === 'story') && s.hesitations !== null && (
+                    <span>{t('result.pauses', { count: s.hesitations })}</span>
+                  )}
+                  {s.wcpm !== null && <span>{t('result.wcpm', { wcpm: Math.round(s.wcpm) })}</span>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {student && (
+        <div className="mt-6 text-center">
+          <Link to={`/class/${student.class_id}`} className="font-semibold text-blue-700 underline">
+            {t('result.backToClass')}
+          </Link>
+        </div>
+      )}
+    </Page>
+  )
+}

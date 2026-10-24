@@ -15,19 +15,49 @@ from __future__ import annotations
 
 import unicodedata
 from dataclasses import dataclass, field
+from typing import TypeVar
 
 import regex
 from rapidfuzz.distance import Levenshtein
+
+T = TypeVar("T")
 
 _GRAPHEME = regex.compile(r"\X")
 # Devanagari danda/double danda, Latin punctuation, quotes, dashes. Keep letters, marks and digits.
 _STRIP = regex.compile(r"[^\p{L}\p{M}\p{N}'’]+")
 
+
+def _indic_chars(*name_parts: str) -> list[str]:
+    """Characters in the Indic Unicode blocks (U+0900-U+0DFF) whose names contain any of `name_parts`.
+    Built from character names so every script (Devanagari, Gujarati, Odia, Tamil, Telugu, Kannada, ...)
+    is covered by one rule instead of a hand-written range per script."""
+    return [ch for ch in map(chr, range(0x0900, 0x0E00)) if any(p in unicodedata.name(ch, "") for p in name_parts)]
+
+
+def _chandrabindu_to_anusvara() -> dict[int, str]:
+    table: dict[int, str] = {}
+    for ch in _indic_chars(" SIGN CANDRABINDU"):
+        script = unicodedata.name(ch).removesuffix(" SIGN CANDRABINDU")
+        try:
+            table[ord(ch)] = unicodedata.lookup(f"{script} SIGN ANUSVARA")
+        except KeyError:
+            pass
+    return table
+
+
 # Spelling variants that ASR engines produce for the same spoken form; not reading errors.
-_DEVANAGARI_NUKTA = "़"
-_CHANDRABINDU_TO_ANUSVARA = {"ँ": "ं"}
-# Devanagari combining vowel signs (matras) and virama; stripped only when matching single-letter items.
-_DEVANAGARI_VOWEL_SIGNS = regex.compile(r"[ा-ॏॕ-ॗॢॣ्]")
+# Nukta (ज़/ज) is dropped and chandrabindu is folded into anusvara (माँ/मां), in every Indic script.
+_SPELLING_VARIANTS: dict[int, str | None] = {ord(n): None for n in _indic_chars("SIGN NUKTA")}
+_SPELLING_VARIANTS.update(_chandrabindu_to_anusvara())
+# Vowel signs (matras), viramas, length marks and nasal/visarga signs in every Indic script. Stripped only when
+# matching single-letter items: engines write a letter said aloud as a syllable or even a word (क -> का,
+# म -> माँ, र -> राह, க -> கா), so a letter item compares the first akshara's consonant only.
+_INDIC_LETTER_MARKS = regex.compile(
+    "["
+    + "".join(regex.escape(c) for c in _indic_chars(
+        "VOWEL SIGN", "VIRAMA", "LENGTH MARK", "PRISHTHAMATRA", "SIGN ANUSVARA", "SIGN CANDRABINDU", "SIGN VISARGA"))
+    + "]"
+)
 
 # What a child (or an ASR engine) may produce when reading an English letter aloud: name or sound.
 ENGLISH_LETTER_ALIASES: dict[str, set[str]] = {
@@ -37,7 +67,7 @@ ENGLISH_LETTER_ALIASES: dict[str, set[str]] = {
     "d": {"d", "dee", "de", "duh"},
     "e": {"e", "ee", "eh"},
     "f": {"f", "ef", "eff", "fuh"},
-    "g": {"g", "gee", "jee", "guh"},
+    "g": {"g", "gee", "jee", "ghee", "guh"},
     "h": {"h", "aitch", "etch", "hhh", "huh"},
     "i": {"i", "eye", "aye", "ih"},
     "j": {"j", "jay", "jai", "juh"},
@@ -89,10 +119,9 @@ def graphemes(s: str) -> list[str]:
 
 def normalize(word: str, lang: str) -> str:
     """Collapse spelling variants that do not reflect a reading difference."""
-    w = unicodedata.normalize("NFC", word.strip())
-    w = w.replace(_DEVANAGARI_NUKTA, "")
-    for src, dst in _CHANDRABINDU_TO_ANUSVARA.items():
-        w = w.replace(src, dst)
+    # NFD first so precomposed nukta letters (ऩ, ड़) expose the nukta, then recompose.
+    w = unicodedata.normalize("NFD", word.strip()).translate(_SPELLING_VARIANTS)
+    w = unicodedata.normalize("NFC", w)
     if lang == "en" or _is_latin(w):
         w = w.lower().replace("’", "'")
     return w
@@ -103,18 +132,20 @@ def _is_latin(s: str) -> bool:
 
 
 def tokenize(text: str, lang: str) -> list[str]:
-    """Split into word tokens; punctuation is dropped, empty tokens removed. Keeps original forms (normalised NFC)."""
+    """Split into word tokens; punctuation is dropped, empty tokens removed. Tokens keep their spelling (NFC only),
+    so teachers see सड़क, not सडक; every comparison goes through `normalize`."""
     text = unicodedata.normalize("NFC", text)
     cleaned = _STRIP.sub(" ", text)
-    return [normalize(tok, lang) for tok in cleaned.split() if normalize(tok, lang)]
+    return [tok for tok in cleaned.split() if normalize(tok, lang)]
 
 
 def letter_form(word: str, lang: str) -> str:
-    """Canonical form for single-letter items: a bare consonant for Indic scripts, the letter name/sound for English."""
+    """Canonical form for single-letter items: the first akshara's bare consonant(s) for Indic scripts, the
+    letter name/sound for English."""
     w = normalize(word, lang)
-    if lang == "en":
+    if lang == "en" or not w:
         return w
-    return _DEVANAGARI_VOWEL_SIGNS.sub("", w) if w else w
+    return _INDIC_LETTER_MARKS.sub("", graphemes(w)[0])
 
 
 # ---------------------------------------------------------------- similarity
@@ -152,11 +183,16 @@ def align(
     """Needleman-Wunsch alignment preferring substitutions between similar words over omit+insert pairs.
 
     Costs: match 0; near-miss substitution (sim >= partial_threshold) 1 - 0.5*sim; dissimilar substitution 1.5;
-    omit 1; insert 1. A dissimilar substitution is still cheaper than omit+insert (2), but dearer than
-    omit + exact match + insert (2) loses to it only on a tie, so an exact match one position away always wins.
+    omit 1; insert 1. A dissimilar substitution (1.5) is cheaper than an omit+insert pair (2), so unrelated words
+    still line up one-to-one, and a near-miss is cheaper again, so similar words are paired whenever possible.
+
+    Letter cards are positional: a dissimilar substitution costs 1, so a reversal (b d read for d b) is two
+    substitutions rather than "d skipped, extra d" (ties go to the diagonal). Reversals are the error we most
+    need to see on letters.
     """
     n, m = len(ref_words), len(hyp_words)
     sims = [[similarity(r, h, lang, letter_item=letter_item) for h in hyp_words] for r in ref_words]
+    dissimilar_cost = 1.0 if letter_item else 1.5
 
     INF = float("inf")
     cost = [[INF] * (m + 1) for _ in range(n + 1)]
@@ -176,7 +212,7 @@ def align(
             elif s >= partial_threshold:
                 sub_cost = 1.0 - 0.5 * s
             else:
-                sub_cost = 1.5
+                sub_cost = dissimilar_cost
             best, arg = cost[i - 1][j - 1] + sub_cost, "diag"
             if cost[i - 1][j] + 1.0 < best:
                 best, arg = cost[i - 1][j] + 1.0, "omit"
@@ -200,7 +236,47 @@ def align(
             ops.append(Op(None, hyp_words[j - 1], "insert", 0.0))
             j -= 1
     ops.reverse()
+    if not letter_item:
+        ops = _join_split_words(ops, lang)
     return _mark_repeats_and_self_corrections(ops, lang, letter_item, partial_threshold)
+
+
+def _squash(s: str, lang: str) -> str:
+    return normalize(s, lang).replace("-", "").replace(" ", "")
+
+
+def _join_split_words(ops: list[Op], lang: str) -> list[Op]:
+    """Engines join or split compounds ("every day" -> "everyday", "बैठकर" -> "बैठ कर"): the same speech, not a
+    reading error. Two reference words heard as one token, or one heard as two, are both read correctly."""
+    out: list[Op] = []
+    k = 0
+    while k < len(ops):
+        a = ops[k]
+        b = ops[k + 1] if k + 1 < len(ops) else None
+        if b is not None:
+            if a.label in ("sub", "correct") and b.label == "omit" and a.hyp and a.ref and b.ref \
+                    and _squash(a.hyp, lang) == _squash(a.ref + b.ref, lang):
+                out += [Op(a.ref, a.hyp, "correct", 1.0), Op(b.ref, a.hyp, "correct", 1.0)]
+                k += 2
+                continue
+            if a.label == "omit" and b.label == "sub" and b.hyp and a.ref and b.ref \
+                    and _squash(b.hyp, lang) == _squash(a.ref + b.ref, lang):
+                out += [Op(a.ref, b.hyp, "correct", 1.0), Op(b.ref, b.hyp, "correct", 1.0)]
+                k += 2
+                continue
+            if a.label == "sub" and b.label == "insert" and a.hyp and b.hyp and a.ref \
+                    and _squash(a.hyp + b.hyp, lang) == _squash(a.ref, lang):
+                out.append(Op(a.ref, f"{a.hyp} {b.hyp}", "correct", 1.0))
+                k += 2
+                continue
+            if a.label == "insert" and b.label == "sub" and a.hyp and b.hyp and b.ref \
+                    and _squash(a.hyp + b.hyp, lang) == _squash(b.ref, lang):
+                out.append(Op(b.ref, f"{a.hyp} {b.hyp}", "correct", 1.0))
+                k += 2
+                continue
+        out.append(a)
+        k += 1
+    return out
 
 
 def _mark_repeats_and_self_corrections(ops: list[Op], lang: str, letter_item: bool, partial: float) -> list[Op]:
@@ -254,7 +330,13 @@ def fuse(
 ) -> list[FusedWord]:
     """Combine per-path alignments into one label per reference word.
 
-    Label = majority across paths (ties -> primary path). uncertain = any disagreement at all between paths.
+    Pass only reference-free decodes: a path that saw the expected text (Azure Pronunciation Assessment) echoes
+    it back and would always vote "correct".
+
+    Each path first votes on whether the word was read correctly (majority; ties -> primary path); the label is
+    then the majority among the paths on the winning side. uncertain = the paths disagree on read-correctly or
+    not. Disagreements that do not change the score (correct vs self_correct, sub vs omit) are kept in `labels`
+    for diagnosis but do not ask the teacher for a tap.
     Insert/repeat ops are not attached to reference words and are returned separately by `extras()`.
     """
     if not hypotheses:
@@ -271,23 +353,37 @@ def fuse(
     for idx, ref in enumerate(ref_words):
         labels = {name: per_path[name][idx].label for name in names}
         heard = {name: per_path[name][idx].hyp for name in names}
-        counts: dict[str, int] = {}
-        for lab in labels.values():
-            counts[lab] = counts.get(lab, 0) + 1
-        top = max(counts.values())
-        winners = [lab for lab, c in counts.items() if c == top]
-        label = labels[primary] if labels[primary] in winners else winners[0]
+        verdicts = {name: read_correctly(lab) for name, lab in labels.items()}
+        verdict = _vote(verdicts, primary)
+        label = _vote({name: lab for name, lab in labels.items() if verdicts[name] == verdict}, primary)
         fused.append(
             FusedWord(
                 ref=ref,
                 label=label,
-                uncertain=len(counts) > 1,
+                uncertain=len(set(verdicts.values())) > 1,
                 heard=heard,
                 labels=labels,
                 sim=per_path[primary][idx].sim,
             )
         )
     return fused
+
+
+def read_correctly(label: Label) -> bool:
+    """Self-corrections count as correct (EGRA convention)."""
+    return label in ("correct", "self_correct")
+
+
+def _vote(values: dict[str, T], primary: str) -> T:
+    """Majority value; ties go to the primary path if it is among the winners, else to the first path listed."""
+    tally: dict[T, int] = {}
+    for v in values.values():
+        tally[v] = tally.get(v, 0) + 1
+    top = max(tally.values())
+    winners = [v for v, c in tally.items() if c == top]
+    if primary in values and values[primary] in winners:
+        return values[primary]
+    return winners[0]
 
 
 def extras(ref_words: list[str], hyp_words: list[str], lang: str, *, letter_item: bool = False) -> list[Op]:

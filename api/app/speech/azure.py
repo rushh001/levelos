@@ -21,6 +21,7 @@ import time
 
 import httpx
 
+from . import http
 from .align import tokenize
 from .types import PathResult, WordTiming
 
@@ -54,15 +55,16 @@ async def _post(
     }
     t0 = time.perf_counter()
     try:
-        async with httpx.AsyncClient(timeout=timeout_s) as client:
-            r = await client.post(
-                _endpoint(region),
-                params={"language": locale, "format": "detailed", "profanity": "raw"},
-                headers=headers,
-                content=wav,
-            )
+        r = await http.post(
+            "azure",
+            _endpoint(region),
+            timeout_s=timeout_s,
+            params={"language": locale, "format": "detailed", "profanity": "raw"},
+            headers=headers,
+            content=wav,
+        )
     except httpx.HTTPError as e:
-        return None, str(e), int((time.perf_counter() - t0) * 1000)
+        return None, f"{type(e).__name__}: {e}", int((time.perf_counter() - t0) * 1000)
     latency = int((time.perf_counter() - t0) * 1000)
     if r.status_code != 200:
         return None, f"HTTP {r.status_code}: {r.text[:300]}", latency

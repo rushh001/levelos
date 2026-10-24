@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
-export default defineConfig({
+// `npm run dev:https` (mode 'https') serves a self-signed certificate: phones block the microphone on plain
+// http:// over Wi-Fi, so testing on a phone on the LAN needs it.
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    mode === 'https' && basicSsl(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
@@ -35,6 +39,8 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    // Item banks are imported from ../content so the app can run a check-in offline.
+    fs: { allow: ['..'] },
     proxy: { '/api': { target: 'http://localhost:8000', changeOrigin: true } },
   },
-})
+}))

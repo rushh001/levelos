@@ -10,9 +10,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
 
-# ASER reading levels, lowest to highest.
-LEVELS = ["beginner", "letter", "word", "paragraph", "story"]
-
 
 def new_id() -> str:
     return uuid.uuid4().hex
@@ -32,7 +29,7 @@ class Teacher(Base):
     ui_lang: Mapped[str] = mapped_column(String(8), default="hi")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
-    classrooms: Mapped[list[Classroom]] = relationship(back_populates="teacher")
+    classrooms: Mapped[list[Classroom]] = relationship(back_populates="teacher", order_by="Classroom.name")
 
 
 class Classroom(Base):
@@ -56,13 +53,13 @@ class Student(Base):
     first_name: Mapped[str] = mapped_column(String(80))  # pseudonymous: first name + avatar only
     avatar: Mapped[str] = mapped_column(String(32), default="🙂")
     grade: Mapped[int] = mapped_column(Integer, default=2)
-    home_lang: Mapped[str] = mapped_column(String(8), default="hi")
+    home_lang: Mapped[str | None] = mapped_column(String(8), nullable=True)  # None = the class language
     provisional_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
     confirmed_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
-    cohort_override: Mapped[str | None] = mapped_column(String(16), nullable=True)  # teacher drag between groups
+    cohort_override: Mapped[str | None] = mapped_column(String(16), nullable=True)  # teacher moved the child
 
     classroom: Mapped[Classroom] = relationship(back_populates="students")
-    checkins: Mapped[list[Checkin]] = relationship(back_populates="student", order_by="Checkin.started_at.desc()")
+    checkins: Mapped[list[Checkin]] = relationship(back_populates="student", order_by="Checkin.started_at")
 
 
 class Checkin(Base):
@@ -70,15 +67,16 @@ class Checkin(Base):
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     student_id: Mapped[str] = mapped_column(ForeignKey("students.id"), index=True)
-    local_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)  # idempotency key from the PWA queue
+    local_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)  # idempotency key (PWA queue)
     language: Mapped[str] = mapped_column(String(8))
+    start_level: Mapped[str] = mapped_column(String(16))  # where the adaptive ladder began
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     scored_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    # queued | scoring | scored | needs_review | failed
-    status: Mapped[str] = mapped_column(String(16), default="queued", index=True)
-    source: Mapped[str] = mapped_column(String(16), default="ai")  # ai | offline_marks | teacher
-    level_suggested: Mapped[str | None] = mapped_column(String(16), nullable=True)
-    level_final: Mapped[str | None] = mapped_column(String(16), nullable=True)  # after teacher override, if any
+    # in_progress | needs_review (uncertain words could change the result) | scored | abandoned
+    status: Mapped[str] = mapped_column(String(16), default="in_progress", index=True)
+    source: Mapped[str] = mapped_column(String(16), default="ai")  # ai | offline_marks
+    level_suggested: Mapped[str | None] = mapped_column(String(16), nullable=True)  # ASER rules on the items
+    level_final: Mapped[str | None] = mapped_column(String(16), nullable=True)  # what counts (teacher override wins)
     teacher_overrode: Mapped[bool] = mapped_column(Boolean, default=False)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
@@ -95,15 +93,14 @@ class ItemResult(Base):
     position: Mapped[int] = mapped_column(Integer)
     item_id: Mapped[str] = mapped_column(String(64))
     item_level: Mapped[str] = mapped_column(String(16))  # letter | word | paragraph | story
+    source: Mapped[str] = mapped_column(String(16), default="ai")  # ai | offline_marks
     duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    path_outputs: Mapped[dict] = mapped_column(JSON, default=dict)  # {"sarvam": {...}, "azure": {...}, "gemini": {...}}
-    words: Mapped[list] = mapped_column(JSON, default=list)  # [{ref, heard, label, uncertain, teacher_label?, start_ms?, end_ms?}]
-    offline_marks: Mapped[list | None] = mapped_column(JSON, nullable=True)  # teacher tap-to-mark booleans, if recorded offline
-    errors: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    hesitations: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    wcpm: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # The full ItemScore (app.speech.scorer): per-word labels from every path, counts, pauses, WCPM, path outputs.
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
     passed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    audio_kept_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    needs_review: Mapped[bool] = mapped_column(Boolean, default=False)
+    offline_marks: Mapped[list | None] = mapped_column(JSON, nullable=True)  # teacher tap-to-mark, if any
+    audio_kept_path: Mapped[str | None] = mapped_column(String(255), nullable=True)  # consented eval set only
 
     checkin: Mapped[Checkin] = relationship(back_populates="items")
 
@@ -117,7 +114,7 @@ class Diagnosis(Base):
     evidence: Mapped[list] = mapped_column(JSON, default=list)
     summary: Mapped[dict] = mapped_column(JSON, default=dict)  # {"hi": "...", "en": "..."}
     confidence: Mapped[str] = mapped_column(String(8), default="low")  # low | medium | high
-    model: Mapped[str] = mapped_column(String(64))
+    model: Mapped[str] = mapped_column(String(64))  # claude model id, or "rules" for the offline fallback
     prompt_version: Mapped[str] = mapped_column(String(16))
     raw: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
@@ -135,6 +132,24 @@ class LevelHistory(Base):
     provisional: Mapped[str | None] = mapped_column(String(16), nullable=True)
     confirmed: Mapped[str | None] = mapped_column(String(16), nullable=True)
     source: Mapped[str] = mapped_column(String(16))  # ai | offline_marks | teacher
+
+
+class LlmUsage(Base):
+    """One Claude call: tokens and cost, for the spend caps (app/llm/budget.py) and for reporting."""
+
+    __tablename__ = "llm_usage"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    purpose: Mapped[str] = mapped_column(String(24))  # diagnosis | activity | activity_review
+    model: Mapped[str] = mapped_column(String(64))
+    ref_id: Mapped[str | None] = mapped_column(String(32), nullable=True)  # check-in or activity id
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cache_read_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cache_write_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    stop_reason: Mapped[str | None] = mapped_column(String(24), nullable=True)
 
 
 class GeneratedActivity(Base):

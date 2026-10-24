@@ -1,0 +1,29 @@
+{
+  "_comment": "What was actually said in the real recordings (eval/clips/), confirmed by the reader listening back on 24 Oct 2026. Overrides the `said` and `expect` of eval/scripted.json for this folder only; clips not listed here were read as scripted.",
+  "clips": {
+    "hi-para-a__clean": {
+      "item": "hi-para-a",
+      "said": "मेरा नाम रानी है। मेरे पास एक गाय है। गाय का रंग सफेद है। वह रोज घास खाती है।",
+      "notes": "meant to be clean; the reader said रानी for रीना without noticing",
+      "expect": { "errors": 1, "passed": true }
+    },
+    "hi-para-a__mistakes": {
+      "item": "hi-para-a",
+      "said": "मोरा नाम रानी है। मेरे पास गाय है। गाय का रंग सफाद है। वह रोज घास खाता है।",
+      "notes": "मेरा→मोरा, रीना→रानी, एक skipped, सफेद→सफाद (no self-correction), खाती→खाता: 5 errors",
+      "expect": { "errors": 5, "self_corrections": 0, "passed": false }
+    },
+    "en-para-a__mistakes": {
+      "item": "en-para-a",
+      "said": "I have a red bell. I play with it day. My dog licks my ball. He runs after it.",
+      "notes": "ball→bell, every skipped, likes→licks (no self-correction): 3 errors",
+      "expect": { "errors": 3, "self_corrections": 0, "passed": true }
+    },
+    "hi-letter-a__mistakes": {
+      "item": "hi-letter-a",
+      "said": "क म स र ल",
+      "notes": "read स as printed (the script asked for श): no error",
+      "expect": { "correct": 5, "passed": true }
+    }
+  }
+}

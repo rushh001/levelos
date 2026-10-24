@@ -13,6 +13,7 @@ import time
 
 import httpx
 
+from . import http
 from .align import tokenize
 from .types import PathResult
 
@@ -34,7 +35,7 @@ async def transcribe(
     api_key: str,
     language_name: str,
     lang: str,
-    model: str = "gemini-2.5-flash",
+    model: str = "gemini-3.5-flash",
     timeout_s: float = 45.0,
 ) -> PathResult:
     t0 = time.perf_counter()
@@ -48,17 +49,19 @@ async def transcribe(
                 ],
             }
         ],
-        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 512},
+        # Thinking models count reasoning tokens against maxOutputTokens; leave room so the transcript is not starved.
+        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 4096},
     }
     try:
-        async with httpx.AsyncClient(timeout=timeout_s) as client:
-            r = await client.post(ENDPOINT.format(model=model), params={"key": api_key}, json=payload)
+        r = await http.post(
+            "gemini", ENDPOINT.format(model=model), timeout_s=timeout_s, params={"key": api_key}, json=payload
+        )
         latency = int((time.perf_counter() - t0) * 1000)
         if r.status_code != 200:
             return PathResult("gemini", "", [], latency_ms=latency, error=f"HTTP {r.status_code}: {r.text[:300]}")
         body = r.json()
     except httpx.HTTPError as e:
-        return PathResult("gemini", "", [], latency_ms=int((time.perf_counter() - t0) * 1000), error=str(e))
+        return PathResult("gemini", "", [], latency_ms=int((time.perf_counter() - t0) * 1000), error=f"{type(e).__name__}: {e}")
 
     try:
         parts = body["candidates"][0]["content"]["parts"]

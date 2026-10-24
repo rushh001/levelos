@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-language data pack config. tier 1 = validated (eval set + teacher testing); tier 2 = supported, labelled beta. Vendor locale codes marked VERIFY are to be confirmed in the Day-1 spike.",
+  "_comment": "Per-language data pack config. tier 1 = validated (eval set + teacher testing); tier 2 = supported, labelled beta. `primary` breaks ties between speech paths and `sarvam_mode` picks Sarvam's output mode (default verbatim; English needs codemix, since verbatim writes English sentences in Devanagari); both set from the Day-1 spike. Vendor codes marked VERIFY are unconfirmed. Azure PA (reference-aware pronunciation assessment) exists only for some locales.",
   "hi": {
     "name": "हिन्दी",
     "english_name": "Hindi",
@@ -7,7 +7,8 @@
     "direction": "ltr",
     "tier": 1,
     "ui": true,
-    "vendors": { "sarvam": "hi-IN", "azure_stt": "hi-IN", "azure_pa": "hi-IN", "gemini": "Hindi" }
+    "primary": "sarvam",
+    "vendors": { "sarvam": "hi-IN", "azure_stt": "hi-IN", "azure_pa": "hi-IN", "gemini": "Hindi", "azure_tts": "hi-IN-SwaraNeural" }
   },
   "en": {
     "name": "English",
@@ -16,7 +17,9 @@
     "direction": "ltr",
     "tier": 1,
     "ui": true,
-    "vendors": { "sarvam": "en-IN", "azure_stt": "en-IN", "azure_pa": "en-IN", "gemini": "Indian English" }
+    "primary": "azure_stt",
+    "sarvam_mode": "codemix",
+    "vendors": { "sarvam": "en-IN", "azure_stt": "en-IN", "azure_pa": "en-IN", "gemini": "Indian English", "azure_tts": "en-IN-NeerjaNeural" }
   },
   "mr": {
     "name": "मराठी",
@@ -25,7 +28,8 @@
     "direction": "ltr",
     "tier": 2,
     "ui": false,
-    "vendors": { "sarvam": "mr-IN", "azure_stt": "mr-IN", "azure_pa": null, "gemini": "Marathi" }
+    "primary": "sarvam",
+    "vendors": { "sarvam": "mr-IN", "azure_stt": "mr-IN", "azure_pa": null, "gemini": "Marathi", "azure_tts": "mr-IN-AarohiNeural" }
   },
   "gu": {
     "name": "ગુજરાતી",
@@ -34,7 +38,8 @@
     "direction": "ltr",
     "tier": 2,
     "ui": false,
-    "vendors": { "sarvam": "gu-IN", "azure_stt": "gu-IN", "azure_pa": null, "gemini": "Gujarati" }
+    "primary": "sarvam",
+    "vendors": { "sarvam": "gu-IN", "azure_stt": "gu-IN", "azure_pa": null, "gemini": "Gujarati", "azure_tts": "gu-IN-DhwaniNeural" }
   },
   "kn": {
     "name": "ಕನ್ನಡ",
@@ -43,7 +48,8 @@
     "direction": "ltr",
     "tier": 2,
     "ui": false,
-    "vendors": { "sarvam": "kn-IN", "azure_stt": "kn-IN", "azure_pa": null, "gemini": "Kannada" }
+    "primary": "sarvam",
+    "vendors": { "sarvam": "kn-IN", "azure_stt": "kn-IN", "azure_pa": null, "gemini": "Kannada", "azure_tts": "kn-IN-SapnaNeural" }
   },
   "ta": {
     "name": "தமிழ்",
@@ -52,7 +58,8 @@
     "direction": "ltr",
     "tier": 2,
     "ui": false,
-    "vendors": { "sarvam": "ta-IN", "azure_stt": "ta-IN", "azure_pa": "ta-IN", "gemini": "Tamil" }
+    "primary": "sarvam",
+    "vendors": { "sarvam": "ta-IN", "azure_stt": "ta-IN", "azure_pa": "ta-IN", "gemini": "Tamil", "azure_tts": "ta-IN-PallaviNeural" }
   },
   "te": {
     "name": "తెలుగు",
@@ -61,7 +68,8 @@
     "direction": "ltr",
     "tier": 2,
     "ui": false,
-    "vendors": { "sarvam": "te-IN", "azure_stt": "te-IN", "azure_pa": null, "gemini": "Telugu" }
+    "primary": "sarvam",
+    "vendors": { "sarvam": "te-IN", "azure_stt": "te-IN", "azure_pa": null, "gemini": "Telugu", "azure_tts": "te-IN-ShrutiNeural" }
   },
   "or": {
     "name": "ଓଡ଼ିଆ",
@@ -70,6 +78,7 @@
     "direction": "ltr",
     "tier": 2,
     "ui": false,
-    "vendors": { "sarvam": "od-IN", "azure_stt": "VERIFY", "azure_pa": null, "gemini": "Odia" }
+    "primary": "sarvam",
+    "vendors": { "sarvam": "od-IN", "azure_stt": "VERIFY", "azure_pa": null, "gemini": "Odia", "azure_tts": "or-IN-SubhasiniNeural" }
   }
 }

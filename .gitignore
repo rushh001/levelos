@@ -16,9 +16,12 @@ __pycache__/
 !.env.example
 
 # Local data
+.cache/
 *.db
 *.db-journal
 eval/clips/
+eval/clips_tts/
+recordings/
 tmp/
 
 # OS / editor

@@ -1,0 +1,57 @@
+{
+  "_comment": "Scripted test clips. `said` is exactly what the reader is asked to say (the gold transcript); ⏸ marks a ~4 s pause (ignored by the tokenizer, used by the TTS smoke-test generator). Expected per-word labels are derived by aligning `said` against the item text with the same aligner, so a speech path is judged by how close its labels come to the gold labels. Real audio lives in eval/clips/<clip>.<ext>, synthetic in eval/clips_tts/ (both gitignored).",
+  "clips": {
+    "hi-para-a__clean": {
+      "item": "hi-para-a",
+      "said": "मेरा नाम रीना है। मेरे पास एक गाय है। गाय का रंग सफेद है। वह रोज घास खाती है।",
+      "expect": { "errors": 0, "passed": true }
+    },
+    "hi-para-a__mistakes": {
+      "item": "hi-para-a",
+      "said": "मेरा मेरा नाम रीना है। मेरे पास गाय है। गाय का रंग सफाद सफेद है। वह रोज घास खाता है।",
+      "notes": "repeat मेरा; skip एक; self-correct सफाद→सफेद; matra error खाती→खाता",
+      "expect": { "errors": 2, "self_corrections": 1, "passed": true }
+    },
+    "hi-para-b__halting": {
+      "item": "hi-para-b",
+      "said": "आज बहुत बारिश हुई। सड़क पर ⏸ पानी भर गया। मोहन ने ⏸ कागज की नाव बनाई। नाव पानी में ⏸ तैरने लगी।",
+      "notes": "every word correct, but read word by word with a ~4 second pause before पानी, कागज and तैरने",
+      "expect": { "errors": 0, "passed": false, "why": "halting" }
+    },
+    "hi-word-a__mistakes": {
+      "item": "hi-word-a",
+      "said": "गाय पनी मोर केल दिन",
+      "notes": "पानी→पनी (matra dropped), केला→केल (final matra dropped)",
+      "expect": { "correct": 3, "passed": false }
+    },
+    "hi-letter-a__mistakes": {
+      "item": "hi-letter-a",
+      "said": "क म श र ल",
+      "notes": "स→श",
+      "expect": { "correct": 4, "passed": true }
+    },
+    "en-para-a__clean": {
+      "item": "en-para-a",
+      "said": "I have a red ball. I play with it every day. My dog likes my ball. He runs after it.",
+      "expect": { "errors": 0, "passed": true }
+    },
+    "en-para-a__mistakes": {
+      "item": "en-para-a",
+      "said": "I have a red bell. I play with it day. My dog licks likes my ball. He runs after it.",
+      "notes": "ball→bell; skip every; self-correct licks→likes",
+      "expect": { "errors": 2, "self_corrections": 1, "passed": true }
+    },
+    "en-letter-b__mistakes": {
+      "item": "en-letter-b",
+      "said": "b d n e g",
+      "notes": "letter names; b and d swapped",
+      "expect": { "correct": 3, "passed": false }
+    },
+    "en-word-a__mistakes": {
+      "item": "en-word-a",
+      "said": "cat sin pin bus hat",
+      "notes": "sun→sin, pen→pin (vowel errors; not son, which sounds the same as sun)",
+      "expect": { "correct": 3, "passed": false }
+    }
+  }
+}

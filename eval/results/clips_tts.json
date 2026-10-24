@@ -1,0 +1,3451 @@
+[
+ {
+  "clip": "en-letter-b__mistakes",
+  "item": "en-letter-b",
+  "score": {
+   "item_id": "en-letter-b",
+   "level": "letter",
+   "lang": "en",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 8841,
+   "reading_ms": 5530,
+   "words": [
+    {
+     "i": 0,
+     "ref": "d",
+     "label": "sub",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "b",
+      "azure_stt": "b",
+      "gemini": "b"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "sub"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 2390,
+     "end_ms": 3060,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "b",
+     "label": "sub",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "d",
+      "azure_stt": "d",
+      "gemini": "d"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "sub"
+     },
+     "pa": {
+      "accuracy": 0.0,
+      "error_type": "Omission"
+     },
+     "start_ms": null,
+     "end_ms": null,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "n",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "n",
+      "azure_stt": "n",
+      "gemini": "n"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4080,
+     "end_ms": 4660,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "e",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "e",
+      "azure_stt": "e",
+      "gemini": "e"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 5650,
+     "end_ms": 6260,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "g",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "g",
+      "azure_stt": "g",
+      "gemini": "g"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 7290,
+     "end_ms": 7920,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [],
+   "counts": {
+    "total": 5,
+    "correct": 3,
+    "errors": 2,
+    "self_corrections": 0,
+    "uncertain": 0,
+    "uncertain_open": 0
+   },
+   "hesitations": 0,
+   "hesitation_source": "azure_pa",
+   "wcpm": null,
+   "passed": false,
+   "passed_best": false,
+   "passed_worst": false,
+   "needs_review": false,
+   "primary": "azure_stt",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "B. D. N. E. G.",
+     "latency_ms": 1604,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "b d n e g",
+     "latency_ms": 2415,
+     "reference_aware": false,
+     "cached": true
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "b d n e g",
+     "latency_ms": 4695,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "b d n e g",
+     "latency_ms": 3987,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "sub",
+   "sub",
+   "correct",
+   "correct",
+   "correct"
+  ]
+ },
+ {
+  "clip": "en-para-a__clean",
+  "item": "en-para-a",
+  "score": {
+   "item_id": "en-para-a",
+   "level": "paragraph",
+   "lang": "en",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 12765,
+   "reading_ms": 10650,
+   "words": [
+    {
+     "i": 0,
+     "ref": "I",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "i",
+      "azure_stt": "i",
+      "gemini": "i"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 730,
+     "end_ms": 940,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "have",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "have",
+      "azure_stt": "have",
+      "gemini": "have"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 950,
+     "end_ms": 1240,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "a",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "a",
+      "azure_stt": "a",
+      "gemini": "a"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 1250,
+     "end_ms": 1320,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "red",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "red",
+      "azure_stt": "red",
+      "gemini": "red"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 1330,
+     "end_ms": 1720,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "ball",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "ball",
+      "azure_stt": "ball",
+      "gemini": "ball"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 1730,
+     "end_ms": 2280,
+     "teacher_correct": null
+    },
+    {
+     "i": 5,
+     "ref": "I",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "i",
+      "azure_stt": "i",
+      "gemini": "i"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 3370,
+     "end_ms": 3680,
+     "teacher_correct": null
+    },
+    {
+     "i": 6,
+     "ref": "play",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "play",
+      "azure_stt": "play",
+      "gemini": "play"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 3690,
+     "end_ms": 4000,
+     "teacher_correct": null
+    },
+    {
+     "i": 7,
+     "ref": "with",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "with",
+      "azure_stt": "with",
+      "gemini": "with"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4010,
+     "end_ms": 4220,
+     "teacher_correct": null
+    },
+    {
+     "i": 8,
+     "ref": "it",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "it",
+      "azure_stt": "it",
+      "gemini": "it"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4230,
+     "end_ms": 4460,
+     "teacher_correct": null
+    },
+    {
+     "i": 9,
+     "ref": "every",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "every",
+      "azure_stt": "every",
+      "gemini": "every"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4490,
+     "end_ms": 4960,
+     "teacher_correct": null
+    },
+    {
+     "i": 10,
+     "ref": "day",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "day",
+      "azure_stt": "day",
+      "gemini": "day"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4970,
+     "end_ms": 5460,
+     "teacher_correct": null
+    },
+    {
+     "i": 11,
+     "ref": "My",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "my",
+      "azure_stt": "my",
+      "gemini": "my"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 6540,
+     "end_ms": 6900,
+     "teacher_correct": null
+    },
+    {
+     "i": 12,
+     "ref": "dog",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "dog",
+      "azure_stt": "dog",
+      "gemini": "dog"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 6910,
+     "end_ms": 7340,
+     "teacher_correct": null
+    },
+    {
+     "i": 13,
+     "ref": "likes",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "likes",
+      "azure_stt": "likes",
+      "gemini": "likes"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 7350,
+     "end_ms": 7860,
+     "teacher_correct": null
+    },
+    {
+     "i": 14,
+     "ref": "my",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "my",
+      "azure_stt": "my",
+      "gemini": "my"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 7870,
+     "end_ms": 8140,
+     "teacher_correct": null
+    },
+    {
+     "i": 15,
+     "ref": "ball",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "ball",
+      "azure_stt": "ball",
+      "gemini": "ball"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 8150,
+     "end_ms": 8720,
+     "teacher_correct": null
+    },
+    {
+     "i": 16,
+     "ref": "He",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "he",
+      "azure_stt": "he",
+      "gemini": "he"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 9750,
+     "end_ms": 10000,
+     "teacher_correct": null
+    },
+    {
+     "i": 17,
+     "ref": "runs",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "runs",
+      "azure_stt": "runs",
+      "gemini": "runs"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 10010,
+     "end_ms": 10460,
+     "teacher_correct": null
+    },
+    {
+     "i": 18,
+     "ref": "after",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "after",
+      "azure_stt": "after",
+      "gemini": "after"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 10470,
+     "end_ms": 10960,
+     "teacher_correct": null
+    },
+    {
+     "i": 19,
+     "ref": "it",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "it",
+      "azure_stt": "it",
+      "gemini": "it"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 10970,
+     "end_ms": 11380,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [],
+   "counts": {
+    "total": 20,
+    "correct": 20,
+    "errors": 0,
+    "self_corrections": 0,
+    "uncertain": 0,
+    "uncertain_open": 0
+   },
+   "hesitations": 0,
+   "hesitation_source": "azure_pa",
+   "wcpm": 112.7,
+   "passed": true,
+   "passed_best": true,
+   "passed_worst": true,
+   "needs_review": false,
+   "primary": "azure_stt",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "I have a red ball. I play with it every day. My dog likes my ball. He runs after it.",
+     "latency_ms": 1581,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "i have a red ball i play with it every day my dog likes my ball he runs after it",
+     "latency_ms": 3214,
+     "reference_aware": false,
+     "cached": true
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "I have a red ball I play with it every day My dog likes my ball He runs after it",
+     "latency_ms": 16888,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "I have a red ball I play with it every day My dog likes my ball He runs after it",
+     "latency_ms": 5983,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct"
+  ]
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "item": "en-para-a",
+  "score": {
+   "item_id": "en-para-a",
+   "level": "paragraph",
+   "lang": "en",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 12609,
+   "reading_ms": 10550,
+   "words": [
+    {
+     "i": 0,
+     "ref": "I",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "i",
+      "azure_stt": "i",
+      "gemini": "i"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 730,
+     "end_ms": 980,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "have",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "have",
+      "azure_stt": "have",
+      "gemini": "have"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 990,
+     "end_ms": 1270,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "a",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "a",
+      "azure_stt": "a",
+      "gemini": "a"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 96.0,
+      "error_type": null
+     },
+     "start_ms": 1280,
+     "end_ms": 1340,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "red",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "red",
+      "azure_stt": "red",
+      "gemini": "red"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 1350,
+     "end_ms": 1740,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "ball",
+     "label": "sub",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "bell",
+      "azure_stt": "bell",
+      "gemini": "bell"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "sub"
+     },
+     "pa": {
+      "accuracy": 20.0,
+      "error_type": "Mispronunciation"
+     },
+     "start_ms": 1750,
+     "end_ms": 2220,
+     "teacher_correct": null
+    },
+    {
+     "i": 5,
+     "ref": "I",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "i",
+      "azure_stt": "i",
+      "gemini": "i"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 3330,
+     "end_ms": 3640,
+     "teacher_correct": null
+    },
+    {
+     "i": 6,
+     "ref": "play",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "play",
+      "azure_stt": "play",
+      "gemini": "play"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 3650,
+     "end_ms": 3960,
+     "teacher_correct": null
+    },
+    {
+     "i": 7,
+     "ref": "with",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "with",
+      "azure_stt": "with",
+      "gemini": "with"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 3970,
+     "end_ms": 4220,
+     "teacher_correct": null
+    },
+    {
+     "i": 8,
+     "ref": "it",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "it",
+      "azure_stt": "it",
+      "gemini": "it"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 0.0,
+      "error_type": "Omission"
+     },
+     "start_ms": null,
+     "end_ms": null,
+     "teacher_correct": null
+    },
+    {
+     "i": 9,
+     "ref": "every",
+     "label": "omit",
+     "uncertain": false,
+     "heard": {
+      "sarvam": null,
+      "azure_stt": null,
+      "gemini": null
+     },
+     "labels": {
+      "sarvam": "omit",
+      "azure_stt": "omit",
+      "gemini": "omit"
+     },
+     "pa": {
+      "accuracy": 0.0,
+      "error_type": "Omission"
+     },
+     "start_ms": null,
+     "end_ms": null,
+     "teacher_correct": null
+    },
+    {
+     "i": 10,
+     "ref": "day",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "day",
+      "azure_stt": "day",
+      "gemini": "day"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4310,
+     "end_ms": 4970,
+     "teacher_correct": null
+    },
+    {
+     "i": 11,
+     "ref": "My",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "my",
+      "azure_stt": "my",
+      "gemini": "my"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 5950,
+     "end_ms": 6360,
+     "teacher_correct": null
+    },
+    {
+     "i": 12,
+     "ref": "dog",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "dog",
+      "azure_stt": "dog",
+      "gemini": "dog"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 6370,
+     "end_ms": 6860,
+     "teacher_correct": null
+    },
+    {
+     "i": 13,
+     "ref": "likes",
+     "label": "self_correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "likes",
+      "azure_stt": "likes",
+      "gemini": "likes"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "self_correct",
+      "gemini": "self_correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 7210,
+     "end_ms": 7700,
+     "teacher_correct": null
+    },
+    {
+     "i": 14,
+     "ref": "my",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "my",
+      "azure_stt": "my",
+      "gemini": "my"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 7710,
+     "end_ms": 7960,
+     "teacher_correct": null
+    },
+    {
+     "i": 15,
+     "ref": "ball",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "ball",
+      "azure_stt": "ball",
+      "gemini": "ball"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 7970,
+     "end_ms": 8540,
+     "teacher_correct": null
+    },
+    {
+     "i": 16,
+     "ref": "He",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "he",
+      "azure_stt": "he",
+      "gemini": "he"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 9600,
+     "end_ms": 9840,
+     "teacher_correct": null
+    },
+    {
+     "i": 17,
+     "ref": "runs",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "runs",
+      "azure_stt": "runs",
+      "gemini": "runs"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 9850,
+     "end_ms": 10320,
+     "teacher_correct": null
+    },
+    {
+     "i": 18,
+     "ref": "after",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "after",
+      "azure_stt": "after",
+      "gemini": "after"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 10330,
+     "end_ms": 10800,
+     "teacher_correct": null
+    },
+    {
+     "i": 19,
+     "ref": "it",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "it",
+      "azure_stt": "it",
+      "gemini": "it"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 10810,
+     "end_ms": 11280,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [],
+   "counts": {
+    "total": 20,
+    "correct": 18,
+    "errors": 2,
+    "self_corrections": 1,
+    "uncertain": 0,
+    "uncertain_open": 0
+   },
+   "hesitations": 0,
+   "hesitation_source": "azure_pa",
+   "wcpm": 102.4,
+   "passed": true,
+   "passed_best": true,
+   "passed_worst": true,
+   "needs_review": false,
+   "primary": "azure_stt",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "I have a red bell. I play with it day. My dog looks likes my ball. He runs after it.",
+     "latency_ms": 1298,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "i have a red bell i play with it day my dog licks likes my ball he runs after it",
+     "latency_ms": 3175,
+     "reference_aware": false,
+     "cached": true
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "I have a red bell I play with it day My dog licks likes my ball He runs after it",
+     "latency_ms": 5619,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "I have a red ball I play with a day My dog likes likes my ball He runs after it",
+     "latency_ms": 5899,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "sub",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "omit",
+   "correct",
+   "correct",
+   "correct",
+   "self_correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct"
+  ]
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "item": "en-word-a",
+  "score": {
+   "item_id": "en-word-a",
+   "level": "word",
+   "lang": "en",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 9122,
+   "reading_ms": 7450,
+   "words": [
+    {
+     "i": 0,
+     "ref": "cat",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "cat",
+      "azure_stt": "cat",
+      "gemini": "cat"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 710,
+     "end_ms": 1380,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "sun",
+     "label": "sub",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "sin",
+      "azure_stt": "sin",
+      "gemini": "sin"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "sub"
+     },
+     "pa": {
+      "accuracy": 21.0,
+      "error_type": "Mispronunciation"
+     },
+     "start_ms": 2440,
+     "end_ms": 3060,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "pen",
+     "label": "sub",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "pin",
+      "azure_stt": "pin",
+      "gemini": "pin"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "sub"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4090,
+     "end_ms": 4620,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "bus",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "bus",
+      "azure_stt": "bus",
+      "gemini": "bus"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 5650,
+     "end_ms": 6420,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "hat",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "hat",
+      "azure_stt": "hat",
+      "gemini": "hat"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 7470,
+     "end_ms": 8160,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [],
+   "counts": {
+    "total": 5,
+    "correct": 3,
+    "errors": 2,
+    "self_corrections": 0,
+    "uncertain": 0,
+    "uncertain_open": 0
+   },
+   "hesitations": 0,
+   "hesitation_source": "azure_pa",
+   "wcpm": null,
+   "passed": false,
+   "passed_best": false,
+   "passed_worst": false,
+   "needs_review": false,
+   "primary": "azure_stt",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "cat. sin. pin. bus. hat.",
+     "latency_ms": 1431,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "cat sin pin bus hat",
+     "latency_ms": 2426,
+     "reference_aware": false,
+     "cached": true
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "cat sin pin bus hat",
+     "latency_ms": 3533,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "cat sun pen bus hat",
+     "latency_ms": 4435,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "correct",
+   "sub",
+   "sub",
+   "correct",
+   "correct"
+  ]
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "item": "hi-letter-a",
+  "score": {
+   "item_id": "hi-letter-a",
+   "level": "letter",
+   "lang": "hi",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 8759,
+   "reading_ms": 7130,
+   "words": [
+    {
+     "i": 0,
+     "ref": "क",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "क",
+      "azure_stt": "क",
+      "gemini": "क"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 53.0,
+      "error_type": "Mispronunciation"
+     },
+     "start_ms": 750,
+     "end_ms": 1180,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "म",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "म",
+      "azure_stt": "मां",
+      "gemini": "म"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 32.0,
+      "error_type": "Mispronunciation"
+     },
+     "start_ms": 2310,
+     "end_ms": 2800,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "स",
+     "label": "sub",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "श",
+      "azure_stt": "शाह",
+      "gemini": "श"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "sub"
+     },
+     "pa": {
+      "accuracy": 45.0,
+      "error_type": "Mispronunciation"
+     },
+     "start_ms": 4010,
+     "end_ms": 4580,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "र",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "र",
+      "azure_stt": "राह",
+      "gemini": "र"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 52.0,
+      "error_type": "Mispronunciation"
+     },
+     "start_ms": 5630,
+     "end_ms": 6200,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "ल",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "ल",
+      "azure_stt": "ला",
+      "gemini": "ल"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 7350,
+     "end_ms": 7880,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [],
+   "counts": {
+    "total": 5,
+    "correct": 4,
+    "errors": 1,
+    "self_corrections": 0,
+    "uncertain": 0,
+    "uncertain_open": 0
+   },
+   "hesitations": 0,
+   "hesitation_source": "azure_pa",
+   "wcpm": null,
+   "passed": true,
+   "passed_best": true,
+   "passed_worst": true,
+   "needs_review": false,
+   "primary": "sarvam",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "क म श र ल",
+     "latency_ms": 2736,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "क माँ शाह राह ला",
+     "latency_ms": 3435,
+     "reference_aware": false,
+     "cached": true
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "क म श र ल",
+     "latency_ms": 5359,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "क म स र ल",
+     "latency_ms": 5030,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "correct",
+   "correct",
+   "sub",
+   "correct",
+   "correct"
+  ]
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "item": "hi-para-a",
+  "score": {
+   "item_id": "hi-para-a",
+   "level": "paragraph",
+   "lang": "hi",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 13642,
+   "reading_ms": 11400,
+   "words": [
+    {
+     "i": 0,
+     "ref": "मेरा",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "मेरा",
+      "azure_stt": "मेरा",
+      "gemini": "मेरा"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 89.0,
+      "error_type": null
+     },
+     "start_ms": 810,
+     "end_ms": 1300,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "नाम",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "नाम",
+      "azure_stt": "नाम",
+      "gemini": "नाम"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 99.0,
+      "error_type": null
+     },
+     "start_ms": 1310,
+     "end_ms": 1720,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "रीना",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "रीना",
+      "azure_stt": "रीना",
+      "gemini": "रीना"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 1730,
+     "end_ms": 2220,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "है",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "है",
+      "azure_stt": "है",
+      "gemini": "है"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 66.0,
+      "error_type": null
+     },
+     "start_ms": 2230,
+     "end_ms": 2530,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "मेरे",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "मेरे",
+      "azure_stt": "मेरे",
+      "gemini": "मेरे"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 97.0,
+      "error_type": null
+     },
+     "start_ms": 3730,
+     "end_ms": 4240,
+     "teacher_correct": null
+    },
+    {
+     "i": 5,
+     "ref": "पास",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "पास",
+      "azure_stt": "पास",
+      "gemini": "पास"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4250,
+     "end_ms": 4700,
+     "teacher_correct": null
+    },
+    {
+     "i": 6,
+     "ref": "एक",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "एक",
+      "azure_stt": "एक",
+      "gemini": "एक"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4710,
+     "end_ms": 4980,
+     "teacher_correct": null
+    },
+    {
+     "i": 7,
+     "ref": "गाय",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "गाय",
+      "azure_stt": "गाय",
+      "gemini": "गाय"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 4990,
+     "end_ms": 5300,
+     "teacher_correct": null
+    },
+    {
+     "i": 8,
+     "ref": "है",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "है",
+      "azure_stt": "है",
+      "gemini": "है"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 94.0,
+      "error_type": null
+     },
+     "start_ms": 5310,
+     "end_ms": 5700,
+     "teacher_correct": null
+    },
+    {
+     "i": 9,
+     "ref": "गाय",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "गाय",
+      "azure_stt": "गाय",
+      "gemini": "गाय"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 6890,
+     "end_ms": 7400,
+     "teacher_correct": null
+    },
+    {
+     "i": 10,
+     "ref": "का",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "का",
+      "azure_stt": "का",
+      "gemini": "का"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 93.0,
+      "error_type": null
+     },
+     "start_ms": 7410,
+     "end_ms": 7620,
+     "teacher_correct": null
+    },
+    {
+     "i": 11,
+     "ref": "रंग",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "रंग",
+      "azure_stt": "रंग",
+      "gemini": "रंग"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 7630,
+     "end_ms": 8000,
+     "teacher_correct": null
+    },
+    {
+     "i": 12,
+     "ref": "सफेद",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "सफेद",
+      "azure_stt": "सफेद",
+      "gemini": "सफेद"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 8010,
+     "end_ms": 8540,
+     "teacher_correct": null
+    },
+    {
+     "i": 13,
+     "ref": "है",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "है",
+      "azure_stt": "है",
+      "gemini": "है"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 90.0,
+      "error_type": null
+     },
+     "start_ms": 8550,
+     "end_ms": 8930,
+     "teacher_correct": null
+    },
+    {
+     "i": 14,
+     "ref": "वह",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "वह",
+      "azure_stt": "वह",
+      "gemini": "वह"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 10100,
+     "end_ms": 10480,
+     "teacher_correct": null
+    },
+    {
+     "i": 15,
+     "ref": "रोज",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "रोज",
+      "azure_stt": "रोज",
+      "gemini": "रोज"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 10490,
+     "end_ms": 10880,
+     "teacher_correct": null
+    },
+    {
+     "i": 16,
+     "ref": "घास",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "घास",
+      "azure_stt": "घास",
+      "gemini": "घास"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 10890,
+     "end_ms": 11340,
+     "teacher_correct": null
+    },
+    {
+     "i": 17,
+     "ref": "खाती",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "खाती",
+      "azure_stt": "खाती",
+      "gemini": "खाती"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 11350,
+     "end_ms": 11900,
+     "teacher_correct": null
+    },
+    {
+     "i": 18,
+     "ref": "है",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "है",
+      "azure_stt": "है",
+      "gemini": "है"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 83.0,
+      "error_type": null
+     },
+     "start_ms": 11910,
+     "end_ms": 12210,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [],
+   "counts": {
+    "total": 19,
+    "correct": 19,
+    "errors": 0,
+    "self_corrections": 0,
+    "uncertain": 0,
+    "uncertain_open": 0
+   },
+   "hesitations": 0,
+   "hesitation_source": "azure_pa",
+   "wcpm": 100.0,
+   "passed": true,
+   "passed_best": true,
+   "passed_worst": true,
+   "needs_review": false,
+   "primary": "sarvam",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "मेरा नाम रीना है मेरे पास एक गाय है गाय का रंग सफ़ेद है वह रोज़ घास खाती है",
+     "latency_ms": 1776,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "मेरा नाम रीना है मेरे पास एक गाय है गाय का रंग सफेद है वह रोज़ घास खाती है",
+     "latency_ms": 3156,
+     "reference_aware": false,
+     "cached": true
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "मेरा नाम रीना है मेरे पास एक गाय है गाय का रंग सफेद है वह रोज घास खाती है",
+     "latency_ms": 6362,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "मेरा नाम रीना है। मेरे पास एक गाय है। गाय का रंग सफेद है। वह रोज घास खाती है।",
+     "latency_ms": 5760,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct"
+  ]
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "item": "hi-para-a",
+  "score": {
+   "item_id": "hi-para-a",
+   "level": "paragraph",
+   "lang": "hi",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 14330,
+   "reading_ms": 12070,
+   "words": [
+    {
+     "i": 0,
+     "ref": "मेरा",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "मेरा",
+      "azure_stt": "मेरा",
+      "gemini": "मेरा"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 84.0,
+      "error_type": null
+     },
+     "start_ms": 810,
+     "end_ms": 1300,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "नाम",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "नाम",
+      "azure_stt": "नाम",
+      "gemini": "नाम"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 99.0,
+      "error_type": null
+     },
+     "start_ms": 1750,
+     "end_ms": 2160,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "रीना",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "रीना",
+      "azure_stt": "रीना",
+      "gemini": "रीना"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 2170,
+     "end_ms": 2660,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "है",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "है",
+      "azure_stt": "है",
+      "gemini": "है"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 84.0,
+      "error_type": null
+     },
+     "start_ms": 2670,
+     "end_ms": 2960,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "मेरे",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "मेरे",
+      "azure_stt": "मेरे",
+      "gemini": "मेरे"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 97.0,
+      "error_type": null
+     },
+     "start_ms": 4150,
+     "end_ms": 4660,
+     "teacher_correct": null
+    },
+    {
+     "i": 5,
+     "ref": "पास",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "पास",
+      "azure_stt": "पास",
+      "gemini": "पास"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 97.0,
+      "error_type": null
+     },
+     "start_ms": 4670,
+     "end_ms": 5100,
+     "teacher_correct": null
+    },
+    {
+     "i": 6,
+     "ref": "एक",
+     "label": "omit",
+     "uncertain": false,
+     "heard": {
+      "sarvam": null,
+      "azure_stt": null,
+      "gemini": null
+     },
+     "labels": {
+      "sarvam": "omit",
+      "azure_stt": "omit",
+      "gemini": "omit"
+     },
+     "pa": {
+      "accuracy": 0.0,
+      "error_type": "Omission"
+     },
+     "start_ms": null,
+     "end_ms": null,
+     "teacher_correct": null
+    },
+    {
+     "i": 7,
+     "ref": "गाय",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "गाय",
+      "azure_stt": "गाय",
+      "gemini": "गाय"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 99.0,
+      "error_type": null
+     },
+     "start_ms": 5110,
+     "end_ms": 5400,
+     "teacher_correct": null
+    },
+    {
+     "i": 8,
+     "ref": "है",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "है",
+      "azure_stt": "है",
+      "gemini": "है"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 92.0,
+      "error_type": null
+     },
+     "start_ms": 5410,
+     "end_ms": 5810,
+     "teacher_correct": null
+    },
+    {
+     "i": 9,
+     "ref": "गाय",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "गाय",
+      "azure_stt": "गाय",
+      "gemini": "गाय"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 6990,
+     "end_ms": 7520,
+     "teacher_correct": null
+    },
+    {
+     "i": 10,
+     "ref": "का",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "का",
+      "azure_stt": "का",
+      "gemini": "का"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 92.0,
+      "error_type": null
+     },
+     "start_ms": 7530,
+     "end_ms": 7730,
+     "teacher_correct": null
+    },
+    {
+     "i": 11,
+     "ref": "रंग",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "रंग",
+      "azure_stt": "रंग",
+      "gemini": "रंग"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 7740,
+     "end_ms": 8120,
+     "teacher_correct": null
+    },
+    {
+     "i": 12,
+     "ref": "सफेद",
+     "label": "self_correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "सफेद",
+      "azure_stt": "सफेद",
+      "gemini": "सफेद"
+     },
+     "labels": {
+      "sarvam": "self_correct",
+      "azure_stt": "self_correct",
+      "gemini": "self_correct"
+     },
+     "pa": {
+      "accuracy": 65.0,
+      "error_type": null
+     },
+     "start_ms": 8130,
+     "end_ms": 8720,
+     "teacher_correct": null
+    },
+    {
+     "i": 13,
+     "ref": "है",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "है",
+      "azure_stt": "है",
+      "gemini": "है"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 93.0,
+      "error_type": null
+     },
+     "start_ms": 9290,
+     "end_ms": 9640,
+     "teacher_correct": null
+    },
+    {
+     "i": 14,
+     "ref": "वह",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "वह",
+      "azure_stt": "वह",
+      "gemini": "वह"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 87.0,
+      "error_type": null
+     },
+     "start_ms": 10790,
+     "end_ms": 11200,
+     "teacher_correct": null
+    },
+    {
+     "i": 15,
+     "ref": "रोज",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "रोज",
+      "azure_stt": "रोज",
+      "gemini": "रोज"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 94.0,
+      "error_type": null
+     },
+     "start_ms": 11210,
+     "end_ms": 11600,
+     "teacher_correct": null
+    },
+    {
+     "i": 16,
+     "ref": "घास",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "घास",
+      "azure_stt": "घास",
+      "gemini": "घास"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 11610,
+     "end_ms": 12080,
+     "teacher_correct": null
+    },
+    {
+     "i": 17,
+     "ref": "खाती",
+     "label": "sub",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "खाता",
+      "azure_stt": "खाता",
+      "gemini": "खाता"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "sub"
+     },
+     "pa": {
+      "accuracy": 83.0,
+      "error_type": null
+     },
+     "start_ms": 12090,
+     "end_ms": 12470,
+     "teacher_correct": null
+    },
+    {
+     "i": 18,
+     "ref": "है",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "है",
+      "azure_stt": "है",
+      "gemini": "है"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 75.0,
+      "error_type": null
+     },
+     "start_ms": 12560,
+     "end_ms": 12880,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [
+    {
+     "hyp": "मेरा",
+     "label": "repeat"
+    }
+   ],
+   "counts": {
+    "total": 19,
+    "correct": 17,
+    "errors": 2,
+    "self_corrections": 1,
+    "uncertain": 0,
+    "uncertain_open": 0
+   },
+   "hesitations": 0,
+   "hesitation_source": "azure_pa",
+   "wcpm": 84.5,
+   "passed": true,
+   "passed_best": true,
+   "passed_worst": true,
+   "needs_review": false,
+   "primary": "sarvam",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "मेरा मेरा नाम रीना है मेरे पास गाय है गाय का रंग सफाद सफ़ेद है वह रोज़ घास खाता है",
+     "latency_ms": 16257,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "मेरा मेरा नाम रीना है मेरे पास गाय है गाय का रंग सफाद सफेद है वह रोज़ घास खाता है",
+     "latency_ms": 19972,
+     "reference_aware": false,
+     "cached": true
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "मेरा मेरा नाम रीना है मेरे पास गाय है गाय का रंग सफाद सफेद है वह रोज घास खाता है",
+     "latency_ms": 6848,
+     "reference_aware": false,
+     "cached": false
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "मेरा मेरा नाम रीना है। मेरे पास गाय है। गाय का रंग सफेद सफेद है। वह रोज घास खाती का है।",
+     "latency_ms": 15955,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "omit",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "self_correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "sub",
+   "correct"
+  ]
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "item": "hi-para-b",
+  "score": {
+   "item_id": "hi-para-b",
+   "level": "paragraph",
+   "lang": "hi",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 28243,
+   "reading_ms": 26220,
+   "words": [
+    {
+     "i": 0,
+     "ref": "आज",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "आज",
+      "azure_stt": "आज",
+      "gemini": "आज"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 810,
+     "end_ms": 1190,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "बहुत",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "बहुत",
+      "azure_stt": "बहुत",
+      "gemini": "बहुत"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 1200,
+     "end_ms": 1690,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "बारिश",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "बारिश",
+      "azure_stt": "बारिश",
+      "gemini": "बारिश"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 99.0,
+      "error_type": null
+     },
+     "start_ms": 1700,
+     "end_ms": 2230,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "हुई",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "हुई",
+      "azure_stt": "हुई",
+      "gemini": "हुई"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 93.0,
+      "error_type": null
+     },
+     "start_ms": 2240,
+     "end_ms": 2720,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "सड़क",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "सडक",
+      "azure_stt": "सडक",
+      "gemini": "सडक"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 74.0,
+      "error_type": null
+     },
+     "start_ms": 3920,
+     "end_ms": 4510,
+     "teacher_correct": null
+    },
+    {
+     "i": 5,
+     "ref": "पर",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "पर",
+      "azure_stt": "पर",
+      "gemini": "पर"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 90.0,
+      "error_type": null
+     },
+     "start_ms": 4520,
+     "end_ms": 4910,
+     "teacher_correct": null
+    },
+    {
+     "i": 6,
+     "ref": "पानी",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "पानी",
+      "azure_stt": "पानी",
+      "gemini": "पानी"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 9120,
+     "end_ms": 9670,
+     "teacher_correct": null
+    },
+    {
+     "i": 7,
+     "ref": "भर",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "भर",
+      "azure_stt": "भर",
+      "gemini": "भर"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 9680,
+     "end_ms": 9950,
+     "teacher_correct": null
+    },
+    {
+     "i": 8,
+     "ref": "गया",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "गया",
+      "azure_stt": "गया",
+      "gemini": "गया"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 93.0,
+      "error_type": null
+     },
+     "start_ms": 9960,
+     "end_ms": 10400,
+     "teacher_correct": null
+    },
+    {
+     "i": 9,
+     "ref": "मोहन",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "मोहन",
+      "azure_stt": "मोहन",
+      "gemini": "मोहन"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 11600,
+     "end_ms": 12130,
+     "teacher_correct": null
+    },
+    {
+     "i": 10,
+     "ref": "ने",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "ने",
+      "azure_stt": "ने",
+      "gemini": "ने"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 93.0,
+      "error_type": null
+     },
+     "start_ms": 12140,
+     "end_ms": 12570,
+     "teacher_correct": null
+    },
+    {
+     "i": 11,
+     "ref": "कागज",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "कागज",
+      "azure_stt": "कागज",
+      "gemini": "कागज"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 16760,
+     "end_ms": 17450,
+     "teacher_correct": null
+    },
+    {
+     "i": 12,
+     "ref": "की",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "की",
+      "azure_stt": "की",
+      "gemini": "की"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 17460,
+     "end_ms": 17650,
+     "teacher_correct": null
+    },
+    {
+     "i": 13,
+     "ref": "नाव",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "नाव",
+      "azure_stt": "नाव",
+      "gemini": "नाव"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 17660,
+     "end_ms": 18110,
+     "teacher_correct": null
+    },
+    {
+     "i": 14,
+     "ref": "बनाई",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "बनाई",
+      "azure_stt": "बनाई",
+      "gemini": "बनाई"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 86.0,
+      "error_type": null
+     },
+     "start_ms": 18120,
+     "end_ms": 18730,
+     "teacher_correct": null
+    },
+    {
+     "i": 15,
+     "ref": "नाव",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "नाव",
+      "azure_stt": "नाव",
+      "gemini": "नाव"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 19890,
+     "end_ms": 20530,
+     "teacher_correct": null
+    },
+    {
+     "i": 16,
+     "ref": "पानी",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "पानी",
+      "azure_stt": "पानी",
+      "gemini": "पानी"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 100.0,
+      "error_type": null
+     },
+     "start_ms": 20540,
+     "end_ms": 20930,
+     "teacher_correct": null
+    },
+    {
+     "i": 17,
+     "ref": "में",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "में",
+      "azure_stt": "में",
+      "gemini": "में"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 86.0,
+      "error_type": null
+     },
+     "start_ms": 20940,
+     "end_ms": 21250,
+     "teacher_correct": null
+    },
+    {
+     "i": 18,
+     "ref": "तैरने",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "तैरने",
+      "azure_stt": "तैरने",
+      "gemini": "तैरने"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 98.0,
+      "error_type": null
+     },
+     "start_ms": 25600,
+     "end_ms": 26170,
+     "teacher_correct": null
+    },
+    {
+     "i": 19,
+     "ref": "लगी",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "लगी",
+      "azure_stt": "लगी",
+      "gemini": "लगी"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 85.0,
+      "error_type": null
+     },
+     "start_ms": 26180,
+     "end_ms": 27030,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [],
+   "counts": {
+    "total": 20,
+    "correct": 20,
+    "errors": 0,
+    "self_corrections": 0,
+    "uncertain": 0,
+    "uncertain_open": 0
+   },
+   "hesitations": 3,
+   "hesitation_source": "azure_pa",
+   "wcpm": 45.8,
+   "passed": false,
+   "passed_best": false,
+   "passed_worst": false,
+   "needs_review": false,
+   "primary": "sarvam",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "आज बहुत बारिश हुई सड़क पर पानी भर गया मोहन ने कागज़ की नाव बनाई नाव पानी में तैरने लगी",
+     "latency_ms": 4030,
+     "reference_aware": false,
+     "cached": false
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "आज बहुत बारिश हुई सड़क पर पानी भर गया मोहन ने कागज की नाव बनाई नाव पानी में तैरने लगी",
+     "latency_ms": 10176,
+     "reference_aware": false,
+     "cached": false
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "आज बहुत बारिश हुई सड़क पर पानी भर गया मोहन ने कागज़ की नाव बनाई नाव पानी में तैरने लगी",
+     "latency_ms": 10225,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "आज बहुत बारिश हुई। सड़क पर पानी भर गया। मोहन ने कागज की नाव बनाई। नाव पानी में तैरने लगी।",
+     "latency_ms": 11783,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct",
+   "correct"
+  ]
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "item": "hi-word-a",
+  "score": {
+   "item_id": "hi-word-a",
+   "level": "word",
+   "lang": "hi",
+   "status": "scored",
+   "reason": null,
+   "duration_ms": 9610,
+   "reading_ms": 8250,
+   "words": [
+    {
+     "i": 0,
+     "ref": "गाय",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "गाय",
+      "azure_stt": "गाय",
+      "gemini": "गाय"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 82.0,
+      "error_type": null
+     },
+     "start_ms": 770,
+     "end_ms": 2240,
+     "teacher_correct": null
+    },
+    {
+     "i": 1,
+     "ref": "पानी",
+     "label": "sub",
+     "uncertain": true,
+     "heard": {
+      "sarvam": "पनी",
+      "azure_stt": "पनी",
+      "gemini": "पानी"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 92.0,
+      "error_type": null
+     },
+     "start_ms": 2540,
+     "end_ms": 3220,
+     "teacher_correct": null
+    },
+    {
+     "i": 2,
+     "ref": "मोर",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "मोर",
+      "azure_stt": "मोर",
+      "gemini": "मोर"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 89.0,
+      "error_type": null
+     },
+     "start_ms": 4360,
+     "end_ms": 5390,
+     "teacher_correct": null
+    },
+    {
+     "i": 3,
+     "ref": "केला",
+     "label": "sub",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "केल",
+      "azure_stt": "खेल",
+      "gemini": "खेल"
+     },
+     "labels": {
+      "sarvam": "sub",
+      "azure_stt": "sub",
+      "gemini": "sub"
+     },
+     "pa": {
+      "accuracy": 56.0,
+      "error_type": "Mispronunciation"
+     },
+     "start_ms": 6220,
+     "end_ms": 6840,
+     "teacher_correct": null
+    },
+    {
+     "i": 4,
+     "ref": "दिन",
+     "label": "correct",
+     "uncertain": false,
+     "heard": {
+      "sarvam": "दिन",
+      "azure_stt": "दिन",
+      "gemini": "दिन"
+     },
+     "labels": {
+      "sarvam": "correct",
+      "azure_stt": "correct",
+      "gemini": "correct"
+     },
+     "pa": {
+      "accuracy": 93.0,
+      "error_type": null
+     },
+     "start_ms": 8090,
+     "end_ms": 9020,
+     "teacher_correct": null
+    }
+   ],
+   "extras": [],
+   "counts": {
+    "total": 5,
+    "correct": 3,
+    "errors": 2,
+    "self_corrections": 0,
+    "uncertain": 1,
+    "uncertain_open": 1
+   },
+   "hesitations": 0,
+   "hesitation_source": "azure_pa",
+   "wcpm": null,
+   "passed": false,
+   "passed_best": true,
+   "passed_worst": false,
+   "needs_review": true,
+   "primary": "sarvam",
+   "paths": {
+    "sarvam": {
+     "ok": true,
+     "error": null,
+     "transcript": "गाय पनी मोर केल दिन",
+     "latency_ms": 2138,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_stt": {
+     "ok": true,
+     "error": null,
+     "transcript": "गाय पनी मोर खेल दिन",
+     "latency_ms": 3527,
+     "reference_aware": false,
+     "cached": true
+    },
+    "gemini": {
+     "ok": true,
+     "error": null,
+     "transcript": "गाय पानी मोर खेल दिन",
+     "latency_ms": 5775,
+     "reference_aware": false,
+     "cached": true
+    },
+    "azure_pa": {
+     "ok": true,
+     "error": null,
+     "transcript": "गाय पानी मोर केला दिन",
+     "latency_ms": 5251,
+     "reference_aware": true,
+     "cached": true
+    }
+   }
+  },
+  "gold": [
+   "correct",
+   "sub",
+   "correct",
+   "sub",
+   "correct"
+  ]
+ }
+]

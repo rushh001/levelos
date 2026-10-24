@@ -15,6 +15,7 @@ import time
 
 import httpx
 
+from . import http
 from .align import tokenize
 from .types import PathResult, WordTiming
 
@@ -38,14 +39,15 @@ async def transcribe(
         data["mode"] = mode
     files = {"file": ("clip.wav", wav, "audio/wav")}
     try:
-        async with httpx.AsyncClient(timeout=timeout_s) as client:
-            r = await client.post(ENDPOINT, headers={"api-subscription-key": api_key}, data=data, files=files)
+        r = await http.post(
+            "sarvam", ENDPOINT, timeout_s=timeout_s, headers={"api-subscription-key": api_key}, data=data, files=files
+        )
         latency = int((time.perf_counter() - t0) * 1000)
         if r.status_code != 200:
             return PathResult("sarvam", "", [], latency_ms=latency, error=f"HTTP {r.status_code}: {r.text[:300]}")
         body = r.json()
     except httpx.HTTPError as e:
-        return PathResult("sarvam", "", [], latency_ms=int((time.perf_counter() - t0) * 1000), error=str(e))
+        return PathResult("sarvam", "", [], latency_ms=int((time.perf_counter() - t0) * 1000), error=f"{type(e).__name__}: {e}")
 
     transcript = (body.get("transcript") or "").strip()
     timings = None

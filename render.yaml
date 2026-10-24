@@ -1,3 +1,4 @@
+# Render blueprint for the API (free plan, Docker). The web app is deployed separately on Vercel (web/vercel.json).
 services:
   - type: web
     name: levelos-api
@@ -10,19 +11,24 @@ services:
     envVars:
       - key: APP_ENV
         value: prod
-      - key: DATABASE_URL
+      - key: SEED_DEMO
+        value: "true"
+      - key: DATABASE_URL # Neon Postgres connection string
         sync: false
       - key: JWT_SECRET
         generateValue: true
-      - key: CORS_ORIGINS
+      - key: CORS_ORIGINS # the Vercel URL, e.g. https://levelos.vercel.app
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: CLAUDE_BUDGET_USD # hard cap on Claude spend for the hosted demo (credit: $500 incl. local testing)
+        value: "400"
+      - key: CLAUDE_DAILY_BUDGET_USD
+        value: "25"
       - key: SARVAM_API_KEY
         sync: false
       - key: AZURE_SPEECH_KEY
         sync: false
       - key: AZURE_SPEECH_REGION
         value: centralindia
-      - key: GEMINI_API_KEY
-        sync: false
+      # GEMINI_API_KEY is deliberately absent: Gemini's free tier is never sent children's audio (evaluation only).

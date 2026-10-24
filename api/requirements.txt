@@ -12,4 +12,6 @@ regex>=2024.11.6
 PyJWT>=2.10,<3
 bcrypt>=4.2,<5
 python-dotenv>=1.0
+# Bundled ffmpeg binary, used only when ffmpeg is not on PATH (the Docker image ships its own).
+imageio-ffmpeg>=0.5,<1
 pytest>=8.3
