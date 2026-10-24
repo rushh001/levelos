@@ -67,6 +67,29 @@ def to_wav16k(data: bytes, suffix: str = ".webm") -> bytes:
         return dst.read_bytes()
 
 
+def to_mp3(data: bytes, suffix: str = ".webm") -> bytes:
+    """Playback copy for the teacher: mono 32 kbps MP3 (~4 KB per second of speech). MP3 because recordings from
+    the phone's MediaRecorder (WebM) often cannot be seeked, and Safari does not play every WebM.
+
+    Blocking (runs a subprocess): call it via `asyncio.to_thread` from async code.
+    """
+    if not data:
+        raise AudioError("empty audio")
+    exe = ffmpeg_exe()
+    if exe is None:
+        raise AudioError("ffmpeg not found (install it or `pip install imageio-ffmpeg`)")
+    with tempfile.TemporaryDirectory() as tmp:
+        src = Path(tmp) / f"in{suffix if suffix.startswith('.') else '.' + suffix}"
+        dst = Path(tmp) / "out.mp3"
+        src.write_bytes(data)
+        cmd = [exe, "-hide_banner", "-loglevel", "error", "-y", "-i", str(src),
+               "-vn", "-ac", "1", "-ar", "22050", "-codec:a", "libmp3lame", "-b:a", "32k", str(dst)]
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+        if proc.returncode != 0 or not dst.exists():
+            raise AudioError(f"ffmpeg failed: {proc.stderr.strip()[:500]}")
+        return dst.read_bytes()
+
+
 def _samples(wav: bytes) -> tuple[array.array, int]:
     with wave.open(io.BytesIO(wav), "rb") as w:
         if w.getsampwidth() != 2 or w.getnchannels() != 1:

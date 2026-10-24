@@ -5,6 +5,9 @@ import { Api } from '../api'
 import { Button, COHORT_STYLE, ChildChip, ErrorBox, Page, Spinner } from '../components/ui'
 import { useAsync } from '../lib/useAsync'
 
+const WARM_EVERY_MS = 10 * 60_000
+const warmedAt = new Map<string, number>() // class id -> when its children's pages were last cached
+
 const AVATARS = ['🙂', '🦁', '🐰', '🐯', '🦋', '🌻', '🐘', '🐢', '🐦', '🐬', '🌈', '🐼', '🦅', '🌙', '🐆', '🌸', '⭐', '🐝']
 
 export default function ClassDashboard() {
@@ -15,9 +18,11 @@ export default function ClassDashboard() {
   const [name, setName] = useState('')
   const [avatar, setAvatar] = useState(AVATARS[0])
 
-  // Load every child's page once while online, so any child can be opened (and checked) offline later.
+  // Load every child's page while online, so any child can be opened (and checked) offline later. At most once
+  // per class every 10 minutes: on the free API server, refetching 30 pages on every dashboard visit adds up.
   useEffect(() => {
-    if (!data || !navigator.onLine) return
+    if (!data || !navigator.onLine || Date.now() - (warmedAt.get(id) ?? 0) < WARM_EVERY_MS) return
+    warmedAt.set(id, Date.now())
     const ids = data.cohorts.flatMap((c) => c.students.map((s) => s.id)).concat(data.not_assessed.map((s) => s.id))
     void (async () => {
       for (const sid of ids) await Api.student(sid).catch(() => undefined)

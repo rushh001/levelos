@@ -101,8 +101,15 @@ def level_from_outcomes(outcomes: list[ItemOutcome], t: Thresholds = DEFAULT_THR
     return LEVELS[max(passed)]
 
 
-def start_level(grade: int | None, last_confirmed: str | None) -> str:
-    """Where the adaptive ladder begins. A known level is re-tested at that level (pass -> go up)."""
+GROUP_START = {"letter": "letter", "word": "word", "paragraph": "paragraph"}
+
+
+def start_level(grade: int | None, last_confirmed: str | None, group: str | None = None) -> str:
+    """Where the adaptive ladder begins. A group the teacher chose by hand wins (the check starts at that group's
+    level); otherwise a known level is re-tested at that level; otherwise the grade decides. From the start the
+    ladder still moves up on a pass and down on a fail, so a child who has outgrown the group is not held in it."""
+    if group in GROUP_START:
+        return GROUP_START[group]
     if last_confirmed in ("word", "paragraph", "story"):
         return last_confirmed
     if last_confirmed in ("beginner", "letter"):

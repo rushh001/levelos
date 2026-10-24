@@ -5,7 +5,8 @@ import { Api } from '../api'
 import { ReviewPanel } from '../components/ReviewPanel'
 import { WordChips, WordLegend, wordCorrect } from '../components/WordChips'
 import { ErrorBox, LevelBadge, Page, Spinner } from '../components/ui'
-import type { Checkin, Level, Word } from '../lib/types'
+import type { Checkin, ItemResult, Level, Word } from '../lib/types'
+import { useClip, wordAt } from '../lib/useClip'
 import { useAsync } from '../lib/useAsync'
 
 const LEVELS: Level[] = ['beginner', 'letter', 'word', 'paragraph', 'story']
@@ -24,7 +25,8 @@ export default function Result() {
   const [actionError, setActionError] = useState<Error | null>(null)
 
   // The quick (rule-based) analysis is replaced by Claude's a few seconds later: poll briefly for it.
-  const waitingForAi = !!health?.claude && checkin?.diagnosis?.model === 'rules'
+  const waitingForAi =
+    !!health?.claude && health.claude_budget?.available !== false && checkin?.diagnosis?.model === 'rules'
   useEffect(() => {
     if (!waitingForAi) return
     let tries = 0
@@ -98,6 +100,7 @@ export default function Result() {
       {checkin.status === 'needs_review' && (
         <div className="mt-4">
           <ReviewPanel
+            checkinId={checkin.id}
             items={checkin.items.filter((r) => r.needs_review)}
             busy={saving}
             onDone={(marks) => void act(() => Api.review(checkin.id, marks))}
@@ -147,39 +150,30 @@ export default function Result() {
           <WordLegend />
         </div>
         <div className="mt-3 space-y-3">
-          {checkin.items.map((r) => {
-            const s = r.result
-            return (
-              <div key={r.id} className="rounded-2xl bg-white p-3 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold">
-                    {t(`itemLevel.${r.item_level}`)} {r.passed ? '✓' : '✗'}
-                  </span>
-                  <span className="text-sm text-slate-600">
-                    {s.counts.correct}/{s.counts.total}
-                  </span>
-                </div>
-                <div className="mt-2">
-                  <WordChips
-                    words={s.words}
-                    onTap={saving ? undefined : (w) => tapWord(r.id, w)}
-                    markedByHand={r.source === 'offline_marks' && !s.ai_scored}
-                  />
-                </div>
-                <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-slate-500">
-                  {r.source === 'offline_marks' && (
-                    <span>{s.ai_scored ? t('result.markedAndChecked') : t('result.markedByTeacher')}</span>
-                  )}
-                  {(r.item_level === 'paragraph' || r.item_level === 'story') && s.hesitations !== null && (
-                    <span>{t('result.pauses', { count: s.hesitations })}</span>
-                  )}
-                  {s.wcpm !== null && <span>{t('result.wcpm', { wcpm: Math.round(s.wcpm) })}</span>}
-                </div>
-              </div>
-            )
-          })}
+          {checkin.items.map((r) => (
+            <ItemCard
+              key={r.id}
+              checkinId={checkin.id}
+              item={r}
+              onTapWord={saving ? undefined : (w) => tapWord(r.id, w)}
+            />
+          ))}
         </div>
       </section>
+
+      {checkin.items.some((r) => r.has_audio) && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+          <span>{t('result.keptDays', { days: health?.audio_retention_days ?? 30 })}</span>
+          <button
+            onClick={() => {
+              if (window.confirm(t('result.deleteConfirm'))) void act(() => Api.deleteRecordings(checkin.id))
+            }}
+            className="rounded-lg border border-slate-300 px-2 py-1 text-slate-600"
+          >
+            {t('result.deleteRecordings')}
+          </button>
+        </div>
+      )}
 
       {student && (
         <div className="mt-6 text-center">
@@ -189,5 +183,51 @@ export default function Result() {
         </div>
       )}
     </Page>
+  )
+}
+
+function ItemCard({ checkinId, item, onTapWord }: { checkinId: string; item: ItemResult; onTapWord?: (w: Word) => void }) {
+  const { t } = useTranslation()
+  const clip = useClip(checkinId, item.id)
+  const s = item.result
+  return (
+    <div className="rounded-2xl bg-white p-3 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-semibold">
+          {t(`itemLevel.${item.item_level}`)} {item.passed ? '✓' : '✗'}
+        </span>
+        <span className="flex items-center gap-2">
+          {item.has_audio && (
+            <button
+              onClick={() => (clip.state === 'playing' ? clip.stop() : void clip.play())}
+              className="rounded-full border border-blue-200 px-3 py-1 text-sm font-semibold text-blue-800"
+            >
+              {clip.state === 'playing' ? `⏸ ${t('result.pause')}` : clip.state === 'loading' ? '…' : `▶ ${t('result.listen')}`}
+            </button>
+          )}
+          <span className="text-sm text-slate-600">
+            {s.counts.correct}/{s.counts.total}
+          </span>
+        </span>
+      </div>
+      {clip.state === 'error' && <p className="mt-1 text-xs text-slate-500">{t('result.noRecording')}</p>}
+      <div className="mt-2">
+        <WordChips
+          words={s.words}
+          onTap={onTapWord}
+          markedByHand={item.source === 'offline_marks' && !s.ai_scored}
+          activeIndex={clip.state === 'playing' ? wordAt(s.words, clip.ms) : null}
+        />
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-slate-500">
+        {item.source === 'offline_marks' && (
+          <span>{s.ai_scored ? t('result.markedAndChecked') : t('result.markedByTeacher')}</span>
+        )}
+        {(item.item_level === 'paragraph' || item.item_level === 'story') && s.hesitations !== null && (
+          <span>{t('result.pauses', { count: s.hesitations })}</span>
+        )}
+        {s.wcpm !== null && <span>{t('result.wcpm', { wcpm: Math.round(s.wcpm) })}</span>}
+      </div>
+    </div>
   )
 }

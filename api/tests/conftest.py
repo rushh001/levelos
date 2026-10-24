@@ -2,7 +2,8 @@
 
 import os
 
-os.environ["DATABASE_URL"] = "sqlite://"
+# In-memory SQLite by default; set TEST_DATABASE_URL to run the same tests against a (throwaway) Postgres database.
+os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL", "sqlite://")
 os.environ["APP_ENV"] = "test"
 
 import pytest  # noqa: E402

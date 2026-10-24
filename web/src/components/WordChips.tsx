@@ -18,12 +18,15 @@ export function WordChips({
   onTap,
   big,
   markedByHand,
+  activeIndex,
 }: {
   words: Word[]
   onTap?: (w: Word) => void
   big?: boolean
   /** The whole item was tap-marked, so per-word "corrected by teacher" marks would be noise. */
   markedByHand?: boolean
+  /** Word being spoken while the recording plays. */
+  activeIndex?: number | null
 }) {
   const { t } = useTranslation()
   return (
@@ -43,7 +46,9 @@ export function WordChips({
             onClick={onTap ? () => onTap(w) : undefined}
             disabled={!onTap}
             title={heard && heard !== w.ref ? t('checkin.heard', { heard }) : undefined}
-            className={`rounded-lg border border-slate-200 px-2 py-1 ${big ? 'text-xl' : 'text-base'} ${cls}`}
+            className={`rounded-lg border border-slate-200 px-2 py-1 ${big ? 'text-xl' : 'text-base'} ${cls} ${
+              activeIndex === w.i ? 'outline outline-2 outline-blue-500' : ''
+            }`}
           >
             {w.ref}
             {w.label === 'self_correct' && correct && <span className="ml-0.5 text-green-700">↺</span>}

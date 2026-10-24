@@ -133,8 +133,36 @@ export const Api = {
     post<Checkin>(`/checkins/${id}/review`, { marks }),
   override: (id: string, level: Level | null) => post<Checkin>(`/checkins/${id}/override`, { level }),
   abandon: (id: string) => post<Checkin>(`/checkins/${id}/abandon`),
+  deleteRecordings: (id: string) => api<Checkin>(`/checkins/${id}/audio`, { method: 'DELETE' }),
 
   generateActivity: (classId: string, cohort: string) => post<Activity>(`/classes/${classId}/activities`, { cohort }),
   activities: (classId: string, cohort: string) => api<Activity[]>(`/classes/${classId}/activities?cohort=${cohort}`),
   rateActivity: (id: string, rating: number) => post<Activity>(`/activities/${id}/rating`, { rating }),
 }
+
+const recordingUrls = new Map<string, string>()
+
+/** A playable URL for one item's recording (fetched with the login token, cached for the session). */
+export async function recordingUrl(checkinId: string, itemResultId: string): Promise<string> {
+  const cached = recordingUrls.get(itemResultId)
+  if (cached) return cached
+  const t = getToken()
+  let res: Response
+  try {
+    res = await fetch(`${BASE}/api/checkins/${checkinId}/items/${itemResultId}/audio`, {
+      headers: t ? { Authorization: `Bearer ${t}` } : {},
+    })
+  } catch {
+    throw new OfflineError('offline')
+  }
+  if (!res.ok) throw new ApiError(res.status, 'no recording')
+  const url = URL.createObjectURL(await res.blob())
+  recordingUrls.set(itemResultId, url)
+  return url
+}
+
+export function forgetRecordings() {
+  recordingUrls.forEach((url) => URL.revokeObjectURL(url))
+  recordingUrls.clear()
+}
+

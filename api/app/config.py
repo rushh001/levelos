@@ -48,7 +48,9 @@ class Settings(BaseSettings):
     # (paid tier). Scripted adult clips in eval/ still use it.
     gemini_for_children: bool = False
 
-    keep_audio: bool = False
+    keep_audio: bool = False  # also write raw uploads to disk (consented evaluation set only)
+    # Recordings kept (as small MP3) so the teacher can listen again; deleted after this many days. 0 = never stored.
+    audio_retention_days: int = 30
 
     @field_validator("database_url")
     @classmethod

@@ -7,10 +7,12 @@ of any check-in leaves the history consistent.
 
 from __future__ import annotations
 
+import asyncio
+from datetime import timedelta
 from pathlib import Path
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from ..config import settings
@@ -24,7 +26,8 @@ from ..levels.aser_rules import (
     start_level,
     update_levels,
 )
-from ..models import Checkin, ItemResult, LevelHistory, Student, Teacher, utcnow
+from ..models import Checkin, ItemAudio, ItemResult, LevelHistory, Student, Teacher, utcnow
+from ..speech import audio as audio_mod
 from ..speech.align import tokenize
 from ..speech.scorer import ItemScore, score_item
 
@@ -103,7 +106,8 @@ def start(db: Session, teacher: Teacher, student_id: str, language: str | None, 
     if ladder_start is not None and (local_id is None or ladder_start not in ITEM_LEVELS):
         raise HTTPException(422, "start_level is only for offline check-ins and must be an item level")
     c = Checkin(student_id=student.id, language=lang, local_id=local_id, status="in_progress",
-                start_level=ladder_start or start_level(student.grade, student.confirmed_level))
+                start_level=ladder_start or start_level(student.grade, student.confirmed_level,
+                                                         student.cohort_override))
     db.add(c)
     db.commit()
     return c
@@ -138,6 +142,35 @@ def _store(db: Session, checkin: Checkin, item: Item, score: ItemScore, source: 
     return ir
 
 
+def purge_audio(db: Session) -> int:
+    """Delete recordings older than the retention period (all of them if retention is 0)."""
+    cutoff = utcnow() - timedelta(days=max(settings.audio_retention_days, 0))
+    return db.execute(delete(ItemAudio).where(ItemAudio.created_at < cutoff)).rowcount or 0
+
+
+def delete_audio(db: Session, checkin: Checkin) -> int:
+    ids = [r.id for r in checkin.items]
+    n = db.execute(delete(ItemAudio).where(ItemAudio.item_result_id.in_(ids))).rowcount or 0
+    db.commit()
+    db.expire_all()
+    return n
+
+
+async def _keep_recording(db: Session, ir: ItemResult, data: bytes, suffix: str) -> None:
+    """Playback copy for the teacher. Best effort: scoring has already succeeded, replay is a convenience."""
+    if settings.audio_retention_days <= 0:
+        return
+    try:
+        mp3 = await asyncio.to_thread(audio_mod.to_mp3, data, suffix)
+    except audio_mod.AudioError:
+        return
+    if ir.audio is None:
+        ir.audio = ItemAudio(item_result_id=ir.id, mime="audio/mpeg", size=len(mp3), data=mp3)
+    else:
+        ir.audio.data, ir.audio.size, ir.audio.created_at = mp3, len(mp3), utcnow()
+    purge_audio(db)
+
+
 async def add_audio(db: Session, checkin: Checkin, item_id: str, data: bytes, suffix: str) -> tuple[ItemScore, ItemResult | None]:
     """Score one recorded item. On re-record / speech failure nothing is stored and the same item stays next."""
     item = _expect_item(db, checkin, item_id)
@@ -145,6 +178,8 @@ async def add_audio(db: Session, checkin: Checkin, item_id: str, data: bytes, su
     if score.status != "scored":
         return score, None
     ir = _store(db, checkin, item, score, "ai")
+    db.flush()  # assigns ir.id
+    await _keep_recording(db, ir, data, suffix)
     if settings.keep_audio:
         folder = settings.speech_cache_dir.parent / "audio"
         folder.mkdir(parents=True, exist_ok=True)
@@ -197,6 +232,7 @@ async def attach_audio(db: Session, checkin: Checkin, ir: ItemResult, data: byte
     score.ai_scored = True
     score.evaluate()
     ir.result, ir.passed, ir.needs_review = score.to_dict(), score.passed, score.needs_review
+    await _keep_recording(db, ir, data, suffix)
     if checkin.status in FINISHED or checkin.teacher_overrode:
         _settle(db, checkin)
     db.commit()

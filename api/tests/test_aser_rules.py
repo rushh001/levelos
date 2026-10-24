@@ -94,6 +94,14 @@ def test_start_level_by_grade_and_history():
     assert start_level(1, "word") == "word"
 
 
+def test_group_chosen_by_teacher_sets_the_start():
+    # Grade 3 would start at the paragraph; a child the teacher placed in the Letter group starts at letters.
+    assert start_level(3, None, "letter") == "letter"
+    assert start_level(1, None, "paragraph") == "paragraph"
+    assert start_level(2, "story", "word") == "word"  # the teacher's group wins over the last level
+    assert start_level(3, None, None) == "paragraph"  # "group by level": unchanged
+
+
 def test_ladder_moves_up_then_brackets():
     assert next_item_level([], "word") == "word"
     hist = [words(5)]

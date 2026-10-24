@@ -111,6 +111,11 @@ export default function Student() {
             ))}
           </select>
         </label>
+        <p className="mt-1 text-xs text-slate-500">
+          {s.cohort_override
+            ? t('student.groupStart', { level: t(`level.${s.cohort_override}`) })
+            : t('student.autoStart')}
+        </p>
       </section>
 
       {local && local.some((c) => c.status !== 'synced') && (

@@ -112,6 +112,29 @@ def test_ladder_brackets_the_level_and_two_checkins_confirm(client, script):
     assert s["cohort"] == "word"
 
 
+def test_check_starts_at_the_group_the_teacher_set(client, script):
+    h = login(client)
+    _, st = make_student(client, h, grade=3)  # Grade 3: would start at the paragraph
+    first = lambda: client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()  # noqa: E731
+    for group, level in (("letter", "letter"), ("word", "word"), ("paragraph", "paragraph")):
+        client.patch(f"/api/students/{st['id']}", json={"cohort_override": group}, headers=h)
+        c = first()
+        assert c["start_level"] == level and c["next_item"]["level"] == level, group
+        client.post(f"/api/checkins/{c['id']}/abandon", headers=h)
+    client.patch(f"/api/students/{st['id']}", json={"clear_cohort_override": True}, headers=h)
+    assert first()["next_item"]["level"] == "paragraph"  # "group by level" again: by grade
+
+
+def test_letter_group_moves_up_only_when_letters_are_passed(client, script):
+    h = login(client)
+    _, st = make_student(client, h, grade=3)
+    client.patch(f"/api/students/{st['id']}", json={"cohort_override": "letter"}, headers=h)
+    failed = run_checkin(client, h, st["id"], {"letter": {"wrong": 3}}, script)
+    assert [i["item_level"] for i in failed["items"]] == ["letter"]  # never shown a paragraph
+    passed = run_checkin(client, h, st["id"], {"letter": {"wrong": 0}, "word": {"wrong": 3}}, script)
+    assert [i["item_level"] for i in passed["items"]] == ["letter", "word"]  # moves up one rung, stops at the fail
+
+
 def test_rerecord_keeps_the_same_item(client, script):
     h = login(client)
     _, st = make_student(client, h)

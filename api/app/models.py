@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -103,6 +103,22 @@ class ItemResult(Base):
     audio_kept_path: Mapped[str | None] = mapped_column(String(255), nullable=True)  # consented eval set only
 
     checkin: Mapped[Checkin] = relationship(back_populates="items")
+    audio: Mapped[ItemAudio | None] = relationship(back_populates="item_result", uselist=False)
+
+
+class ItemAudio(Base):
+    """The child's recording of one item, kept so the teacher can listen again (playback-friendly MP3).
+    Deleted automatically after AUDIO_RETENTION_DAYS, or by the teacher at any time."""
+
+    __tablename__ = "item_audio"
+
+    item_result_id: Mapped[str] = mapped_column(ForeignKey("item_results.id"), primary_key=True)
+    mime: Mapped[str] = mapped_column(String(64))
+    size: Mapped[int] = mapped_column(Integer)
+    data: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)  # loaded only when played
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+
+    item_result: Mapped[ItemResult] = relationship(back_populates="audio")
 
 
 class Diagnosis(Base):

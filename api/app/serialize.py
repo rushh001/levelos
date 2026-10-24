@@ -57,6 +57,7 @@ def item_result_out(ir: ItemResult) -> dict:
         "source": ir.source,
         "passed": ir.passed,
         "needs_review": ir.needs_review,
+        "has_audio": ir.audio is not None,
         "result": ir.result,
     }
 

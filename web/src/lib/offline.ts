@@ -28,7 +28,7 @@ export async function startOffline(s: StudentDetail): Promise<string> {
     studentName: s.first_name,
     avatar: s.avatar,
     language: s.assessment_language,
-    startLevel: startLevel(s.grade, s.confirmed_level),
+    startLevel: startLevel(s.grade, s.confirmed_level, s.cohort_override),
     startedAt: Date.now(),
     items: [],
     status: 'in_progress',

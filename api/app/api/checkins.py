@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Response, UploadFile
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -115,6 +115,26 @@ async def attach_audio(checkin_id: str, item_result_id: str, background: Backgro
     await svc.attach_audio(db, c, ir, data, _suffix(audio))
     _diagnose(db, c, background)
     return checkin_out(c, svc.next_item(db, c))
+
+
+@router.get("/{checkin_id}/items/{item_result_id}/audio")
+def play_audio(checkin_id: str, item_result_id: str, teacher: Teacher = Depends(current_teacher),
+               db: Session = Depends(get_db)) -> Response:
+    """The child's recording of one item, for the teacher to listen again. Only the class's own teacher can."""
+    c = svc.owned_checkin(db, teacher, checkin_id)
+    ir = next((r for r in c.items if r.id == item_result_id), None)
+    if ir is None or ir.audio is None:
+        raise HTTPException(404, "no recording (never made, or deleted after the retention period)")
+    return Response(content=ir.audio.data, media_type=ir.audio.mime,
+                    headers={"Cache-Control": "private, max-age=86400"})
+
+
+@router.delete("/{checkin_id}/audio")
+def delete_audio(checkin_id: str, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
+    """Teacher deletes every recording of this check-in (the scores and diagnosis stay)."""
+    c = svc.owned_checkin(db, teacher, checkin_id)
+    svc.delete_audio(db, c)
+    return checkin_out(svc.owned_checkin(db, teacher, checkin_id), svc.next_item(db, c))
 
 
 @router.post("/{checkin_id}/finish")

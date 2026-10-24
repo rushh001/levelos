@@ -88,7 +88,9 @@
     "autoGroup": "Group by level",
     "latest": "Latest check",
     "inProgress": "Not finished",
-    "awaiting": "Needs your confirmation"
+    "awaiting": "Needs your confirmation",
+    "groupStart": "The reading check starts at this group's level ({{level}}) and moves up or down from there.",
+    "autoStart": "The reading check starts at the last confirmed level, or by grade."
   },
   "checkin": {
     "item": "Item {{n}}",
@@ -112,7 +114,7 @@
     "passed": "Read well ({{correct}}/{{total}})",
     "notPassed": "Not yet ({{correct}}/{{total}})",
     "confirmTitle": "Please confirm",
-    "confirmHelp": "We are not sure about these words. Did the child read each one correctly?",
+    "confirmHelp": "We are not sure about these. Listen to the recording, then mark each one.",
     "heard": "heard: {{heard}}",
     "readRight": "Right",
     "readWrong": "Wrong",
@@ -123,7 +125,9 @@
     "micPermission": "Microphone permission is needed. Allow it in the browser and try again.",
     "micUnsupported": "This browser cannot record audio. Use Chrome on Android.",
     "notPlaced": "These items do not place the child yet. Read one more item, or set the level yourself.",
-    "playInstruction": "Play the instruction"
+    "playInstruction": "Play the instruction",
+    "listenAll": "Listen to the recording",
+    "listenWord": "Listen to this word"
   },
   "result": {
     "level": "Reading level",
@@ -146,7 +150,13 @@
     "legendFixed": "corrected by the child",
     "backToClass": "Back to class",
     "markedByTeacher": "Marked by tapping",
-    "markedAndChecked": "Marked by tapping, then checked by AI"
+    "markedAndChecked": "Marked by tapping, then checked by AI",
+    "listen": "Listen",
+    "pause": "Pause",
+    "noRecording": "The recording is not available.",
+    "deleteRecordings": "Delete recordings",
+    "deleteConfirm": "Delete this check-in's recordings? The scores stay.",
+    "keptDays": "Recordings are kept for {{days}} days so you can listen again, then deleted."
   },
   "activity": {
     "button": "10-minute activity",

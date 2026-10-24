@@ -58,7 +58,9 @@ export function placedLevel(outcomes: Outcome[]): Level | null {
   return level
 }
 
-export function startLevel(grade: number | null, lastConfirmed: Level | null): ItemLevel {
+/** A group the teacher chose by hand wins; then the last confirmed level; then the grade (as the server). */
+export function startLevel(grade: number | null, lastConfirmed: Level | null, group?: string | null): ItemLevel {
+  if (group === 'letter' || group === 'word' || group === 'paragraph') return group
   if (lastConfirmed === 'word' || lastConfirmed === 'paragraph' || lastConfirmed === 'story') return lastConfirmed
   if (lastConfirmed === 'beginner' || lastConfirmed === 'letter') return 'letter'
   if (grade === null || grade <= 1) return 'letter'

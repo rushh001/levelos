@@ -35,6 +35,16 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 - [x] **Spent so far (local ledger): $0.22** of the $500 credit
 - [x] 110 API tests
 
+### 24 Oct (evening) — deploy prep verified, recording replay, documentation (CC)
+- [x] Committed and pushed `117c462` (author: Mohd Zaid Husain <rushhinjam@gmail.com>, repo-local identity; SSH as `rushh001`)
+- [x] Neon database (via Vercel Storage) checked: direct URL, Singapore; **all tests pass on Postgres 18**; demo data seeded
+- [x] **Docker image built exactly as Render will** (110 s); production-mode container + production web build verified in a browser: recorded check-in with a real voice, activity, offline round trip; image also checked read-only against Neon
+- [x] **Recording replay** (asked for by Z): recordings kept 30 days as small MP3 for the class's teacher; confirm panel has ▶ whole card and 🔊 per word, and shows what each recogniser heard (for letters, the letter); result page plays each card with the words highlighted; teacher can delete recordings; auto-purge after `AUDIO_RETENTION_DAYS`
+- [x] Fixes: dashboard no longer refetches every child's page on each visit; "detailed analysis coming" only when Claude is available
+- [x] README rewritten; **[document.md](document.md)**: full description of every stage, service, rule, guardrail, data and configuration
+- [x] Group set by hand on a child's page now sets where the reading check starts (asked for by Z)
+- [x] 118 API tests
+
 ---
 
 ## 2. Blocked / waiting on a person
@@ -70,7 +80,7 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 
 ## 5. How to check the current state
 ```bash
-cd api && .venv/Scripts/python -m pytest -q                 # 105 tests
+cd api && .venv/Scripts/python -m pytest -q                 # 118 tests
 cd api && .venv/Scripts/python -m scripts.seed_demo --reset   # demo data (local SQLite)
 cd api && .venv/Scripts/uvicorn app.main:app --reload         # http://localhost:8000/api/health
 cd web && npm run dev                                         # http://localhost:5173
@@ -80,3 +90,4 @@ cd web && npm run dev                                         # http://localhost
 - **15 Oct** — research, plan, decisions, scaffold, ASER rules + aligner + speech clients; first push (`5347fdb`).
 - **24 Oct** — Phases 0–4, 6, 7 implemented and verified locally (see §1); not yet committed (waiting for Z's go-ahead).
 - **24 Oct (later)** — real recordings scored, Claude live (spent $0.22), spend caps added.
+- **24 Oct (evening)** — pushed `117c462`; Postgres + Docker verified; recording replay; README + document.md.

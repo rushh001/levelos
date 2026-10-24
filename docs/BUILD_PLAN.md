@@ -66,7 +66,7 @@ The demo loop judges must see in under 3 minutes:
 │   teacher summary (Hi/En), evidence per claim                 │
 │ 6 Cohorts (confirmed levels) · Activity generator: filter     │
 │   bank → Claude adapts one entry → Haiku validator pass       │
-│ Postgres (Neon free) · audio deleted after scoring            │
+│ Postgres (Neon free) · audio deleted after scoring (see note) │
 └───────────────────────────────────────────────────────────────┘
 ```
 
@@ -96,6 +96,7 @@ Error-pattern enum (v1): `letter_recognition`, `matra_vowel_sign`, `conjunct`, `
 6. Activities must cite a bank entry; validator pass; raw bank entry as fallback.
 7. Teacher can override any level, group, or word; overrides are logged and shown in the eval.
 8. Child data: first name + avatar only, audio deleted after scoring (kept only for the consented eval set), no real children in the hosted demo.
+   *Changed 24 Oct:* recordings are now kept for 30 days as a small MP3 so the teacher can listen again when confirming uncertain words or reviewing later; only that class's teacher can play them, they are deleted automatically after `AUDIO_RETENTION_DAYS`, and the teacher can delete them at any time (see [document.md §6](../document.md#6-recordings-and-replay)).
 
 ---
 

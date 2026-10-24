@@ -13,6 +13,7 @@ from .config import settings
 from .content import available_languages, languages
 from .db import Base, SessionLocal, engine
 from .llm import budget
+from .services.checkins import purge_audio
 from .speech.audio import ffmpeg_available
 
 
@@ -21,6 +22,12 @@ async def lifespan(_: FastAPI):
     check_secret()
     # Hackathon-scale schema management: create tables if missing. Swap for Alembic if the schema churns.
     Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        purge_audio(db)  # recordings past the retention period
+        db.commit()
+    finally:
+        db.close()
     yield
 
 
@@ -53,6 +60,7 @@ def health() -> dict:
         },
         "claude": bool(settings.anthropic_api_key),
         "claude_budget": _budget_status(),
+        "audio_retention_days": settings.audio_retention_days,
     }
 
 

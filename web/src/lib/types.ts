@@ -90,6 +90,8 @@ export interface ItemResult {
   source: 'ai' | 'offline_marks'
   passed: boolean | null
   needs_review: boolean
+  /** A recording is kept on the server for the teacher to listen again. */
+  has_audio: boolean
   result: ItemScore
 }
 
@@ -164,6 +166,8 @@ export interface Health {
   languages: string[]
   claude: boolean
   speech_paths: Record<string, boolean>
+  audio_retention_days?: number
+  claude_budget?: { available: boolean }
 }
 
 export interface ActivityPlan {

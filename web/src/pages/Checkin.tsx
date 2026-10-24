@@ -155,6 +155,7 @@ export default function Checkin() {
 
       {checkin.awaiting_review && (
         <ReviewPanel
+          checkinId={checkin.id}
           items={checkin.items.filter((r) => r.needs_review)}
           onDone={async (marks) => {
             setBusy('save')
