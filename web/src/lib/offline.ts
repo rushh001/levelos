@@ -19,16 +19,17 @@ export function newLocalId(): string {
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-export async function startOffline(s: StudentDetail): Promise<string> {
+export async function startOffline(s: StudentDetail, language: string): Promise<string> {
   const localId = newLocalId()
+  const level = s.levels[language]
   await db.checkins.put({
     localId,
     studentId: s.id,
     classId: s.class_id,
     studentName: s.first_name,
     avatar: s.avatar,
-    language: s.assessment_language,
-    startLevel: startLevel(s.grade, s.confirmed_level, s.cohort_override),
+    language,
+    startLevel: startLevel(s.grade, level?.confirmed_level ?? null, level?.cohort_override ?? null),
     startedAt: Date.now(),
     items: [],
     status: 'in_progress',
@@ -84,7 +85,7 @@ export async function abandonOffline(localId: string) {
 let running = false
 
 async function syncOne(c: QueuedCheckin) {
-  let server = await Api.startCheckin(c.studentId, c.localId, c.startLevel)
+  let server = await Api.startCheckin(c.studentId, c.language, c.localId, c.startLevel)
   if (server.status === 'in_progress') {
     for (let k = server.items.length; k < c.items.length; k++) {
       const it = c.items[k]

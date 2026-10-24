@@ -10,19 +10,27 @@ export interface Teacher {
   ui_lang: string
 }
 
-export interface StudentSummary {
-  id: string
-  first_name: string
-  avatar: string
-  grade: number
-  home_lang: string | null
-  assessment_language: string
+/** A child's level and group in one reading test (language). */
+export interface LangLevel {
   provisional_level: Level | null
   confirmed_level: Level | null
   level: Level | null
   level_confirmed: boolean
   cohort: Cohort | null
   cohort_override: Cohort | null
+}
+
+/** Top-level level fields describe `language`; `levels` has every reading test the child takes. */
+export interface StudentSummary extends LangLevel {
+  id: string
+  first_name: string
+  avatar: string
+  grade: number
+  home_lang: string | null
+  assessment_language: string
+  language: string
+  languages: string[]
+  levels: Record<string, LangLevel>
   checkins: number
   last_checkin_at: string | null
   pending_review: boolean
@@ -34,6 +42,7 @@ export interface ClassSummary {
   name: string
   grade: number
   language: string
+  languages: string[]
   students_count: number
   students?: StudentSummary[]
 }
@@ -150,6 +159,7 @@ export interface CohortCard {
 
 export interface Dashboard {
   class: ClassSummary
+  language: string
   cohorts: CohortCard[]
   not_assessed: StudentSummary[]
   pending_review: string[]

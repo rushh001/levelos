@@ -54,12 +54,38 @@ class Student(Base):
     avatar: Mapped[str] = mapped_column(String(32), default="🙂")
     grade: Mapped[int] = mapped_column(Integer, default=2)
     home_lang: Mapped[str | None] = mapped_column(String(8), nullable=True)  # None = the class language
+    # One level per child, from before levels were kept per language: read only to migrate older databases
+    # (services.checkins.migrate_levels). Levels and groups live in StudentLevel.
+    provisional_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    confirmed_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    cohort_override: Mapped[str | None] = mapped_column(String(16), nullable=True)
+
+    classroom: Mapped[Classroom] = relationship(back_populates="students")
+    checkins: Mapped[list[Checkin]] = relationship(back_populates="student", order_by="Checkin.started_at")
+    levels: Mapped[list[StudentLevel]] = relationship(back_populates="student", cascade="all, delete-orphan")
+
+    @property
+    def main_language(self) -> str:
+        """The language of the child's regional reading test; English is tested alongside it."""
+        return self.home_lang or self.classroom.language
+
+    def level_in(self, language: str) -> StudentLevel | None:
+        return next((row for row in self.levels if row.language == language), None)
+
+
+class StudentLevel(Base):
+    """A child's reading level and group in one language. ASER tests the regional language and English
+    separately, so each language has its own check-ins, level and TaRL group."""
+
+    __tablename__ = "student_levels"
+
+    student_id: Mapped[str] = mapped_column(ForeignKey("students.id"), primary_key=True)
+    language: Mapped[str] = mapped_column(String(8), primary_key=True)
     provisional_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
     confirmed_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
     cohort_override: Mapped[str | None] = mapped_column(String(16), nullable=True)  # teacher moved the child
 
-    classroom: Mapped[Classroom] = relationship(back_populates="students")
-    checkins: Mapped[list[Checkin]] = relationship(back_populates="student", order_by="Checkin.started_at")
+    student: Mapped[Student] = relationship(back_populates="levels")
 
 
 class Checkin(Base):

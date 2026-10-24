@@ -5,6 +5,7 @@ import { Api } from '../api'
 import { ReviewPanel } from '../components/ReviewPanel'
 import { WordChips, WordLegend, wordCorrect } from '../components/WordChips'
 import { ErrorBox, LevelBadge, Page, Spinner } from '../components/ui'
+import { patternKey } from '../lib/readingLang'
 import type { Checkin, ItemResult, Level, Word } from '../lib/types'
 import { useClip, wordAt } from '../lib/useClip'
 import { useAsync } from '../lib/useAsync'
@@ -60,10 +61,14 @@ export default function Result() {
     void act(() => Api.review(checkin.id, [{ item_result_id: itemResultId, i: w.i, correct: !wordCorrect(w) }]))
 
   const d = checkin.diagnosis
-  const confirmedNow = student && checkin.level_final && student.confirmed_level === checkin.level_final
+  const confirmedNow =
+    student && checkin.level_final && student.levels[checkin.language]?.confirmed_level === checkin.level_final
 
   return (
-    <Page title={student ? `${student.avatar} ${student.first_name}` : undefined} back={`/student/${checkin.student_id}`}>
+    <Page
+      title={student ? `${student.avatar} ${student.first_name} · ${t(`lang.${checkin.language}`, { defaultValue: checkin.language })}` : undefined}
+      back={`/student/${checkin.student_id}`}
+    >
       <ErrorBox error={actionError} />
 
       <section className="rounded-2xl bg-white p-4 shadow-sm">
@@ -120,7 +125,7 @@ export default function Result() {
             <div className="mt-2 flex flex-wrap gap-1.5">
               {d.error_patterns.map((p) => (
                 <span key={p} className="rounded-full bg-violet-100 px-2 py-0.5 text-sm text-violet-900">
-                  {t(`pattern.${p}`)}
+                  {t(patternKey(p, checkin.language))}
                 </span>
               ))}
             </div>
@@ -132,7 +137,7 @@ export default function Result() {
                 .filter((e) => e.words.length)
                 .map((e, k) => (
                   <li key={k}>
-                    <span className="font-medium">{t(`pattern.${e.pattern}`)}:</span>{' '}
+                    <span className="font-medium">{t(patternKey(e.pattern, checkin.language))}:</span>{' '}
                     {e.words.map((w) => `${w.ref} → ${w.heard ?? '—'}`).join(', ')}
                     {(lang === 'hi' ? e.note_hi : e.note_en) && <span> — {lang === 'hi' ? e.note_hi : e.note_en}</span>}
                   </li>

@@ -126,7 +126,11 @@ export default function Checkin() {
   const uiLang = i18n.language === 'hi' ? 'hi' : 'en'
 
   return (
-    <Page title={item ? t('checkin.item', { n: position }) : undefined} back={`/student/${checkin.student_id}`} wide>
+    <Page
+      title={item ? `${t('checkin.item', { n: position })} · ${t(`lang.${checkin.language}`, { defaultValue: checkin.language })}` : undefined}
+      back={`/student/${checkin.student_id}`}
+      wide
+    >
       {notice && (
         <div
           className={`mb-3 rounded-xl p-3 text-sm ${

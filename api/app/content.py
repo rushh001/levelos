@@ -64,6 +64,16 @@ def available_languages() -> list[str]:
     return [lang for lang in languages() if (settings.content_dir / "items" / f"{lang}.json").exists()]
 
 
+def reading_languages(main: str) -> list[str]:
+    """The reading tests a child takes, as in ASER: their regional language and English (each only with an item bank)."""
+    available = available_languages()
+    return [lang for lang in dict.fromkeys((main, "en")) if lang in available]
+
+
+def latin_script(lang: str) -> bool:
+    return languages().get(lang, {}).get("script") == "Latin"
+
+
 def get_item(item_id: str) -> Item:
     lang = item_id.split("-", 1)[0]
     try:

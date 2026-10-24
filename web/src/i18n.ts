@@ -12,7 +12,7 @@ try {
 
 i18n.use(initReactI18next).init({
   resources: { en: { translation: en }, hi: { translation: hi } },
-  lng: saved ?? 'hi',
+  lng: saved ?? 'en',
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
 })

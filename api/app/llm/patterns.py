@@ -22,5 +22,5 @@ LABELS = {
     "sight_word": {"hi": "आम छोटे शब्द", "en": "Common sight words"},
     "guessing_from_first_akshara": {"hi": "पहला अक्षर देखकर अनुमान", "en": "Guessing from the first letter"},
     "fluency_only": {"hi": "सही पर रुक-रुककर पढ़ना", "en": "Accurate but slow or halting"},
-    "insufficient_audio": {"hi": "आवाज़ से पूरी जाँच नहीं हो सकी", "en": "Not enough clear audio to tell"},
+    "insufficient_audio": {"hi": "गलती का प्रकार साफ़ नहीं", "en": "Kind of error not clear"},
 }

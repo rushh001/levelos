@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { db } from '../db'
 import { useAuth } from '../lib/auth'
+import { setReadingLang } from '../lib/readingLang'
 import type { Cohort, ItemPublic, Level, StudentSummary } from '../lib/types'
 
 export function useOnline() {
@@ -31,6 +32,7 @@ export function Page({ title, back, children, wide }: { title?: string; back?: s
   const toggleLang = () => {
     const next = i18n.language === 'hi' ? 'en' : 'hi'
     void i18n.changeLanguage(next)
+    setReadingLang(next) // the teacher switched to English: give the English reading test too
     try {
       localStorage.setItem('levelos.uiLang', next)
     } catch {
@@ -134,6 +136,38 @@ export function Button({
     >
       {children}
     </button>
+  )
+}
+
+/** Which reading test the page shows, when there is more than one (the regional language and English). */
+export function ReadingTestSwitch({
+  languages,
+  value,
+  onChange,
+}: {
+  languages: string[]
+  value: string
+  onChange: (lang: string) => void
+}) {
+  const { t } = useTranslation()
+  if (languages.length < 2) return null
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <span className="text-slate-600">{t('readingTest.label')}</span>
+      <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5" role="group" aria-label={t('readingTest.label')}>
+        {languages.map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => onChange(l)}
+            aria-pressed={l === value}
+            className={`rounded-md px-3 py-1 font-medium ${l === value ? 'bg-blue-700 text-white' : 'text-slate-700'}`}
+          >
+            {t(`lang.${l}`, { defaultValue: l })}
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 

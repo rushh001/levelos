@@ -2,7 +2,8 @@
 
 Levels are never edited in place: a student's provisional/confirmed levels are replayed from their finished
 check-ins in order (two agreeing check-ins confirm; a teacher override sets both). So a late teacher correction
-of any check-in leaves the history consistent.
+of any check-in leaves the history consistent. Each language is replayed on its own: an English check-in moves
+only the English level.
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ from ..levels.aser_rules import (
     start_level,
     update_levels,
 )
-from ..models import Checkin, ItemAudio, ItemResult, LevelHistory, Student, Teacher, utcnow
+from ..models import Checkin, ItemAudio, ItemResult, LevelHistory, Student, StudentLevel, Teacher, utcnow
 from ..speech import audio as audio_mod
 from ..speech.align import tokenize
 from ..speech.scorer import ItemScore, score_item
@@ -56,10 +57,12 @@ def scores(checkin: Checkin) -> list[ItemScore]:
 
 
 def _recent_item_ids(db: Session, checkin: Checkin) -> set[str]:
-    """Items from this check-in and the student's previous one, so the child does not re-read the same text."""
+    """Items from this check-in and the student's previous one in the same language, so the child does not re-read
+    the same text."""
     prev = db.scalars(
         select(Checkin)
-        .where(Checkin.student_id == checkin.student_id, Checkin.id != checkin.id, Checkin.status.in_(FINISHED))
+        .where(Checkin.student_id == checkin.student_id, Checkin.id != checkin.id, Checkin.status.in_(FINISHED),
+               Checkin.language == checkin.language)
         .order_by(Checkin.started_at.desc())
         .limit(1)
     ).first()
@@ -100,14 +103,15 @@ def start(db: Session, teacher: Teacher, student_id: str, language: str | None, 
         existing = db.scalar(select(Checkin).where(Checkin.local_id == local_id))
         if existing is not None:
             return existing
-    lang = language or student.home_lang or student.classroom.language
+    lang = language or student.main_language
     if lang not in available_languages():
         raise HTTPException(422, f"no item bank for language {lang!r}")
     if ladder_start is not None and (local_id is None or ladder_start not in ITEM_LEVELS):
         raise HTTPException(422, "start_level is only for offline check-ins and must be an item level")
+    row = student.level_in(lang)
     c = Checkin(student_id=student.id, language=lang, local_id=local_id, status="in_progress",
-                start_level=ladder_start or start_level(student.grade, student.confirmed_level,
-                                                         student.cohort_override))
+                start_level=ladder_start or start_level(student.grade, row.confirmed_level if row else None,
+                                                         row.cohort_override if row else None))
     db.add(c)
     db.commit()
     return c
@@ -313,11 +317,23 @@ def override(db: Session, checkin: Checkin, level: str | None) -> Checkin:
     return checkin
 
 
-def replay_levels(db: Session, student: Student, cause: Checkin | None = None, source: str = "ai") -> None:
-    """Recompute provisional/confirmed from the student's counted check-ins, oldest first, and log the change.
-    Queries the database rather than `student.checkins`, which may be a stale in-session collection."""
+def level_row(student: Student, language: str) -> StudentLevel:
+    row = student.level_in(language)
+    if row is None:
+        row = StudentLevel(language=language)
+        student.levels.append(row)
+    return row
+
+
+def replay_levels(db: Session, student: Student, cause: Checkin | None = None, source: str = "ai",
+                  language: str | None = None, log: bool = True) -> None:
+    """Recompute one language's provisional/confirmed from the student's counted check-ins in that language (the
+    language of `cause` by default), oldest first, and log the change. Queries the database rather than
+    `student.checkins`, which may be a stale in-session collection."""
+    lang = language or (cause.language if cause else student.main_language)
     db.flush()
-    rows = db.scalars(select(Checkin).where(Checkin.student_id == student.id).order_by(Checkin.started_at))
+    rows = db.scalars(select(Checkin).where(Checkin.student_id == student.id, Checkin.language == lang)
+                      .order_by(Checkin.started_at))
     prov = conf = None
     for c in rows:
         if c.status != "scored" or c.level_final is None:
@@ -326,7 +342,29 @@ def replay_levels(db: Session, student: Student, cause: Checkin | None = None, s
             prov = conf = c.level_final
         else:
             prov, conf = update_levels(prov, conf, c.level_final)
-    if (prov, conf) != (student.provisional_level, student.confirmed_level):
-        student.provisional_level, student.confirmed_level = prov, conf
-        db.add(LevelHistory(student_id=student.id, checkin_id=cause.id if cause else None,
-                            provisional=prov, confirmed=conf, source=source))
+    row = student.level_in(lang)
+    if (prov, conf) != ((row.provisional_level, row.confirmed_level) if row else (None, None)):
+        row = row or level_row(student, lang)
+        row.provisional_level, row.confirmed_level = prov, conf
+        if log:
+            db.add(LevelHistory(student_id=student.id, checkin_id=cause.id if cause else None,
+                                provisional=prov, confirmed=conf, source=source))
+
+
+def migrate_levels(db: Session) -> int:
+    """Databases from before per-language levels kept one level and group per child. Give each language a child has
+    check-ins in its own level row (replayed from those check-ins) and move the teacher's group choice to the
+    child's main language. Runs at startup (hackathon scale: every child is looked at); a no-op once done.
+    Returns how many children changed."""
+    changed = 0
+    for s in db.scalars(select(Student)).all():
+        rows_before = len(s.levels)
+        for lang in sorted({c.language for c in s.checkins} - {row.language for row in s.levels}):
+            replay_levels(db, s, language=lang, log=False)
+        moved = s.cohort_override is not None
+        if moved:
+            level_row(s, s.main_language).cohort_override = s.cohort_override
+            s.cohort_override = None  # moved, so a group the teacher clears later stays cleared
+        changed += moved or len(s.levels) != rows_before
+    db.commit()
+    return changed

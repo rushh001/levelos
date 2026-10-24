@@ -121,7 +121,11 @@ export default function OfflineCheckin() {
   const lastItem = last ? getItem(last.itemId) : null
 
   return (
-    <Page title={`${t('checkin.item', { n: c.items.length + 1 })} · ${c.studentName}`} back={back} wide>
+    <Page
+      title={`${t('checkin.item', { n: c.items.length + 1 })} · ${t(`lang.${c.language}`, { defaultValue: c.language })} · ${c.studentName}`}
+      back={back}
+      wide
+    >
       <div className="mb-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{t('offlineCheck.banner')}</div>
       {last && lastItem && (
         <div className="mb-3 rounded-xl bg-slate-100 p-3 text-sm">

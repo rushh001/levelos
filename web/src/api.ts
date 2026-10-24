@@ -104,16 +104,22 @@ export const Api = {
 
   classes: () => api<ClassSummary[]>('/classes'),
   createClass: (body: { name: string; grade: number; language: string }) => post<ClassSummary>('/classes', body),
-  dashboard: (classId: string) => api<Dashboard>(`/classes/${classId}/dashboard`),
+  dashboard: (classId: string, language?: string) =>
+    api<Dashboard>(`/classes/${classId}/dashboard${language ? `?language=${language}` : ''}`),
   addStudent: (classId: string, body: { first_name: string; avatar: string }) =>
     post<StudentSummary>(`/classes/${classId}/students`, body),
 
   student: (id: string) => api<StudentDetail>(`/students/${id}`),
-  patchStudent: (id: string, body: { cohort_override?: string; clear_cohort_override?: boolean }) =>
+  patchStudent: (id: string, body: { cohort_override?: string; clear_cohort_override?: boolean; language?: string }) =>
     patch<StudentSummary>(`/students/${id}`, body),
 
-  startCheckin: (studentId: string, localId?: string, startLevel?: string) =>
-    post<Checkin>('/checkins', { student_id: studentId, local_id: localId ?? null, start_level: startLevel ?? null }),
+  startCheckin: (studentId: string, language: string, localId?: string, startLevel?: string) =>
+    post<Checkin>('/checkins', {
+      student_id: studentId,
+      language,
+      local_id: localId ?? null,
+      start_level: startLevel ?? null,
+    }),
   checkin: (id: string) => api<Checkin>(`/checkins/${id}`),
   uploadItem: (id: string, itemId: string, blob: Blob, mime: string) => {
     const form = new FormData()
@@ -135,8 +141,10 @@ export const Api = {
   abandon: (id: string) => post<Checkin>(`/checkins/${id}/abandon`),
   deleteRecordings: (id: string) => api<Checkin>(`/checkins/${id}/audio`, { method: 'DELETE' }),
 
-  generateActivity: (classId: string, cohort: string) => post<Activity>(`/classes/${classId}/activities`, { cohort }),
-  activities: (classId: string, cohort: string) => api<Activity[]>(`/classes/${classId}/activities?cohort=${cohort}`),
+  generateActivity: (classId: string, cohort: string, language: string) =>
+    post<Activity>(`/classes/${classId}/activities`, { cohort, language }),
+  activities: (classId: string, cohort: string, language: string) =>
+    api<Activity[]>(`/classes/${classId}/activities?cohort=${cohort}&language=${language}`),
   rateActivity: (id: string, rating: number) => post<Activity>(`/activities/${id}/rating`, { rating }),
 }
 

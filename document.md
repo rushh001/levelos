@@ -30,7 +30,7 @@ For a short overview see [README.md](README.md); deployment steps are in [docs/D
 
 ## 1. What LevelOS is
 
-LevelOS is a phone web app for primary-school teachers in India. In about three minutes per child it finds the child's **reading level** using the ASER method (Beginner, Letter, Word, Paragraph, Story), shows **what kind of mistakes** the child makes, regroups the whole class into **Teaching at the Right Level** groups, and gives the teacher a **10-minute activity** for each group. It works in Hindi and English, on one shared teacher phone, and keeps working **without a network**.
+LevelOS is a phone web app for primary-school teachers in India. In about three minutes per child it finds the child's **reading level** using the ASER method (Beginner, Letter, Word, Paragraph, Story), shows **what kind of mistakes** the child makes, regroups the whole class into **Teaching at the Right Level** groups, and gives the teacher a **10-minute activity** for each group. As in ASER, each child is tested **in English and in their regional language** (Hindi today), with a separate level and group in each. It runs on one shared teacher phone and keeps working **without a network**.
 
 It was built for the AI for Foundational Learning Hackathon (Challenge 02: Learning-Level Visibility) by Team rushhies.
 
@@ -45,13 +45,13 @@ It was built for the AI for Foundational Learning Hackathon (Challenge 02: Learn
 | Screen | What happens |
 |---|---|
 | **Login** | Login ID + numeric PIN. "Try the demo class" logs into the demo. |
-| **Class dashboard** | The class split into three reading groups (Letter, Word, Paragraph) with each group's most common difficulties; children with a dotted border are not yet confirmed; children not yet checked are listed separately; a banner shows check-ins waiting for the teacher's confirmation. Add children (first name + emoji). |
-| **Child page** | Level (confirmed or provisional), latest diagnosis, group (can be set by hand — the next reading check then starts at that group's level), past check-ins, **Start reading check**. |
+| **Class dashboard** | A **Reading test** switch (Hindi \| English) picks the language. The class split into three reading groups (Letter, Word, Paragraph) in that language, with each group's most common difficulties; children with a dotted border are not yet confirmed; children not yet checked in that language are listed separately; a banner shows check-ins waiting for the teacher's confirmation. Add children (first name + emoji). |
+| **Child page** | The child's level in each language (confirmed or provisional); the Reading test switch; **Start English reading check** (or Hindi); the latest diagnosis and the group in that language (the group can be set by hand — the next check in that language then starts at the group's level); past check-ins, each tagged with its language. |
 | **Check-in** | One card at a time in large text (letters, words, a paragraph or a story) with the instruction to read to the child (and a 🔊 button that plays it). The teacher taps the microphone, the child reads, the teacher taps stop. About 5–15 seconds later the result of that card shows and the next card appears. If the app is unsure about some words, it asks the teacher to confirm them (with the recording to listen to) before moving on. The teacher can always mark a card by tapping instead of recording. |
 | **Result** | The level, the diagnosis ("what to work on"), every word marked (wrong in red, unsure in amber, self-corrected ↺), long pauses and reading speed, **▶ listen** to each card with the words highlighted as they are read, change the level, correct any word, delete the recordings. |
 | **10-minute activity** | From a group card: a 10-minute plan for that group, adapted to the words the children actually misread, with steps, materials, practice words, what to watch for and the source it comes from; the teacher can rate it. |
 
-The whole interface is in Hindi and English (toggle in the header).
+The interface is in English and Hindi (toggle in the header; it opens in English). **Switching the interface language also switches the reading test** to that language, so a teacher who switches to English tests the children in English; the Reading test switch on the class and child pages changes only the test (for example, a Hindi interface giving the English test).
 
 ---
 
@@ -94,7 +94,8 @@ Every recorded card goes through the same stages. Stages 2–6 run on the API fo
 | Rule | Value |
 |---|---|
 | Card types (rungs) | letter → word → paragraph → story |
-| Where to start | a **group the teacher set by hand** → that group's level (Letter group → letters, Word group → words, Paragraph group → paragraph); otherwise the last confirmed level (Word/Paragraph/Story → that rung, Beginner/Letter → letters); otherwise by grade (Grade ≤1 or unknown → letters, Grade 2 → words, Grade ≥3 → paragraph) |
+| Language | the reading test the teacher chose (English, or the class's regional language); each language has its own cards, history, level and group |
+| Where to start (all in the language being tested) | a **group the teacher set by hand** → that group's level (Letter group → letters, Word group → words, Paragraph group → paragraph); otherwise the last confirmed level (Word/Paragraph/Story → that rung, Beginner/Letter → letters); otherwise by grade (Grade ≤1 or unknown → letters, Grade 2 → words, Grade ≥3 → paragraph) |
 | Next card | pass → one rung up; fail → one rung down; stop when the level is bracketed (a pass just below a fail), at the top or bottom, or after 4 cards |
 | Which variant | the first variant of that rung the child did not read in this or the previous check-in (variants rotate) |
 | If the teacher is asked to confirm words | the ladder waits until they are confirmed, because the next rung depends on that card's pass/fail |
@@ -175,8 +176,9 @@ Code: `api/app/levels/aser_rules.py` (`item_passed`, `Thresholds`), `api/app/spe
 - **Two-check confirmation**: a child's level is *provisional* after one check-in and *confirmed* when two check-ins in a row agree. One bad day does not move a confirmed level.
 - **Teacher override**: the teacher can set the level of any check-in; it is logged and wins.
 - Levels are always **replayed** from the child's check-in history (oldest first), so a later correction of an old check-in keeps everything consistent.
+- **Per language**: each language is replayed on its own, so an English check moves only the English level, and a Hindi and an English check never count as the two agreeing checks.
 
-Code: `api/app/services/checkins.py` (`placed_level`, `_settle`, `replay_levels`), `aser_rules.update_levels`.
+Code: `api/app/services/checkins.py` (`placed_level`, `_settle`, `replay_levels`), `aser_rules.update_levels`. Databases from before levels were kept per language are moved over at startup (`migrate_levels`).
 
 ### Stage 7 — Diagnosis: what kind of mistakes (Claude)
 
@@ -185,7 +187,7 @@ Code: `api/app/services/checkins.py` (`placed_level`, `_settle`, `replay_levels`
 3. **Claude Opus 5.5** (in the background, about 8 s after the last change so a burst of teacher corrections costs one call): reads only the structured evidence — no audio, no level decision — and returns JSON in a fixed schema: up to three **error patterns** from a fixed list, the evidence (cited by word index), whether each substitution is a real word, and a two-to-three-sentence summary for the teacher in Hindi and English with one thing to practise this week.
 4. **Checks**: every cited word must exist in the evidence; a pattern resting only on uncertain words, or citing nothing, is dropped; if nothing valid remains the rule-based diagnosis stays. Summaries use the child's name without guessing gender (Hindi constructions like "मीना को … में कठिनाई है").
 
-Error patterns: letter recognition, vowel signs (matras), conjunct letters, blending sounds into words, common sight words, guessing from the first letter, accurate but slow or halting, not enough clear audio.
+Error patterns: letter recognition, vowel signs (matras), conjunct letters, blending sounds into words, common sight words, guessing from the first letter, accurate but slow or halting, kind of error not clear (unclear audio, or a check marked by tapping, which shows which words were wrong but not what was said). For an **English** check the same patterns are named in English-reading terms — letter names and sounds (b/d, p/q), vowel sounds (cat/cut), blends and digraphs (sh, ch, st), sounding out and blending (c-a-t → cat), sight words (the, was, said) — and the rule-based summary gives English-reading advice (letter-sound chart, word families, not barakhadi or matras) in both summary languages.
 
 Settings: effort `medium` (chosen after comparing low and medium on real check-ins), structured output, server-side refusal fallback (a false-positive safety decline is re-run on Anthropic's recommended fallback model), the system prompt is prompt-cached. Measured cost: **about $0.02 per check-in**.
 
@@ -193,7 +195,7 @@ Code: `api/app/llm/evidence.py`, `rules.py`, `diagnose.py`, `prompts.py`, `patte
 
 ### Stage 8 — Grouping the class (TaRL)
 
-Children are grouped by their level (confirmed if available, else provisional, shown with a dotted border):
+Children are grouped by their level in the reading test shown (confirmed if available, else provisional, shown with a dotted border); English and the regional language have separate groups, because a child's two levels often differ:
 
 | Group | Levels |
 |---|---|
@@ -201,13 +203,13 @@ Children are grouped by their level (confirmed if available, else provisional, s
 | Word group | Word |
 | Paragraph group | Paragraph + Story |
 
-Each group card shows its most common difficulties (from the children's latest diagnoses). The teacher can move a child to another group by hand; the child's next reading check then starts at that group's level and moves up or down from there, so a child who has outgrown the group is found rather than held in it.
+Each group card shows its most common difficulties (from the children's latest diagnoses in that language). The teacher can move a child to another group by hand, separately for each language; the child's next reading check in that language then starts at that group's level and moves up or down from there, so a child who has outgrown the group is found rather than held in it.
 
 Code: `aser_rules.cohort_for_level`, `api/app/api/classes.py` (`dashboard`).
 
 ### Stage 9 — 10-minute activity (Claude + a second-model review)
 
-1. **Candidates (code)**: from a curated bank of 17 activities, each citing its source, the three that best match the group's difficulties.
+1. **Candidates (code)**: from a curated bank of 22 activities, each citing its source, the three that best match the group's difficulties and suit the language's script: Hindi-script methods (barakhadi, matra and conjunct work) are never offered for English, and their five English versions (letter-sound chart, word building with letter cards, change one vowel, sound strings, break and join blends) never for Hindi. On a tie, a method made for the script comes first.
 2. **Adaptation — Claude Opus 5.5**: chooses one candidate (the schema only allows those three ids) and adapts it into a 10-minute plan for this group: 3–4 steps with minutes, materials a government school has, 4–8 practice words taken from the words the children misread, what to watch for, and one line on why — in Hindi and English. No children's names.
 3. **Checks**: code checks the source id, that the steps add up to 8–12 minutes and that every step is bilingual; **Claude Haiku 5.5** then reviews the plan against the bank entry: faithful to the source, age-appropriate, safe, fits 10 minutes. On a rejection the plan is regenerated once with the reviewer's issues.
 4. **Fallback**: if the plan still fails, Claude is unavailable, or the spend cap is reached, the teacher gets the bank entry itself with the group's practice words.
@@ -307,8 +309,9 @@ At about $0.02 per check-in, $400 covers roughly 20,000 check-in diagnoses.
 | Table | Holds |
 |---|---|
 | `teachers` | login, name, PIN hash, interface language |
-| `classrooms` | name, grade, reading language |
-| `students` | **first name and an emoji only**, grade, provisional and confirmed level, manual group |
+| `classrooms` | name, grade, regional reading language (English is tested alongside it) |
+| `students` | **first name and an emoji only**, grade, home language if it differs from the class's |
+| `student_levels` | per child and language: provisional and confirmed level, group set by hand |
 | `checkins` | one reading check: language, starting rung, status (in progress / needs review / scored / abandoned), suggested and final level, override flag, the phone's ID for offline check-ins |
 | `item_results` | one card: the full scored result (every word, what each recogniser heard, timings, pauses, speed, pass/fail), source (AI or taps) |
 | `item_audio` | the MP3 playback copy of a card's recording (kept 30 days) |
@@ -325,10 +328,10 @@ At about $0.02 per check-in, $400 covers roughly 20,000 check-in diagnoses.
 
 ## 11. Content: item banks, activities, languages
 
-- **Item banks** (`content/items/hi.json`, `en.json`): original texts written to the ASER 2024 reading-tool specification — commonly used letters (5 per card); familiar words of two letters with one or two matras (5 per card); a Std I paragraph (4 linked sentences of at most 6 words); a Std II story (7–10 sentences). Three variants of each card, two of each passage. A test checks every bank against the specification. English uses the same five-level ladder (ASER's own English tool uses a different one). Status: draft, awaiting an educator's review.
-- **Activity bank** (`content/activities/bank.json`): 17 activities, each adapted to about 10 minutes from an activity described in its cited source — Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure, StoryWeaver. Status: draft, each entry to be checked against its source.
+- **Item banks** (`content/items/hi.json`, `en.json`): original texts written to the ASER 2024 reading-tool specification — commonly used letters (5 per card); familiar words of two letters with one or two matras (5 per card); a Std I paragraph (4 linked sentences of at most 6 words); a Std II story (7–10 sentences). Three variants of each card, two of each passage. A test checks every bank against the specification. English uses the same five-level ladder (lowercase letters, CVC words, a 4-sentence paragraph, a story); ASER's own English tool uses a different one — capital letters → small letters → simple words → simple sentences, with the meaning of words and sentences asked in the child's language. Status: draft, awaiting an educator's review.
+- **Activity bank** (`content/activities/bank.json`): 22 activities, each adapted to about 10 minutes from an activity described in its cited source — Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure, StoryWeaver. Five work only in Indic scripts and five are their English versions (same method, phonics content), marked with `script`. Status: draft, each entry to be checked against its source.
 - **Instruction audio** (`web/public/audio/<lang>/<level>.mp3`): generated by `scripts/make_instruction_audio.py`.
-- **Languages** (`content/languages.json`): Hindi and English are complete (Tier 1: item banks, instruction audio, interface). Marathi, Gujarati, Kannada, Tamil, Telugu and Odia are configured in the engine (Tier 2: vendor locales, script handling for every Indic script) but have no item banks yet. Adding a language means adding data (an item bank, instruction audio, interface strings), not code.
+- **Languages** (`content/languages.json`): English and Hindi are complete (Tier 1: item banks, instruction audio, interface). Every child takes the English test and the test in their regional language. Marathi, Gujarati, Kannada, Tamil, Telugu and Odia are configured in the engine (Tier 2: vendor locales, script handling for every Indic script) but have no item banks yet; Malayalam is not configured yet. Regional languages are planned after mentor approval. Adding one is data, not code: a `languages.json` entry (Sarvam, Azure and voice locales), an item bank written to the ASER specification for that language, instruction audio (`scripts/make_instruction_audio.py`), the language's name in the interface strings, and an educator's review; script-specific activities (like the barakhadi) only where the script needs them.
 
 ---
 
@@ -347,7 +350,7 @@ At about $0.02 per check-in, $400 covers roughly 20,000 check-in diagnoses.
 
 The one miss was marked uncertain and sent to the teacher. The system also caught a slip the reader did not notice (रानी read for रीना). These are adult voices in a quiet room; children's voices and classroom noise are harder, and children's recordings (with parental consent) are the next evaluation step.
 
-**Software tests**: 119 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
+**Software tests**: 130 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
 
 ---
 
@@ -383,7 +386,7 @@ api/
                        activities (generate + review), budget (spend ledger and caps)
   scripts/             seed_demo, run_clips (evaluation), claude_spend, diagnose_pending,
                        make_instruction_audio
-  tests/               119 tests
+  tests/               130 tests
   Dockerfile
 web/
   src/pages/           Login, Classes, ClassDashboard, Student, Checkin, OfflineCheckin, Result, ActivityPage
@@ -445,7 +448,8 @@ Web app: `VITE_API_BASE` — the API's address (empty in development, where Vite
 - **Content review**: the item banks and activity bank are AI-drafted and must be checked by an educator against their sources before they are presented as ASER- or TaRL-faithful.
 - **Single letters** are the hardest for the recognisers (Azure especially), so letter cards ask the teacher to confirm more often; the replay makes that quick.
 - **Halting** uses word timings where Azure Pronunciation Assessment is available (Hindi, English, Tamil) and otherwise silence detection, which a noisy classroom can mask.
-- **Tier 2 languages** have no item banks yet.
+- **Regional languages** beyond Hindi (Marathi, Odia, Tamil, Kannada, Telugu; Malayalam still to configure) have no item banks yet; they are planned after mentor approval.
+- **The English ladder** follows the shared letter → word → paragraph → story ladder, not ASER's English tool (capital letters, small letters, words, sentences, meaning); moving to the ASER English tool is the natural next step if English stays the focus.
 - **Free tiers**: the API sleeps after inactivity on Render's free plan (a monitor keeps it awake); Azure's free tier allows one request at a time.
 - **Roadmap** (from the build plan): numeracy (the ASER maths ladder), validated Tier 2 languages, integration with state platforms, parent reports, on-device speech recognition.
 

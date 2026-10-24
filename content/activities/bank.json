@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
   "status": "draft: every entry must be checked against its source by a team member before the demo",
-  "_comment": "Curated 10-minute activities for TaRL-style groups. Each entry is adapted (shortened to ~10 minutes, made concrete) from an activity described in the cited source; the generator must cite one of these ids and the validator checks faithfulness to it. cohorts: letter | word | paragraph (dashboard groups). patterns: error patterns the activity targets (app/llm/patterns.py).",
+  "_comment": "Curated 10-minute activities for TaRL-style groups. Each entry is adapted (shortened to ~10 minutes, made concrete) from an activity described in the cited source; the generator must cite one of these ids and the validator checks faithfulness to it. cohorts: letter | word | paragraph (dashboard groups). patterns: error patterns the activity targets (app/llm/patterns.py). script: \"indic\" or \"latin\" for an activity that only works in that script (barakhadi, matras, phonics); no script = any language. The English entries keep the method of the Hindi entry they name in their note.",
   "sources": {
     "tarl_sessions": {
       "name": "Pratham / TaRL Africa — Planning TaRL Sessions (Dec 2021)",
@@ -83,6 +83,7 @@
     },
     {
       "id": "barakhadi-chart-reading",
+      "script": "indic",
       "title": { "en": "Barakhadi chart reading", "hi": "बारहखड़ी चार्ट पढ़ना" },
       "cohorts": ["letter", "word"],
       "patterns": ["matra_vowel_sign", "letter_recognition"],
@@ -98,6 +99,7 @@
     },
     {
       "id": "syllable-strings",
+      "script": "indic",
       "title": { "en": "Syllable strings to words", "hi": "मात्रा-शृंखला से शब्द बनाना" },
       "cohorts": ["letter", "word"],
       "patterns": ["blending_scaffolding", "matra_vowel_sign"],
@@ -113,6 +115,7 @@
     },
     {
       "id": "word-building-cards",
+      "script": "indic",
       "title": { "en": "Build words with letter and matra cards", "hi": "अक्षर और मात्रा कार्ड से शब्द बनाना" },
       "cohorts": ["word"],
       "patterns": ["matra_vowel_sign", "blending_scaffolding"],
@@ -128,6 +131,7 @@
     },
     {
       "id": "matra-change-chain",
+      "script": "indic",
       "title": { "en": "Change one matra", "hi": "एक मात्रा बदलो" },
       "cohorts": ["word"],
       "patterns": ["matra_vowel_sign"],
@@ -143,6 +147,7 @@
     },
     {
       "id": "conjunct-break-and-join",
+      "script": "indic",
       "title": { "en": "Break and join conjunct words", "hi": "संयुक्त अक्षर: तोड़ो और जोड़ो" },
       "cohorts": ["word", "paragraph"],
       "patterns": ["conjunct"],
@@ -275,6 +280,86 @@
       ],
       "watch_for": { "en": "Pages where most children stop — the book may be one level too hard.", "hi": "जिन पन्नों पर ज़्यादातर बच्चे रुकते हैं — किताब शायद एक स्तर कठिन है।" },
       "source": { "ref": "storyweaver", "note": "Free levelled storybooks; TaRL lists StoryWeaver among open reading resources." }
+    },
+    {
+      "id": "sound-chart-reading",
+      "script": "latin",
+      "title": { "en": "Letter-sound chart reading", "hi": "अक्षर-ध्वनि चार्ट पढ़ना (अंग्रेज़ी)" },
+      "cohorts": ["letter", "word"],
+      "patterns": ["letter_recognition", "matra_vowel_sign"],
+      "minutes": 10,
+      "materials": { "en": ["Letter-sound chart: a–z, each letter with a picture (a – apple, b – ball, c – cat …)", "A pointer stick"], "hi": ["अक्षर-ध्वनि चार्ट: a–z, हर अक्षर के साथ एक चित्र (a – apple, b – ball, c – cat …)", "एक छड़ी"] },
+      "steps": [
+        { "minutes": 3, "en": "Read one row across together: for each letter say its sound and its picture word (b – /b/ – ball), pointing at each cell.", "hi": "एक पंक्ति साथ में आड़ी पढ़ें: हर अक्षर की ध्वनि और चित्र वाला शब्द बोलें (b – /ब/ – ball), हर खाने पर छड़ी रखें।" },
+        { "minutes": 3, "en": "Read one column down, then point at look-alike letters one after another (b, d, p, q) and say their sounds.", "hi": "एक कॉलम नीचे की ओर पढ़ें, फिर मिलते-जुलते अक्षरों (b, d, p, q) पर एक-एक करके छड़ी रखें और उनकी ध्वनि बोलें।" },
+        { "minutes": 4, "en": "Children take turns: point diagonally or zig-zag to letters; the child says the sound and a word that starts with it.", "hi": "बच्चे बारी-बारी से: तिरछे या टेढ़े-मेढ़े अक्षरों पर छड़ी रखें; बच्चा ध्वनि और उससे शुरू होने वाला एक शब्द बोले।" }
+      ],
+      "watch_for": { "en": "Children who know a letter's name but not its sound, and b/d or p/q mix-ups — slow down on those.", "hi": "जो बच्चे अक्षर का नाम जानते हैं पर ध्वनि नहीं, और b/d या p/q में भ्रम — वहाँ धीरे चलें।" },
+      "source": { "ref": "tarl_tlm", "note": "English version of the barakhadi chart routine (read horizontally, vertically, diagonally and zig-zag): the chart lists letters with their sounds." }
+    },
+    {
+      "id": "letter-card-word-building",
+      "script": "latin",
+      "title": { "en": "Build words with letter cards", "hi": "अक्षर कार्ड से अंग्रेज़ी शब्द बनाना" },
+      "cohorts": ["word"],
+      "patterns": ["blending_scaffolding", "matra_vowel_sign"],
+      "minutes": 10,
+      "materials": { "en": ["Letter cards: consonants, and the vowels a, e, i, o, u in another colour"], "hi": ["अक्षर कार्ड: व्यंजन, और स्वर a, e, i, o, u दूसरे रंग में"] },
+      "steps": [
+        { "minutes": 3, "en": "Make a word with cards on the floor (c + a + t = cat). Say each sound, then blend them: /k/ /a/ /t/ → cat.", "hi": "ज़मीन पर कार्डों से एक शब्द बनाएँ (c + a + t = cat)। हर ध्वनि बोलें, फिर जोड़ें: /क/ /अ/ /ट/ → cat।" },
+        { "minutes": 4, "en": "Swap one card at a time (cat → cap → map → mop) and ask: what does it say now?", "hi": "हर बार एक कार्ड बदलें (cat → cap → map → mop) और पूछें: अब क्या पढ़ा जाएगा?" },
+        { "minutes": 3, "en": "Children make a word for the group to read, using the misread words from the check where possible.", "hi": "बच्चे समूह के पढ़ने के लिए शब्द बनाएँ; जहाँ हो सके जाँच में गलत पढ़े शब्द ही लें।" }
+      ],
+      "watch_for": { "en": "Children who read the first letter and guess the rest of the word.", "hi": "जो बच्चे पहला अक्षर पढ़कर बाकी शब्द का अंदाज़ा लगाते हैं।" },
+      "source": { "ref": "tarl_tlm", "note": "English version of 'Build words with letter and matra cards': consonant and vowel letter cards make three-letter words." }
+    },
+    {
+      "id": "vowel-change-chain",
+      "script": "latin",
+      "title": { "en": "Change one vowel", "hi": "एक स्वर बदलो (अंग्रेज़ी)" },
+      "cohorts": ["word"],
+      "patterns": ["matra_vowel_sign"],
+      "minutes": 10,
+      "materials": { "en": ["Board or slates"], "hi": ["बोर्ड या स्लेट"] },
+      "steps": [
+        { "minutes": 2, "en": "Write a word (pin). Read it together.", "hi": "एक शब्द लिखें (pin)। साथ पढ़ें।" },
+        { "minutes": 6, "en": "Change only the vowel each time (pin → pan → pen → pun). After each change, a child reads the new word and says which sound changed.", "hi": "हर बार केवल स्वर बदलें (pin → pan → pen → pun)। हर बदलाव के बाद एक बच्चा नया शब्द पढ़े और बताए कौन-सी ध्वनि बदली।" },
+        { "minutes": 2, "en": "Children write the last word on their slates and read it to a partner.", "hi": "बच्चे आख़िरी शब्द स्लेट पर लिखें और साथी को पढ़कर सुनाएँ।" }
+      ],
+      "watch_for": { "en": "Short-vowel mix-ups (e/i, a/u): say those pairs slowly and clearly.", "hi": "छोटे स्वरों में भ्रम (e/i, a/u): इन जोड़ों को धीरे और साफ़ बोलें।" },
+      "source": { "ref": "tarl_tlm", "note": "English version of 'Change one matra': one word frame, the vowel changed one at a time." }
+    },
+    {
+      "id": "sound-strings",
+      "script": "latin",
+      "title": { "en": "Sound strings to words", "hi": "ध्वनि-माला से शब्द (अंग्रेज़ी)" },
+      "cohorts": ["letter", "word"],
+      "patterns": ["blending_scaffolding", "matra_vowel_sign"],
+      "minutes": 10,
+      "materials": { "en": ["Board or slates", "A three-letter word from the text the group read"], "hi": ["बोर्ड या स्लेट", "समूह के पढ़े पाठ से तीन अक्षरों का एक शब्द"] },
+      "steps": [
+        { "minutes": 3, "en": "Take a word (sun). Write a string with its first letter and each vowel: sa se si so su. Read it together.", "hi": "एक शब्द लें (sun)। उसके पहले अक्षर और हर स्वर की माला लिखें: sa se si so su। साथ पढ़ें।" },
+        { "minutes": 2, "en": "Write the word's ending and change the first letter: un → sun, bun, fun, run. Read them together.", "hi": "शब्द का अंत लिखें और पहला अक्षर बदलें: un → sun, bun, fun, run। साथ पढ़ें।" },
+        { "minutes": 5, "en": "Children join a piece from each string to make words (sun, sit, nut) and read them. Made-up words are fine — they are still blending.", "hi": "बच्चे दोनों मालाओं से टुकड़े जोड़कर शब्द बनाएँ (sun, sit, nut) और पढ़ें। बेमतलब शब्द भी ठीक हैं — जोड़ना तो सीख रहे हैं।" }
+      ],
+      "watch_for": { "en": "A child who says each sound but pauses before joining: say the sounds faster and faster until they merge into the word.", "hi": "जो बच्चा हर ध्वनि बोलता है पर जोड़ने से पहले रुकता है: ध्वनियाँ तेज़-तेज़ बोलें जब तक वे शब्द न बन जाएँ।" },
+      "source": { "ref": "tarl_sessions", "note": "English version of the syllable-string activity: identify the sounds, blend them, build words (made-up words allowed)." }
+    },
+    {
+      "id": "blend-break-and-join",
+      "script": "latin",
+      "title": { "en": "Break and join blends (sh, ch, st)", "hi": "जुड़ी ध्वनियाँ तोड़ना-जोड़ना (sh, ch, st)" },
+      "cohorts": ["word", "paragraph"],
+      "patterns": ["conjunct", "blending_scaffolding"],
+      "minutes": 10,
+      "materials": { "en": ["Board", "4–5 words with a blend or digraph from the group's reading (ship, chair, stop, frog)"], "hi": ["बोर्ड", "समूह के पढ़े पाठ से जुड़ी ध्वनियों वाले 4–5 शब्द (ship, chair, stop, frog)"] },
+      "steps": [
+        { "minutes": 3, "en": "Write a word and split it into sounds: ship → sh + i + p. Read the parts, then the whole word.", "hi": "एक शब्द लिखें और ध्वनियों में तोड़ें: ship → sh + i + p। टुकड़े पढ़ें, फिर पूरा शब्द।" },
+        { "minutes": 4, "en": "Children split the next words themselves on slates and read them back.", "hi": "बच्चे अगले शब्द खुद स्लेट पर तोड़ें और पढ़कर सुनाएँ।" },
+        { "minutes": 3, "en": "Read a sentence containing these words, pointing at each word.", "hi": "इन शब्दों वाला एक वाक्य पढ़ें, हर शब्द पर उँगली रखते हुए।" }
+      ],
+      "watch_for": { "en": "Reading sh, ch or th as two separate sounds (s-h), or dropping a letter of a blend (stop → top).", "hi": "sh, ch या th को दो अलग ध्वनियों (s-h) की तरह पढ़ना, या जुड़ी ध्वनि का एक अक्षर छोड़ देना (stop → top)।" },
+      "source": { "ref": "tarl_sessions", "note": "English version of 'Break and join conjunct words' (identify → blend → segment) for consonant blends and digraphs." }
     }
   ]
 }

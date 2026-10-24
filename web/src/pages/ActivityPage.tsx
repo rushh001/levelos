@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { Api } from '../api'
 import { Button, COHORT_STYLE, ErrorBox, Page, Spinner } from '../components/ui'
+import { useReadingLang } from '../lib/readingLang'
 import type { Activity, Cohort } from '../lib/types'
 
 /** Generates a 10-minute activity for one reading group (or shows the latest) with its source and a rating. */
 export default function ActivityPage() {
   const { id = '', cohort = 'word' } = useParams()
+  const [params] = useSearchParams()
+  const [readingLang] = useReadingLang()
+  const lang = params.get('lang') || readingLang // the reading test the group was formed in
   const { t } = useTranslation()
   const [current, setCurrent] = useState<Activity | null>(null)
   const [previous, setPrevious] = useState<Activity[]>([])
@@ -19,7 +23,7 @@ export default function ActivityPage() {
     setBusy(true)
     setError(null)
     try {
-      const a = await Api.generateActivity(id, cohort)
+      const a = await Api.generateActivity(id, cohort, lang)
       setCurrent(a)
       setPrevious((p) => p.filter((x) => x.id !== a.id))
     } catch (e) {
@@ -33,7 +37,7 @@ export default function ActivityPage() {
     if (started.current) return
     started.current = true
     // Show today's activity if there is one; otherwise prepare one.
-    Api.activities(id, cohort)
+    Api.activities(id, cohort, lang)
       .then((list) => {
         const today = list.find((a) => new Date(a.created_at).toDateString() === new Date().toDateString())
         if (today) {
@@ -46,10 +50,10 @@ export default function ActivityPage() {
       })
       .catch((e) => setError(e as Error))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, cohort])
+  }, [id, cohort, lang])
 
   return (
-    <Page title={t(`cohort.${cohort}`)} back={`/class/${id}`}>
+    <Page title={`${t(`cohort.${cohort}`)} · ${t(`lang.${lang}`, { defaultValue: lang })}`} back={`/class/${id}`}>
       <ErrorBox error={error} onRetry={() => void generate()} />
       {busy && <Spinner label={t('activity.generating')} />}
       {current && !busy && <ActivityCard a={current} cohort={cohort as Cohort} onRated={setCurrent} />}

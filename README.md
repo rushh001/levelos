@@ -6,7 +6,7 @@ Built for the AI for Foundational Learning Hackathon (Challenge 02: Learning-Lev
 
 **Live demo: [levelos-nine.vercel.app](https://levelos-nine.vercel.app)** (API status: [levelos-api.onrender.com/api/health](https://levelos-api.onrender.com/api/health)). The API runs on a free plan; if it has been idle, the first login can take up to a minute.
 
-**Demo logins** (teacher is the only role): `demo` / PIN `1234` or `judge` / PIN `2026` — or tap **Try the demo class** on the login page. The demo class (Grade 2, Hindi) has 16 fictional children with two weeks of history; no real child's data is in the hosted demo.
+**Demo logins** (teacher is the only role): `demo` / PIN `1234` or `judge` / PIN `2026` — or tap **Try the demo class** on the login page. The demo class (Grade 2) has 16 fictional children, each with two weeks of history in English and in Hindi; no real child's data is in the hosted demo.
 
 📖 **How everything works, stage by stage:** [document.md](document.md)
 
@@ -15,12 +15,13 @@ Built for the AI for Foundational Learning Hackathon (Challenge 02: Learning-Lev
 ## What it does
 
 - **Adaptive reading check (ASER)**: letters → words → paragraph → story, one card at a time, moving up on a pass and down on a fail until the level is bracketed. The child reads from a large card; the teacher records.
+- **English and regional-language tests**: as in ASER, each child is tested in English and in their regional language (Hindi today), with a separate level and group in each. Switching the app to English switches the test to English; a **Reading test** switch picks the language on its own. The app opens in English.
 - **Scoring that cannot "auto-correct" the child**: two speech recognisers (Sarvam, Azure) transcribe without seeing the text; deterministic code aligns their transcripts with the card akshara by akshara and marks every word right, wrong, skipped or self-corrected.
 - **Honest uncertainty**: words the recognisers disagree on are marked *uncertain*; if they could change the result, the teacher confirms them — listening to the child's recording, with a 🔊 per word — before the check moves on.
 - **ASER rules in code decide the level**; two agreeing check-ins confirm it; the teacher can override anything.
-- **Diagnosis by Claude**: the error pattern (matras, conjuncts, blending, letter confusion, sight words, guessing, fluency) with the exact words as evidence, and a short note for the teacher in Hindi and English.
+- **Diagnosis by Claude**: the error pattern (matras, conjuncts, blending, letter confusion, sight words, guessing, fluency; for English: letter sounds, vowel sounds, blends) with the exact words as evidence, and a short note for the teacher in Hindi and English.
 - **Class dashboard** in three TaRL groups with each group's main difficulties.
-- **10-minute activity per group**, adapted by Claude from a cited bank of 17 activities (Pratham TaRL, ASER, StoryWeaver) and checked by a second model.
+- **10-minute activity per group**, adapted by Claude from a cited bank of 22 activities (Pratham TaRL, ASER, StoryWeaver; English groups get phonics versions, never barakhadi or matra work) and checked by a second model.
 - **Replay**: every card's recording can be played again for 30 days (only by that teacher), with words highlighted as they are read.
 - **Offline**: the app, class data, cards and spoken instructions work without network; the teacher taps the mistakes, the ladder runs on the phone, and everything syncs and is AI-checked when the network returns.
 
@@ -76,7 +77,7 @@ Full table: [document.md §8](document.md#8-guardrails).
 
 On nine real recordings (an adult reading scripted mistakes in Hindi and English on an Android phone; references confirmed by listening back), the live configuration agreed on **117 of 118 words (99.2%)** and gave the expected pass/fail on **9 of 9** cards; the one miss was sent to the teacher as uncertain, and it caught a slip the reader didn't notice. Children's voices are not yet in the set. Details: [eval/README.md](eval/README.md).
 
-119 automated tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
+130 automated tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
 
 ## Run locally
 
@@ -121,13 +122,14 @@ More: [document.md](document.md) (full description) · [PROGRESS.md](PROGRESS.md
 
 ## Content and sources
 
-Item banks are original texts written to the ASER 2024 reading-tool specification (test-enforced); the activity bank adapts activities from Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure and StoryWeaver, each entry citing its source. Both are drafts awaiting an educator's review. Error categories follow Raman & Rao (Interspeech 2025). Hindi and English are complete; Marathi, Gujarati, Kannada, Tamil, Telugu and Odia are configured in the engine but have no item banks yet.
+Item banks are original texts written to the ASER 2024 reading-tool specification (test-enforced); the activity bank adapts activities from Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure and StoryWeaver, each entry citing its source. Both are drafts awaiting an educator's review. Error categories follow Raman & Rao (Interspeech 2025). English and Hindi are complete. Regional languages come next, after mentor approval: Marathi, Odia, Tamil, Kannada and Telugu (and Gujarati) are configured in the engine but have no item banks yet, and Malayalam is still to be configured; each is a data pack (language config, item bank, instruction audio, review), not new code ([document.md §11](document.md#11-content-item-banks-activities-languages)).
 
 ## Known limitations
 
 - Accuracy on children's voices is not yet measured (the real recordings so far are of an adult).
 - Item and activity banks are AI-drafted and await an educator's review.
 - Single letters are hardest for the recognisers, so letter cards ask the teacher to confirm more often (replay makes it quick).
+- The English test uses the same letter → word → paragraph → story ladder as Hindi, not ASER's own English tool (capital letters, small letters, words, sentences, meaning).
 - On free plans the API sleeps when idle (a monitor keeps it awake) and Azure allows one request at a time.
 
 ## Licence

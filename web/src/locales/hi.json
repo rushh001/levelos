@@ -77,7 +77,31 @@
     "sight_word": "आम छोटे शब्द",
     "guessing_from_first_akshara": "पहला अक्षर देखकर अनुमान",
     "fluency_only": "सही पर रुक-रुककर पढ़ना",
-    "insufficient_audio": "आवाज़ साफ़ नहीं"
+    "insufficient_audio": "गलती का प्रकार साफ़ नहीं"
+  },
+  "patternEn": {
+    "letter_recognition": "अक्षरों के नाम और ध्वनियाँ (b/d, p/q)",
+    "matra_vowel_sign": "स्वर ध्वनियाँ (cat/cut, pin/pen)",
+    "conjunct": "जुड़ी ध्वनियाँ (sh, ch, st)",
+    "blending_scaffolding": "ध्वनियाँ जोड़कर पढ़ना (c-a-t → cat)",
+    "sight_word": "आम छोटे शब्द (the, was, said)",
+    "guessing_from_first_akshara": "पहला अक्षर देखकर अनुमान"
+  },
+  "lang": {
+    "hi": "हिन्दी",
+    "en": "अंग्रेज़ी",
+    "mr": "मराठी",
+    "gu": "गुजराती",
+    "kn": "कन्नड़",
+    "ta": "तमिल",
+    "te": "तेलुगु",
+    "or": "ओड़िया",
+    "ml": "मलयालम"
+  },
+  "readingTest": {
+    "label": "पढ़ने की जाँच",
+    "start": "{{language}} पढ़ने की जाँच शुरू करें",
+    "groupFor": "{{language}} में समूह"
   },
   "student": {
     "provisional": "अभी पक्का नहीं",

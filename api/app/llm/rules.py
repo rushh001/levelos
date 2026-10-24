@@ -52,8 +52,34 @@ ACTION = {
     "insufficient_audio": ("अगली बार शांत जगह पर दोबारा रिकॉर्ड करें।",
                            "Next time, record again somewhere quieter."),
 }
-EN_VOWEL_FINDING = "{name} mixes up vowel sounds ({ex})."
-EN_VOWEL_ACTION = "Practise word families that change only the vowel (sat, sit, set)."
+# An English reading check: the same patterns in English-reading terms (letter sounds, short vowels, blends;
+# no matras, conjuncts or barakhadi), in both languages of the summary.
+FINDING_ENGLISH = {
+    "letter_recognition": ("{name} को अंग्रेज़ी के कुछ अक्षरों के नाम या ध्वनियाँ अभी नहीं आतीं ({ex})।",
+                           "{name} does not yet know some English letter names or sounds ({ex})."),
+    "matra_vowel_sign": ("{name} को अंग्रेज़ी शब्दों की स्वर ध्वनियों (a, e, i, o, u) में गलती हो रही है ({ex})।",
+                         "{name} mixes up vowel sounds ({ex})."),
+    "conjunct": ("{name} को sh, ch, st जैसी जुड़ी ध्वनियों वाले शब्दों में कठिनाई है ({ex})।",
+                 "{name} has trouble with blends and digraphs such as sh, ch, st ({ex})."),
+    "blending_scaffolding": ("{name} को अक्षरों की ध्वनियाँ जोड़कर अंग्रेज़ी शब्द पढ़ने में कठिनाई है ({ex})।",
+                             "{name} knows the letter sounds but struggles to blend them into words ({ex})."),
+}
+ACTION_ENGLISH = {
+    "letter_recognition": ("इस हफ़्ते रोज़ 5 मिनट अक्षर-ध्वनि चार्ट (a – apple, b – ball) से अभ्यास कराएँ; b/d और p/q पर ध्यान दें।",
+                           "This week, practise the letter-sound chart (a – apple, b – ball) for 5 minutes a day; "
+                           "watch b/d and p/q."),
+    "matra_vowel_sign": ("ऐसे शब्द-परिवार पढ़वाएँ जिनमें सिर्फ़ स्वर बदलता है (sat, sit, set)।",
+                         "Practise word families that change only the vowel (sat, sit, set)."),
+    "conjunct": ("sh, ch, st वाले शब्दों को ध्वनियों में तोड़कर पढ़वाएँ, फिर जोड़कर (sh-i-p → ship)।",
+                 "Break words with sh, ch or st into sounds, read each, then join them (sh-i-p → ship)."),
+    "blending_scaffolding": ("ध्वनि-दर-ध्वनि शब्द बनाने का अभ्यास कराएँ (c-a-t → cat)।",
+                             "Practise building words sound by sound (c-a-t → cat)."),
+}
+# Tap-marked without a recording: the wrong words are known, not what the child said instead.
+MARKS_ONLY = ("यह जाँच टैप करके की गई: कौन-से शब्द गलत थे यह पता है, पर बच्चे ने उनकी जगह क्या पढ़ा यह नहीं। "
+              "अगली जाँच रिकॉर्ड करें ताकि गलती का प्रकार दिख सके।",
+              "This check was marked by tapping: it shows which words were wrong, not what the child said instead. "
+              "Record the next check so the kind of error shows.")
 
 
 def classify(word: dict, level: str) -> str | None:
@@ -87,9 +113,8 @@ def _halting(item: dict) -> bool:
 
 
 def diagnose(inp: dict, name: str) -> dict:
-    lang = inp["language"]
     found: dict[str, list[dict]] = {}
-    unclear = 0
+    unclear = marks_only = 0
     for item in inp["items"]:
         offline = item["source"] == "offline_marks"
         for w in item["error_words"]:
@@ -97,7 +122,7 @@ def diagnose(inp: dict, name: str) -> dict:
                 unclear += 1
                 continue
             if offline and item["level"] != "letter":
-                unclear += 1
+                marks_only += 1
                 continue
             p = classify(w, item["level"])
             if p:
@@ -107,7 +132,7 @@ def diagnose(inp: dict, name: str) -> dict:
                 and item["errors"] <= DEFAULT_THRESHOLDS.passage_max_errors and _halting(item):
             found.setdefault("fluency_only", []).append({"item_id": item["item_id"], "i": None, "ref": None,
                                                          "heard": None})
-    if not found and unclear:
+    if not found and (unclear or marks_only):
         found["insufficient_audio"] = [{"item_id": inp["items"][0]["item_id"], "i": None, "ref": None,
                                         "heard": None}]
 
@@ -125,7 +150,7 @@ def diagnose(inp: dict, name: str) -> dict:
         "error_patterns": ranked,
         "evidence": evidence,
         "word_notes": [],
-        "summary": summarize(ranked, found, inp, name),
+        "summary": summarize(ranked, found, inp, name, marks_only=bool(marks_only) and not unclear),
         "confidence": "low",
     }
 
@@ -141,21 +166,20 @@ def _examples(entries: list[dict]) -> str:
     return ", ".join(out)
 
 
-def summarize(ranked: list[str], found: dict[str, list[dict]], inp: dict, name: str) -> dict:
-    lang = inp["language"]
+def summarize(ranked: list[str], found: dict[str, list[dict]], inp: dict, name: str, *,
+              marks_only: bool = False) -> dict:
+    english = inp["language"] == "en"
     if not ranked:
         level = LEVEL_LABELS.get(inp.get("aser_level") or "", {"hi": "", "en": ""})
         return {"hi": f"{name} का {level['hi']} स्तर का पढ़ना ठीक है, कोई खास गलती नहीं। अगले स्तर की सामग्री दें।",
                 "en": f"{name} reads at {level['en']} level without notable errors. Move on to next-level material."}
+    if ranked == ["insufficient_audio"] and marks_only:
+        return {"hi": MARKS_ONLY[0], "en": MARKS_ONLY[1]}
     hi_parts, en_parts = [], []
     for p in ranked[:2]:
         ex = _examples(found[p])
-        fh, fe = FINDING[p]
-        if p == "matra_vowel_sign" and lang == "en":
-            fe = EN_VOWEL_FINDING
+        fh, fe = FINDING_ENGLISH[p] if english and p in FINDING_ENGLISH else FINDING[p]
         hi_parts.append(fh.format(name=name, ex=ex).replace(" ()", ""))
         en_parts.append(fe.format(name=name, ex=ex).replace(" ()", ""))
-    ah, ae = ACTION[ranked[0]]
-    if ranked[0] == "matra_vowel_sign" and lang == "en":
-        ae = EN_VOWEL_ACTION
+    ah, ae = ACTION_ENGLISH[ranked[0]] if english and ranked[0] in ACTION_ENGLISH else ACTION[ranked[0]]
     return {"hi": " ".join(hi_parts + [ah]), "en": " ".join(en_parts + [ae])}

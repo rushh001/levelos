@@ -13,7 +13,7 @@ from .config import settings
 from .content import available_languages, languages
 from .db import Base, SessionLocal, engine
 from .llm import budget
-from .services.checkins import purge_audio
+from .services.checkins import migrate_levels, purge_audio
 from .speech.audio import ffmpeg_available
 
 
@@ -26,6 +26,7 @@ async def lifespan(_: FastAPI):
     try:
         purge_audio(db)  # recordings past the retention period
         db.commit()
+        migrate_levels(db)  # one level per child -> one per language (no-op once done)
     finally:
         db.close()
     yield

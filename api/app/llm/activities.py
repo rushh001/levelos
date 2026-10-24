@@ -18,13 +18,14 @@ import anthropic
 from sqlalchemy.orm import Session
 
 from ..config import settings
+from ..content import latin_script
 from ..levels.aser_rules import cohort_for_level, effective_level
 from ..models import Classroom
 from .diagnose import _get_client, claude_enabled
 from .patterns import PATTERNS
 
 log = logging.getLogger(__name__)
-PROMPT_VERSION = "act-v1"
+PROMPT_VERSION = "act-v2"
 MIN_MINUTES, MAX_MINUTES = 8, 12
 
 
@@ -45,16 +46,19 @@ def source_of(a: dict) -> dict:
 # ---------------------------------------------------------------- cohort context
 
 
-def cohort_context(db: Session, classroom: Classroom, cohort: str) -> dict:
-    """Who is in the group and what they found hard (from each child's latest diagnosis). No names leave here."""
+def cohort_context(db: Session, classroom: Classroom, cohort: str, language: str | None = None) -> dict:
+    """Who is in the group in one reading language (default: the class language) and what they found hard (from
+    each child's latest diagnosis in that language). No names leave here."""
+    lang = language or classroom.language
     members, tally, words = 0, {p: 0 for p in PATTERNS}, {}
     for s in classroom.students:
-        level, _ = effective_level(s.provisional_level, s.confirmed_level)
-        if (s.cohort_override or cohort_for_level(level)) != cohort:
+        row = s.level_in(lang)
+        level, _ = effective_level(row.provisional_level if row else None, row.confirmed_level if row else None)
+        if ((row.cohort_override if row else None) or cohort_for_level(level)) != cohort:
             continue
         members += 1
         latest = next((c for c in sorted(s.checkins, key=lambda c: c.started_at, reverse=True)
-                       if c.diagnosis and c.status in ("scored", "needs_review")), None)
+                       if c.language == lang and c.diagnosis and c.status in ("scored", "needs_review")), None)
         if latest is None:
             continue
         for p in latest.diagnosis.error_patterns[:2]:
@@ -64,7 +68,7 @@ def cohort_context(db: Session, classroom: Classroom, cohort: str) -> dict:
                 words[w["ref"]] = words.get(w["ref"], 0) + 1
     return {
         "cohort": cohort,
-        "language": classroom.language,
+        "language": lang,
         "grade": classroom.grade,
         "group_size": members,
         "pattern_counts": {p: n for p, n in tally.items() if n},
@@ -72,10 +76,15 @@ def cohort_context(db: Session, classroom: Classroom, cohort: str) -> dict:
     }
 
 
-def candidates(cohort: str, pattern_counts: dict[str, int], k: int = 3) -> list[dict]:
-    pool = [a for a in bank()["activities"] if cohort in a["cohorts"]]
+def candidates(cohort: str, pattern_counts: dict[str, int], k: int = 3, language: str = "hi") -> list[dict]:
+    """Bank entries for the cohort that work in the language's script (barakhadi and matras are not for English,
+    phonics charts are not for Hindi), ranked by overlap with the group's error patterns; on a tie, a method made
+    for the script comes before a general one."""
+    script = "latin" if latin_script(language) else "indic"
+    pool = [a for a in bank()["activities"] if cohort in a["cohorts"] and a.get("script", script) == script]
     order = {a["id"]: i for i, a in enumerate(pool)}
-    return sorted(pool, key=lambda a: (-sum(pattern_counts.get(p, 0) for p in a["patterns"]), order[a["id"]]))[:k]
+    return sorted(pool, key=lambda a: (-sum(pattern_counts.get(p, 0) for p in a["patterns"]), "script" not in a,
+                                       order[a["id"]]))[:k]
 
 
 # ---------------------------------------------------------------- plans
@@ -129,7 +138,7 @@ You adapt one activity from a curated teaching-activity bank into a concrete 10-
 group in an Indian primary classroom (Teaching at the Right Level). The teacher will run it today with only \
 what a government school has: board, chalk, slates, paper cards, the children's books.
 
-You receive the group (reading cohort, class language, grade, group size, the error patterns most common in the \
+You receive the group (reading cohort, the language of its reading test, grade, group size, the error patterns most common in the \
 group, words the children actually misread) and two to three candidate activities from the bank, each with its \
 source.
 
@@ -137,7 +146,7 @@ Rules:
 - Choose the one candidate that best fits the group's difficulties and set `source_activity_id` to its id. Keep \
 that activity's method; adapt only the content, wording and timing. Do not merge activities or invent a new one.
 - Use the group's misread words as practice material where the activity allows (`practice_words`: 4–8 words in \
-the class language, taken from the misread words or close variants that train the same difficulty).
+the group's reading language, taken from the misread words or close variants that train the same difficulty).
 - 3 or 4 steps whose minutes add up to 10. Each step is one or two short sentences a teacher can follow while \
 standing in front of the group, in English (`en`) and simple Hindi (`hi`).
 - `why_en` / `why_hi`: one sentence linking the activity to the group's difficulty, in plain words.
@@ -259,7 +268,7 @@ def _bank_view(a: dict) -> dict:
 async def generate(ctx: dict, *, blocked: str | None = None, on_usage=None) -> dict:
     """Returns {source_activity_id, plan, validation, accepted, generated_by}.
     `blocked`: why Claude may not be called (spend cap); `on_usage(purpose, model, usage, stop_reason)` logs cost."""
-    cands = candidates(ctx["cohort"], ctx["pattern_counts"])
+    cands = candidates(ctx["cohort"], ctx["pattern_counts"], language=ctx["language"])
     best = cands[0]
     fallback = {"source_activity_id": best["id"], "plan": plan_from_bank(best, ctx), "accepted": False,
                 "generated_by": "bank"}

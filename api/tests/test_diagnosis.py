@@ -52,6 +52,19 @@ def test_rules_ignore_uncertain_words_and_say_so():
     assert out["error_patterns"] == ["insufficient_audio"]
 
 
+def test_rules_say_when_a_check_was_only_tap_marked():
+    out = rules.diagnose(evidence_input(("पानी", None, False), source="offline_marks"), "Ravi")
+    assert out["error_patterns"] == ["insufficient_audio"]
+    assert "tapping" in out["summary"]["en"] and "quieter" not in out["summary"]["en"]
+
+
+def test_rules_give_english_reading_advice_for_an_english_check():
+    out = rules.diagnose(evidence_input(("sun", "sin", False), ("cat", "cut", False), lang="en"), "Ravi")
+    assert out["error_patterns"][0] == "matra_vowel_sign"
+    for text in out["summary"].values():  # in both languages: vowel sounds, not matras or the barakhadi
+        assert "sat, sit, set" in text and "मात्रा" not in text and "बारहखड़ी" not in text
+
+
 def test_rules_fluency_only_for_accurate_but_halting_reading():
     out = rules.diagnose(evidence_input(level="paragraph", pauses=4, n_errors=0), "Ravi")
     assert out["error_patterns"] == ["fluency_only"]

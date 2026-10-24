@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .content import Item, instructions
+from .content import Item, instructions, reading_languages
 from .levels.aser_rules import cohort_for_level, effective_level
 from .models import Checkin, Classroom, Diagnosis, ItemResult, Student, Teacher
 
@@ -11,9 +11,30 @@ def teacher_out(t: Teacher) -> dict:
     return {"id": t.id, "login": t.login, "name": t.name, "ui_lang": t.ui_lang}
 
 
-def student_out(s: Student) -> dict:
-    level, confirmed = effective_level(s.provisional_level, s.confirmed_level)
-    finished = [c for c in s.checkins if c.status in ("scored", "needs_review")]
+def level_out(s: Student, language: str) -> dict:
+    row = s.level_in(language)
+    level, confirmed = effective_level(row.provisional_level if row else None, row.confirmed_level if row else None)
+    override = row.cohort_override if row else None
+    return {
+        "provisional_level": row.provisional_level if row else None,
+        "confirmed_level": row.confirmed_level if row else None,
+        "level": level,
+        "level_confirmed": confirmed,
+        "cohort": override or cohort_for_level(level),
+        "cohort_override": override,
+    }
+
+
+def student_languages(s: Student) -> list[str]:
+    return reading_languages(s.main_language) or [s.main_language]
+
+
+def student_out(s: Student, language: str | None = None) -> dict:
+    """Level, group, check-in count and latest diagnosis in one reading language (`language` if the child is tested
+    in it, else their main language); `levels` has every language the child is tested in."""
+    langs = student_languages(s)
+    lang = language if language in langs else langs[0]
+    finished = [c for c in s.checkins if c.status in ("scored", "needs_review") and c.language == lang]
     last = finished[-1] if finished else None
     return {
         "id": s.id,
@@ -21,13 +42,11 @@ def student_out(s: Student) -> dict:
         "avatar": s.avatar,
         "grade": s.grade,
         "home_lang": s.home_lang,
-        "assessment_language": s.home_lang or s.classroom.language,
-        "provisional_level": s.provisional_level,
-        "confirmed_level": s.confirmed_level,
-        "level": level,
-        "level_confirmed": confirmed,
-        "cohort": s.cohort_override or cohort_for_level(level),
-        "cohort_override": s.cohort_override,
+        "assessment_language": s.main_language,
+        "language": lang,
+        "languages": langs,
+        **level_out(s, lang),
+        "levels": {code: level_out(s, code) for code in langs},
         "checkins": len(finished),
         "last_checkin_at": last.started_at.isoformat() if last else None,
         "pending_review": any(c.status == "needs_review" for c in s.checkins),
@@ -36,7 +55,8 @@ def student_out(s: Student) -> dict:
 
 
 def classroom_out(c: Classroom, *, students: bool = False) -> dict:
-    out = {"id": c.id, "name": c.name, "grade": c.grade, "language": c.language, "students_count": len(c.students)}
+    out = {"id": c.id, "name": c.name, "grade": c.grade, "language": c.language,
+           "languages": reading_languages(c.language) or [c.language], "students_count": len(c.students)}
     if students:
         out["students"] = [student_out(s) for s in c.students]
     return out

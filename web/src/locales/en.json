@@ -77,7 +77,31 @@
     "sight_word": "Common sight words",
     "guessing_from_first_akshara": "Guessing from the first letter",
     "fluency_only": "Accurate but slow or halting",
-    "insufficient_audio": "Not enough clear audio"
+    "insufficient_audio": "Kind of error not clear"
+  },
+  "patternEn": {
+    "letter_recognition": "Letter names and sounds (b/d, p/q)",
+    "matra_vowel_sign": "Vowel sounds (cat/cut, pin/pen)",
+    "conjunct": "Blends and digraphs (sh, ch, st)",
+    "blending_scaffolding": "Sounding out and blending (c-a-t → cat)",
+    "sight_word": "Sight words (the, was, said)",
+    "guessing_from_first_akshara": "Guessing from the first letter"
+  },
+  "lang": {
+    "hi": "Hindi",
+    "en": "English",
+    "mr": "Marathi",
+    "gu": "Gujarati",
+    "kn": "Kannada",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "or": "Odia",
+    "ml": "Malayalam"
+  },
+  "readingTest": {
+    "label": "Reading test",
+    "start": "Start {{language}} reading check",
+    "groupFor": "Group in {{language}}"
   },
   "student": {
     "provisional": "Not yet confirmed",

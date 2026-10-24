@@ -51,6 +51,15 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 - [x] Login page: "wrong login ID or PIN" only for a real wrong PIN; "can't reach the server" when the request is blocked or the network is down; a note while the free server wakes up
 - [x] 119 API tests
 
+### 25 Oct — every child tested in English and the regional language; English first (asked for by Z)
+- [x] Z: switching the app to English only changed the interface; children were still tested in Hindi. Now, as in ASER, each child takes an **English** and a **regional-language** (Hindi) reading test, each with its own ladder history, level, two-check confirmation and group (new `student_levels` table; older databases are moved over at startup, checked against a copy of the deployed data)
+- [x] Switching the app language switches the reading test too; a **Reading test** switch (Hindi | English) on the class and child pages picks it on its own. The app opens in English
+- [x] Dashboard groups, group set by hand, start level, diagnoses, activities and offline check-ins all follow the reading test; check-ins show their language
+- [x] Demo children got two weeks of English history as well (lower than their Hindi, as for most second-language readers); a deployed demo gets it on its next start, without a reset
+- [x] Activities: the 5 Hindi-script methods (barakhadi, matras, conjuncts) are never offered for English; 5 English versions of them added (letter-sound chart, letter-card word building, change one vowel, sound strings, break and join blends), same sources
+- [x] English checks: error patterns and the instant rule-based advice in English-reading terms (letter sounds, vowel sounds, blends); a tap-marked check now says so instead of "record somewhere quieter"
+- [x] 130 API tests; browser run: dashboard per language, app-language toggle, an English check (tap-marked) moving only the English level, English group activity
+
 ---
 
 ## 2. Blocked / waiting on a person
@@ -73,12 +82,14 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 | 1 | ~~Anthropic key → live diagnoses + activities~~ done 24 Oct | — | ✓ |
 | 2 | ~~Real clips → eval → tune~~ done 24 Oct (deviations confirmed) | — | ✓ |
 | 3 | ~~Deploy (Vercel + Neon storage, Render)~~ done 24 Oct; still to do: UptimeRobot, then `diagnose_pending` for the demo class | Z, CC | Sun 26 |
+| 3b | Decide with the mentor: move the English test to ASER's English tool (capital letters → small letters → words → sentences, meaning asked in the child's language)? Today English uses the shared ladder | Z + mentor, CC builds | Mon 27 |
 | 4 | Phone test on Android: online + airplane mode | Z | Mon 27 |
 | 5 | Teacher round (3 teachers, live link) → fixes → `docs/user-testing.md` | R + Z, CC fixes | Tue 28 – Wed 29 |
 | 6 | Evaluation set: 30–50 consented clips (adults simulating errors; children only with parental consent) → results table | Z + R record, CC harness | by Wed 29 |
 | 7 | Feature freeze; consent form, PPT outline, video script drafts | CC drafts, R/Z finalise | Wed 29 |
 | 8 | 3-min video | Z | Thu 30 – Fri 31 |
 | 9 | Submit; flip repo public (MIT); no commits after | Z | Sat 1 Nov afternoon |
+| 10 | Regional languages after mentor approval: Marathi, Odia, Tamil, Kannada, Telugu (configured), Malayalam (configure first) — each needs an item bank, instruction audio and an educator's review | Z + R, CC | after approval |
 
 ## 4. Open questions
 - Tier-2 languages: engine and vendor config exist, no item banks. Plan: mention as "engine-ready" in the PPT, do not demo.
@@ -98,3 +109,4 @@ cd web && npm run dev                                         # http://localhost
 - **24 Oct (later)** — real recordings scored, Claude live (spent $0.22), spend caps added.
 - **24 Oct (evening)** — pushed `117c462`; Postgres + Docker verified; recording replay; README + document.md.
 - **24 Oct (night)** — pushed `5fb28f0`; Z deployed to Vercel + Render (Neon); fixed login blocked by a trailing slash in `CORS_ORIGINS`.
+- **25 Oct** — every child tested in English and the regional language (own level and group each); app opens in English; English activities and advice.

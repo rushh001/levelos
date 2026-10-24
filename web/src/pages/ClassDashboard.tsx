@@ -2,7 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 import { Api } from '../api'
-import { Button, COHORT_STYLE, ChildChip, ErrorBox, Page, Spinner } from '../components/ui'
+import { Button, COHORT_STYLE, ChildChip, ErrorBox, Page, ReadingTestSwitch, Spinner } from '../components/ui'
+import { patternKey, useReadingLang } from '../lib/readingLang'
 import { useAsync } from '../lib/useAsync'
 
 const WARM_EVERY_MS = 10 * 60_000
@@ -13,18 +14,22 @@ const AVATARS = ['🙂', '🦁', '🐰', '🐯', '🦋', '🌻', '🐘', '🐢',
 export default function ClassDashboard() {
   const { id = '' } = useParams()
   const { t } = useTranslation()
-  const { data, error, loading, reload } = useAsync(() => Api.dashboard(id), [id])
+  const [lang, setLang] = useReadingLang()
+  const { data, error, loading, reload } = useAsync(() => Api.dashboard(id, lang), [id, lang])
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
   const [avatar, setAvatar] = useState(AVATARS[0])
 
-  // Load every child's page while online, so any child can be opened (and checked) offline later. At most once
-  // per class every 10 minutes: on the free API server, refetching 30 pages on every dashboard visit adds up.
+  // Load every child's page (and the groups in the class's other reading test) while online, so any child can be
+  // opened and checked offline later. At most once per class every 10 minutes: on the free API server, refetching
+  // 30 pages on every dashboard visit adds up.
   useEffect(() => {
     if (!data || !navigator.onLine || Date.now() - (warmedAt.get(id) ?? 0) < WARM_EVERY_MS) return
     warmedAt.set(id, Date.now())
     const ids = data.cohorts.flatMap((c) => c.students.map((s) => s.id)).concat(data.not_assessed.map((s) => s.id))
+    const others = data.class.languages.filter((l) => l !== data.language)
     void (async () => {
+      for (const l of others) await Api.dashboard(id, l).catch(() => undefined)
       for (const sid of ids) await Api.student(sid).catch(() => undefined)
     })()
   }, [data])
@@ -49,7 +54,15 @@ export default function ClassDashboard() {
       )}
       {data && (
         <>
-          <h2 className="text-lg font-semibold">{t('dashboard.groups')}</h2>
+          <div className="mb-3">
+            <ReadingTestSwitch languages={data.class.languages} value={data.language} onChange={setLang} />
+          </div>
+          <h2 className="text-lg font-semibold">
+            {t('dashboard.groups')}
+            {data.class.languages.length > 1 && (
+              <span className="font-normal text-slate-500"> · {t(`lang.${data.language}`, { defaultValue: data.language })}</span>
+            )}
+          </h2>
           <p className="mb-3 text-xs text-slate-500">{t('dashboard.groupsHint')}</p>
           <div className="grid gap-3 md:grid-cols-3">
             {data.cohorts.map((c) => (
@@ -73,7 +86,7 @@ export default function ClassDashboard() {
                     <ul className="mt-1 space-y-0.5 text-sm">
                       {c.dominant_patterns.map((p) => (
                         <li key={p}>
-                          • {t(`pattern.${p}`)} <span className="text-slate-500">({c.pattern_counts[p]})</span>
+                          • {t(patternKey(p, data.language))} <span className="text-slate-500">({c.pattern_counts[p]})</span>
                         </li>
                       ))}
                     </ul>
@@ -81,7 +94,7 @@ export default function ClassDashboard() {
                 )}
                 {c.students.length > 0 && (
                   <Link
-                    to={`/class/${id}/activity/${c.cohort}`}
+                    to={`/class/${id}/activity/${c.cohort}?lang=${data.language}`}
                     className="mt-3 block rounded-xl bg-white px-3 py-2 text-center text-sm font-semibold text-blue-700 shadow-sm"
                   >
                     ▶ {t('activity.button')}

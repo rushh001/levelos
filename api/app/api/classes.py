@@ -3,12 +3,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..auth import current_teacher
-from ..content import available_languages
+from ..content import available_languages, reading_languages
 from ..db import get_db
 from ..levels.aser_rules import COHORTS
 from ..models import Classroom, LevelHistory, Student, Teacher
 from ..serialize import checkin_out, classroom_out, student_out
-from ..services.checkins import owned_student
+from ..services.checkins import level_row, owned_student
 
 router = APIRouter(prefix="/api", tags=["classes"])
 
@@ -51,6 +51,7 @@ class StudentPatch(BaseModel):
     home_lang: str | None = None
     cohort_override: str | None = None
     clear_cohort_override: bool = False
+    language: str | None = None  # which reading test the group applies to (default: the child's main language)
 
 
 @router.get("/classes")
@@ -96,11 +97,12 @@ def add_student(class_id: str, body: StudentIn, teacher: Teacher = Depends(curre
 
 
 @router.get("/students/{student_id}")
-def get_student(student_id: str, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
+def get_student(student_id: str, language: str | None = None, teacher: Teacher = Depends(current_teacher),
+                db: Session = Depends(get_db)) -> dict:
     s = owned_student(db, teacher, student_id)
     history = db.query(LevelHistory).filter(LevelHistory.student_id == s.id).order_by(LevelHistory.at).all()
     return {
-        **student_out(s),
+        **student_out(s, language),
         "class_id": s.classroom_id,
         "checkins_list": [checkin_out(c) for c in reversed(s.checkins) if c.status != "abandoned"],
         "level_history": [{"at": h.at.isoformat(), "provisional": h.provisional, "confirmed": h.confirmed,
@@ -113,21 +115,30 @@ def patch_student(student_id: str, body: StudentPatch, teacher: Teacher = Depend
                   db: Session = Depends(get_db)) -> dict:
     s = owned_student(db, teacher, student_id)
     _check_lang(body.home_lang)
+    _check_lang(body.language)
     if body.cohort_override is not None and body.cohort_override not in COHORTS:
         raise HTTPException(422, f"cohort must be one of {COHORTS}")
-    for k, v in body.model_dump(exclude_none=True, exclude={"clear_cohort_override"}).items():
+    for k, v in body.model_dump(exclude_none=True,
+                                exclude={"cohort_override", "clear_cohort_override", "language"}).items():
         setattr(s, k, v)
-    if body.clear_cohort_override:
-        s.cohort_override = None
+    lang = body.language or s.main_language
+    if body.cohort_override is not None:
+        level_row(s, lang).cohort_override = body.cohort_override
+    if body.clear_cohort_override and (row := s.level_in(lang)) is not None:
+        row.cohort_override = None
     db.commit()
-    return student_out(s)
+    return student_out(s, lang)
 
 
 @router.get("/classes/{class_id}/dashboard")
-def dashboard(class_id: str, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
-    """The class regrouped into TaRL cohorts by effective level (confirmed, else provisional and flagged)."""
+def dashboard(class_id: str, language: str | None = None, teacher: Teacher = Depends(current_teacher),
+              db: Session = Depends(get_db)) -> dict:
+    """The class regrouped into TaRL cohorts by effective level (confirmed, else provisional and flagged) in one
+    reading language (default: the class language)."""
     c = owned_class(db, teacher, class_id)
-    students = [student_out(s) for s in c.students]
+    langs = reading_languages(c.language) or [c.language]
+    lang = language if language in langs else langs[0]
+    students = [student_out(s, lang) for s in c.students]
     groups: dict[str, list[dict]] = {k: [] for k in (*COHORTS, "not_assessed")}
     for s in students:
         groups[s["cohort"] or "not_assessed"].append(s)
@@ -147,6 +158,7 @@ def dashboard(class_id: str, teacher: Teacher = Depends(current_teacher), db: Se
         })
     return {
         "class": classroom_out(c),
+        "language": lang,
         "cohorts": cohorts,
         "not_assessed": groups["not_assessed"],
         "pending_review": [s["id"] for s in students if s["pending_review"]],
