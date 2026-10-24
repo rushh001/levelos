@@ -149,7 +149,7 @@ unset DATABASE_URL
 | What you see | Likely cause | Fix |
 |---|---|---|
 | Vercel build fails: cannot resolve `../../../content/items/hi.json` | Files outside `web/` are not included | Step 3.4: turn on "include files outside the root directory", redeploy |
-| The app opens but login fails, or "Failed to fetch" | `CORS_ORIGINS` does not match the app address exactly, or the API is waking up | Step 4 (https, no trailing slash); wait a minute and retry |
+| The app opens but login says it can't reach the server (older builds said "wrong login ID or PIN" for every login) | `CORS_ORIGINS` on Render does not list the app's address, or the API is waking up | Step 4; check with the command below this table; wait a minute and retry |
 | `/api/health` shows 502 or 503 | The API is starting or asleep, or it crashed | Wait 60 s; if it persists, read Render → **Logs** |
 | Render log: `JWT_SECRET must be set in production` | `JWT_SECRET` is missing | Set it to any random string of 40+ characters |
 | Render log mentions SSL, `prepared statement`, or the database host | Pooled URL, or `?sslmode=require` missing | Use the **unpooled** URL from step 1.5, including `?sslmode=require` |
@@ -157,3 +157,10 @@ unset DATABASE_URL
 | The microphone does not start | Not on HTTPS, or permission blocked | Use the Vercel `https://` address; Chrome → site settings → Microphone → Allow |
 | The `demo` login does not work | The demo data was not created | Check `SEED_DEMO=true` in Render; or Render → **Shell**: `python -m scripts.seed_demo --if-empty` |
 | Everything worked yesterday, today the first request is slow | The API slept (no monitor) | Step 6 |
+
+**Is the app's address allowed to call the API?** Run this from any terminal, using your two addresses. `200` means allowed; `400` means `CORS_ORIGINS` does not list the app's address.
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -X OPTIONS https://levelos-api.onrender.com/api/auth/login \
+  -H "Origin: https://levelos-nine.vercel.app" -H "Access-Control-Request-Method: POST"
+```

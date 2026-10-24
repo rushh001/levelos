@@ -347,7 +347,7 @@ At about $0.02 per check-in, $400 covers roughly 20,000 check-in diagnoses.
 
 The one miss was marked uncertain and sent to the teacher. The system also caught a slip the reader did not notice (रानी read for रीना). These are adult voices in a quiet room; children's voices and classroom noise are harder, and children's recordings (with parental consent) are the next evaluation step.
 
-**Software tests**: 118 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
+**Software tests**: 119 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
 
 ---
 
@@ -383,7 +383,7 @@ api/
                        activities (generate + review), budget (spend ledger and caps)
   scripts/             seed_demo, run_clips (evaluation), claude_spend, diagnose_pending,
                        make_instruction_audio
-  tests/               118 tests
+  tests/               119 tests
   Dockerfile
 web/
   src/pages/           Login, Classes, ClassDashboard, Student, Checkin, OfflineCheckin, Result, ActivityPage
@@ -411,7 +411,7 @@ API settings (environment variables; locally in `api/.env.local`, which is never
 | `APP_ENV` | `dev` | `prod` turns off the response cache and requires `JWT_SECRET` |
 | `DATABASE_URL` | local SQLite | Postgres URL in production (the unpooled Neon URL) |
 | `JWT_SECRET` | dev value | signing key for login tokens (required in production) |
-| `CORS_ORIGINS` | `http://localhost:5173` | the web app's address(es) allowed to call the API |
+| `CORS_ORIGINS` | `http://localhost:5173` | the web app's address(es) allowed to call the API, comma-separated (a trailing slash or path is ignored) |
 | `SEED_DEMO` | — | `true`: create the demo logins and class on first start |
 | `ANTHROPIC_API_KEY` | — | Claude (without it: rule-based diagnosis and bank activities) |
 | `CLAUDE_MODEL` / `CLAUDE_VALIDATOR_MODEL` | `claude-opus-5-5` / `claude-haiku-5-5` | models |

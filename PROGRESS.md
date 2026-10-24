@@ -45,6 +45,12 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 - [x] Group set by hand on a child's page now sets where the reading check starts (asked for by Z)
 - [x] 118 API tests
 
+### 24 Oct (night) — hosted demo deployed, login fix (Z deployed; CC)
+- [x] Pushed `5fb28f0`; Z deployed the web app to **https://levelos-nine.vercel.app** (Vercel) and the API to **https://levelos-api.onrender.com** (Render, Neon database); demo data seeded, `demo` and `judge` logins work against the API
+- [x] Every login from the hosted app failed: `CORS_ORIGINS` on Render ended in a slash (`…vercel.app/`), which never matches the origin a browser sends. The API now ignores a trailing slash, path or capitals in `CORS_ORIGINS`
+- [x] Login page: "wrong login ID or PIN" only for a real wrong PIN; "can't reach the server" when the request is blocked or the network is down; a note while the free server wakes up
+- [x] 119 API tests
+
 ---
 
 ## 2. Blocked / waiting on a person
@@ -52,7 +58,7 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 | Item | Needed from | Why it blocks |
 |---|---|---|
 | Recordings of children (with written parental consent) | Z + R | Accuracy on children's voices — the claim judges care about |
-| Vercel account (+ Neon database from its Storage tab) and Render account; follow [docs/DEPLOY.md](docs/DEPLOY.md); put the unpooled DB URL in `api/.env.local` as `PROD_DATABASE_URL` | Z | Hosted demo; teacher testing on the live link |
+| Keep-alive monitor on `/api/health` ([docs/DEPLOY.md](docs/DEPLOY.md) step 6), if not set up yet | Z | Without it the free API sleeps and the first login takes up to a minute |
 | Android phone test (Chrome) | Z | Microphone, layout and offline on a real budget phone |
 | 3 teachers for one round of testing (Tue 28 – Wed 29) | Z + R | User-testing evidence (35% of the score) |
 | Educator check of item banks + activity bank (status: draft) | R | Fidelity claims in the PPT |
@@ -66,7 +72,7 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 |---|---|---|---|
 | 1 | ~~Anthropic key → live diagnoses + activities~~ done 24 Oct | — | ✓ |
 | 2 | ~~Real clips → eval → tune~~ done 24 Oct (deviations confirmed) | — | ✓ |
-| 3 | Deploy (Vercel + Neon storage, Render, UptimeRobot), then `diagnose_pending` for the demo class | Z accounts, CC | Sun 26 – Mon 27 |
+| 3 | ~~Deploy (Vercel + Neon storage, Render)~~ done 24 Oct; still to do: UptimeRobot, then `diagnose_pending` for the demo class | Z, CC | Sun 26 |
 | 4 | Phone test on Android: online + airplane mode | Z | Mon 27 |
 | 5 | Teacher round (3 teachers, live link) → fixes → `docs/user-testing.md` | R + Z, CC fixes | Tue 28 – Wed 29 |
 | 6 | Evaluation set: 30–50 consented clips (adults simulating errors; children only with parental consent) → results table | Z + R record, CC harness | by Wed 29 |
@@ -91,3 +97,4 @@ cd web && npm run dev                                         # http://localhost
 - **24 Oct** — Phases 0–4, 6, 7 implemented and verified locally (see §1); not yet committed (waiting for Z's go-ahead).
 - **24 Oct (later)** — real recordings scored, Claude live (spent $0.22), spend caps added.
 - **24 Oct (evening)** — pushed `117c462`; Postgres + Docker verified; recording replay; README + document.md.
+- **24 Oct (night)** — pushed `5fb28f0`; Z deployed to Vercel + Render (Neon); fixed login blocked by a trailing slash in `CORS_ORIGINS`.

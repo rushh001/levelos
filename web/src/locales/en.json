@@ -18,6 +18,9 @@
     "pin": "PIN",
     "submit": "Log in",
     "wrong": "Wrong login ID or PIN.",
+    "unreachable": "Can't reach the LevelOS server. Check the internet connection and try again.",
+    "serverError": "The server had a problem. Please try again in a minute.",
+    "waking": "Waking up the server — the first login can take up to a minute.",
     "tryDemo": "Try the demo class",
     "demoHint": "Demo: login demo, PIN 1234"
   },

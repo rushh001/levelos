@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -63,7 +64,16 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        # Browsers send the Origin as scheme://host[:port] in lower case, with no path or trailing slash;
+        # cut pasted addresses ("https://levelos.vercel.app/") down to that, or they never match.
+        origins = []
+        for raw in (o.strip() for o in self.cors_origins.split(",")):
+            u = urlsplit(raw)
+            if u.scheme and u.netloc:
+                origins.append(f"{u.scheme}://{u.netloc}".lower())
+            elif raw:
+                origins.append(raw)
+        return origins
 
 
 settings = Settings()

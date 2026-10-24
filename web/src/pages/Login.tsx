@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
+import { ApiError, OfflineError } from '../api'
 import { Button, Page } from '../components/ui'
 import { useAuth } from '../lib/auth'
 
@@ -12,6 +13,17 @@ export default function Login() {
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [slow, setSlow] = useState(false)
+
+  // The free API server sleeps when idle, and the first request can take up to a minute to wake it.
+  useEffect(() => {
+    if (!busy) {
+      setSlow(false)
+      return
+    }
+    const timer = window.setTimeout(() => setSlow(true), 4000)
+    return () => window.clearTimeout(timer)
+  }, [busy])
 
   if (teacher) return <Navigate to="/" replace />
 
@@ -21,8 +33,15 @@ export default function Login() {
     try {
       await login(id, p)
       navigate('/', { replace: true })
-    } catch {
-      setError(t('login.wrong'))
+    } catch (e) {
+      // Only a 401 means a wrong login or PIN; a blocked or failed request must not look like one.
+      setError(
+        e instanceof ApiError && e.status === 401
+          ? t('login.wrong')
+          : e instanceof OfflineError
+            ? t('login.unreachable')
+            : t('login.serverError'),
+      )
     } finally {
       setBusy(false)
     }
@@ -63,6 +82,7 @@ export default function Login() {
             required
           />
         </label>
+        {busy && slow && <p className="text-sm text-slate-600">{t('login.waking')}</p>}
         {error && <p className="text-sm text-red-700">{error}</p>}
         <Button type="submit" disabled={busy} className="w-full">
           {t('login.submit')}
