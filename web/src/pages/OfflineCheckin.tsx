@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { InstructionAudio } from '../components/InstructionAudio'
+import { SayToChild } from '../components/SayToChild'
 import { TapToMark } from '../components/TapToMark'
 import { Button, LevelBadge, Page, ReadingCard, Spinner } from '../components/ui'
 import { db } from '../db'
@@ -45,7 +45,7 @@ export default function OfflineCheckin() {
 
   if (c.status !== 'in_progress') {
     return (
-      <Page title={`${c.avatar} ${c.studentName}`} back={back}>
+      <Page title={`${c.avatar} ${c.studentName}`} back={back} regional={c.mainLanguage ?? c.language}>
         <section className="rounded-2xl bg-white p-4 shadow-sm">
           <div className="text-sm text-slate-600">{t('offlineCheck.provisional')}</div>
           <div className="mt-1">
@@ -57,7 +57,7 @@ export default function OfflineCheckin() {
         </section>
         <ul className="mt-4 space-y-2">
           {c.items.map((it, k) => {
-            const o = outcomeFromMarks(it.level, it.marks, it.durationMs)
+            const o = outcomeFromMarks(it.level, it.marks, it.durationMs, c.language)
             return (
               <li key={k} className="flex justify-between rounded-xl bg-white px-4 py-2 text-sm shadow-sm">
                 <span>{t(`itemLevel.${it.level}`)} {it.clipId ? '🎤' : ''}</span>
@@ -80,7 +80,7 @@ export default function OfflineCheckin() {
   if (!item) {
     if (autoFinish) return <Page><Spinner label={t('checkin.finishing')} /></Page>
     return (
-      <Page title={`${c.avatar} ${c.studentName}`} back={back}>
+      <Page title={`${c.avatar} ${c.studentName}`} back={back} regional={c.mainLanguage ?? c.language}>
         <section className="space-y-3 rounded-2xl bg-white p-4 shadow-sm">
           <p>{t('checkin.notPlaced')}</p>
           <div className="flex flex-wrap gap-2">
@@ -95,7 +95,6 @@ export default function OfflineCheckin() {
     )
   }
 
-  const lang = c.language === 'hi' ? 'hi' : 'en'
   const save = async (marks: boolean[]) => {
     setBusy(true)
     await addItem(c.localId, item, marks, clip)
@@ -122,8 +121,10 @@ export default function OfflineCheckin() {
 
   return (
     <Page
-      title={`${t('checkin.item', { n: c.items.length + 1 })} · ${t(`lang.${c.language}`, { defaultValue: c.language })} · ${c.studentName}`}
+      title={`${t('checkin.item', { n: c.items.length + 1 })} · ${c.studentName}`}
+      tag={t('readingTest.tag', { language: t(`lang.${c.language}`, { defaultValue: c.language }) })}
       back={back}
+      regional={c.mainLanguage ?? c.language}
       wide
     >
       <div className="mb-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{t('offlineCheck.banner')}</div>
@@ -132,15 +133,7 @@ export default function OfflineCheckin() {
           {t(`itemLevel.${last.level}`)}: {last.marks.filter(Boolean).length}/{last.marks.length}
         </div>
       )}
-      <div className="mb-3 rounded-xl bg-blue-50 p-3">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="text-xs font-medium uppercase text-blue-800">{t('checkin.sayToChild')}</div>
-            <div className="text-lg">{item.instructions[lang] ?? item.instructions.en}</div>
-          </div>
-          <InstructionAudio key={item.id} lang={c.language} level={item.level} />
-        </div>
-      </div>
+      <SayToChild item={item} test={c.language} />
       <ReadingCard item={item} />
 
       {marking ? (

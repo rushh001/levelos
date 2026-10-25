@@ -5,10 +5,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Api, OfflineError } from '../api'
 import { db } from '../db'
 import { hasBank } from '../lib/content'
+import { nameIn, withName } from '../lib/names'
 import { startOffline } from '../lib/offline'
 import { patternKey, useReadingLang } from '../lib/readingLang'
 import { Button, ErrorBox, LevelBadge, Page, ReadingTestSwitch, Spinner, formatDate } from '../components/ui'
 import type { Checkin, Cohort } from '../lib/types'
+import { pick, useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
 const COHORTS: Cohort[] = ['letter', 'word', 'paragraph']
@@ -26,13 +28,13 @@ function LangTag({ lang }: { lang: string }) {
 
 export default function Student() {
   const { id = '' } = useParams()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: s, error, loading, reload } = useAsync(() => Api.student(id), [id])
   const [lang, setLang] = useReadingLang(s?.languages)
   const [starting, setStarting] = useState(false)
   const [startError, setStartError] = useState<Error | null>(null)
-  const uiLang = i18n.language === 'hi' ? 'hi' : 'en'
+  const uiLang = useUiLang()
   const local = useLiveQuery(() => db.checkins.where('studentId').equals(id).reverse().sortBy('startedAt'), [id])
 
   if (loading && !s) return <Page back><Spinner label={t('loading')} /></Page>
@@ -69,20 +71,26 @@ export default function Student() {
   const unfinished = s.checkins_list.find((c) => c.status === 'in_progress' && c.language === lang)
 
   return (
-    <Page title={s.first_name} back={`/class/${s.class_id}`}>
+    <Page title={nameIn(s, s.first_name, uiLang)} back={`/class/${s.class_id}`} regional={s.assessment_language}>
       <div className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm">
         <div className="text-5xl">{s.avatar}</div>
         <div className="min-w-0 flex-1 space-y-1.5">
-          {s.languages.map((l) => (
-            <div key={l} className={`flex items-center gap-2 ${l === lang ? '' : 'opacity-60'}`}>
-              <span className="w-16 shrink-0 text-xs font-medium text-slate-600">{t(`lang.${l}`, { defaultValue: l })}</span>
-              <LevelBadge level={s.levels[l]?.level ?? null} confirmed={s.levels[l]?.level ? s.levels[l].level_confirmed : undefined} />
-            </div>
-          ))}
-          {level?.level && (
-            <p className="text-xs text-slate-500">
-              {level.level_confirmed ? t('student.confirmed') : `${t('student.provisional')} — ${t('student.provisionalHelp')}`}
-            </p>
+          {s.languages.map((l) => {
+            const lv = s.levels[l]
+            return (
+              <div key={l} className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${l === lang ? '' : 'opacity-60'}`}>
+                <span className="w-16 shrink-0 text-xs font-medium text-slate-600">{t(`lang.${l}`, { defaultValue: l })}</span>
+                <LevelBadge level={lv?.level ?? null} confirmed={lv?.level ? lv.level_confirmed : undefined} />
+                {lv?.level && (
+                  <span className="text-xs text-slate-500">
+                    {lv.level_confirmed ? t('student.confirmed') : t('student.provisional')}
+                  </span>
+                )}
+              </div>
+            )
+          })}
+          {s.languages.some((l) => s.levels[l]?.level && !s.levels[l].level_confirmed) && (
+            <p className="text-xs text-slate-500">{t('student.provisionalHelp')}</p>
           )}
         </div>
       </div>
@@ -115,7 +123,7 @@ export default function Student() {
               </span>
             ))}
           </div>
-          <p className="mt-2 text-slate-800">{last.diagnosis.summary[uiLang] ?? last.diagnosis.summary.en}</p>
+          <p className="mt-2 text-slate-800">{withName(pick(last.diagnosis.summary, uiLang) ?? '', s, uiLang)}</p>
         </section>
       )}
 
@@ -155,7 +163,7 @@ export default function Student() {
                 <li key={c.localId}>
                   <Link to={`/offline/${c.localId}`} className="flex items-center justify-between gap-3 px-4 py-3">
                     <span className="flex items-center gap-2 text-sm text-slate-600">
-                      {formatDate(new Date(c.startedAt).toISOString(), i18n.language)} <LangTag lang={c.language} />
+                      {formatDate(new Date(c.startedAt).toISOString(), uiLang)} <LangTag lang={c.language} />
                     </span>
                     <span className="flex items-center gap-2 text-xs">
                       {c.status === 'in_progress'
@@ -183,7 +191,7 @@ export default function Student() {
                 className="flex items-center justify-between gap-3 px-4 py-3"
               >
                 <span className="flex items-center gap-2 text-sm text-slate-600">
-                  {formatDate(c.started_at, i18n.language)} <LangTag lang={c.language} />
+                  {formatDate(c.started_at, uiLang)} <LangTag lang={c.language} />
                 </span>
                 <span className="flex items-center gap-2">
                   {c.status === 'needs_review' && <span className="text-xs text-amber-700">{t('student.awaiting')}</span>}

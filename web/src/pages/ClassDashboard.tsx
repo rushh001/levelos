@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 import { Api } from '../api'
 import { Button, COHORT_STYLE, ChildChip, ErrorBox, Page, ReadingTestSwitch, Spinner } from '../components/ui'
+import { nameIn } from '../lib/names'
 import { patternKey, useReadingLang } from '../lib/readingLang'
+import { regionalFor, useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
 const WARM_EVERY_MS = 10 * 60_000
@@ -14,10 +16,12 @@ const AVATARS = ['🙂', '🦁', '🐰', '🐯', '🦋', '🌻', '🐘', '🐢',
 export default function ClassDashboard() {
   const { id = '' } = useParams()
   const { t } = useTranslation()
+  const ui = useUiLang()
   const [lang, setLang] = useReadingLang()
   const { data, error, loading, reload } = useAsync(() => Api.dashboard(id, lang), [id, lang])
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
+  const [otherName, setOtherName] = useState('')
   const [avatar, setAvatar] = useState(AVATARS[0])
 
   // Load every child's page (and the groups in the class's other reading test) while online, so any child can be
@@ -34,22 +38,37 @@ export default function ClassDashboard() {
     })()
   }, [data])
 
+  // The name's second spelling: in the class's language when the app is in English, else in English.
+  const other = ui === 'en' ? regionalFor(data?.class.language) : 'en'
   const add = async (e: FormEvent) => {
     e.preventDefault()
-    await Api.addStudent(id, { first_name: name.trim(), avatar })
+    const first = name.trim()
+    const second = otherName.trim()
+    await Api.addStudent(id, { first_name: first, avatar, names: second ? { [ui]: first, [other]: second } : undefined })
     setName('')
+    setOtherName('')
     setAdding(false)
     await reload()
   }
 
-  if (loading && !data) return <Page back="/"><Spinner label={t('loading')} /></Page>
+  if (loading && !data) return <Page back="/classes"><Spinner label={t('loading')} /></Page>
+
+  // Children with a reading check waiting for the teacher's confirmation: one tap opens that check.
+  const waiting = data
+    ? [...data.cohorts.flatMap((c) => c.students), ...data.not_assessed].filter((s) => s.review_checkin_id)
+    : []
 
   return (
-    <Page title={data?.class.name} back="/" wide>
+    <Page title={data ? nameIn(data.class, data.class.name, ui) : undefined} back="/classes" regional={data?.class.language} wide>
       <ErrorBox error={error} onRetry={reload} />
-      {data && data.pending_review.length > 0 && (
+      {waiting.length > 0 && (
         <div className="mb-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
-          {t('dashboard.pendingReview', { count: data.pending_review.length })}
+          <p>{t('dashboard.pendingReview', { count: waiting.length })}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {waiting.map((s) => (
+              <ChildChip key={s.id} s={s} to={`/result/${s.review_checkin_id}`} />
+            ))}
+          </div>
         </div>
       )}
       {data && (
@@ -94,7 +113,7 @@ export default function ClassDashboard() {
                 )}
                 {c.students.length > 0 && (
                   <Link
-                    to={`/class/${id}/activity/${c.cohort}?lang=${data.language}`}
+                    to={`/class/${id}/activity/${c.cohort}?lang=${data.language}&cl=${data.class.language}`}
                     className="mt-3 block rounded-xl bg-white px-3 py-2 text-center text-sm font-semibold text-blue-700 shadow-sm"
                   >
                     ▶ {t('activity.button')}
@@ -121,6 +140,13 @@ export default function ClassDashboard() {
                 maxLength={80}
                 className="w-full rounded-lg border px-3 py-3 text-lg"
                 required
+              />
+              <input
+                value={otherName}
+                onChange={(e) => setOtherName(e.target.value)}
+                placeholder={t('dashboard.otherName', { language: t(`lang.${other}`) })}
+                maxLength={80}
+                className="w-full rounded-lg border px-3 py-2"
               />
               <div>
                 <div className="text-sm text-slate-600">{t('dashboard.avatar')}</div>

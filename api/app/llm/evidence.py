@@ -28,7 +28,18 @@ SIGHT_WORDS = {
            "on", "our", "out", "she", "so", "that", "there", "they", "this", "too", "was", "went", "what", "who",
            "will", "with", "yes", "after", "an", "as", "by", "every", "from", "had", "has", "her", "him", "his",
            "of", "old", "over", "some", "them", "then", "were", "when"},
+    # Beta languages: common function words and pronouns (draft lists, to be checked by native-speaking teachers).
+    "mr": {"आहे", "आहेत", "आणि", "हा", "ही", "हे", "तो", "ती", "ते", "मी", "तू", "आम्ही", "तुम्ही", "होता", "होती",
+           "होते", "नाही", "एक", "पण", "खूप", "माझे", "माझा", "माझी", "त्याचे", "त्याने", "काय", "कोण", "आज", "रोज"},
+    "ta": {"ஒரு", "அது", "இது", "அவன்", "அவள்", "அவர்", "நான்", "நீ", "நாம்", "என்", "உன்", "என்ன", "யார்",
+           "எங்கே", "இல்லை", "உள்ளது", "இருந்தது", "மிகவும்", "நிறைய", "இன்று", "தினமும்", "மற்றும்", "ஆனால்"},
+    "kn": {"ಒಂದು", "ಅದು", "ಇದು", "ಅವನು", "ಅವಳು", "ಅವರು", "ನಾನು", "ನೀನು", "ನನ್ನ", "ನಿನ್ನ", "ಇದೆ", "ಇತ್ತು", "ಇಲ್ಲ",
+           "ಮತ್ತು", "ಆದರೆ", "ತುಂಬಾ", "ಬಹಳ", "ಇಂದು", "ಏನು", "ಯಾರು", "ಎಲ್ಲಿ"},
+    "bn": {"এক", "একটা", "একটি", "সে", "আমি", "তুমি", "আমার", "তোমার", "তার", "এই", "ওই", "আর", "ও", "এবং",
+           "কিন্তু", "না", "নেই", "আছে", "ছিল", "খুব", "আজ", "কী", "কে", "কোথায়"},
 }
+# Compared after the same normalisation as the words read (nukta forms such as য় change under it).
+SIGHT_WORDS = {lang: {normalize(w, lang) for w in words} for lang, words in SIGHT_WORDS.items()}
 _VOWELS_EN = set("aeiou")
 
 

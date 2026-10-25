@@ -5,6 +5,7 @@ import { Api } from '../api'
 import { Button, COHORT_STYLE, ErrorBox, Page, Spinner } from '../components/ui'
 import { useReadingLang } from '../lib/readingLang'
 import type { Activity, Cohort } from '../lib/types'
+import { pick, useUiLang } from '../lib/uiLang'
 
 /** Generates a 10-minute activity for one reading group (or shows the latest) with its source and a rating. */
 export default function ActivityPage() {
@@ -13,6 +14,7 @@ export default function ActivityPage() {
   const [readingLang] = useReadingLang()
   const lang = params.get('lang') || readingLang // the reading test the group was formed in
   const { t } = useTranslation()
+  const ui = useUiLang()
   const [current, setCurrent] = useState<Activity | null>(null)
   const [previous, setPrevious] = useState<Activity[]>([])
   const [busy, setBusy] = useState(false)
@@ -53,7 +55,12 @@ export default function ActivityPage() {
   }, [id, cohort, lang])
 
   return (
-    <Page title={`${t(`cohort.${cohort}`)} · ${t(`lang.${lang}`, { defaultValue: lang })}`} back={`/class/${id}`}>
+    <Page
+      title={t(`cohort.${cohort}`)}
+      tag={t('readingTest.tag', { language: t(`lang.${lang}`, { defaultValue: lang }) })}
+      back={`/class/${id}`}
+      regional={params.get('cl')}
+    >
       <ErrorBox error={error} onRetry={() => void generate()} />
       {busy && <Spinner label={t('activity.generating')} />}
       {current && !busy && <ActivityCard a={current} cohort={cohort as Cohort} onRated={setCurrent} />}
@@ -69,7 +76,7 @@ export default function ActivityPage() {
             {previous.slice(0, 5).map((a) => (
               <li key={a.id}>
                 <button onClick={() => setCurrent(a)} className="text-blue-700 underline">
-                  {a.plan.title.hi ?? a.plan.title.en}
+                  {pick(a.plan.title, ui)}
                 </button>
               </li>
             ))}
@@ -81,20 +88,21 @@ export default function ActivityPage() {
 }
 
 function ActivityCard({ a, cohort, onRated }: { a: Activity; cohort: Cohort; onRated: (a: Activity) => void }) {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language === 'hi' ? 'hi' : 'en'
+  const { t } = useTranslation()
+  const ui = useUiLang()
   const p = a.plan
+  const materials = pick(p.materials, ui) ?? []
   const rate = async (n: number) => onRated(await Api.rateActivity(a.id, n))
   return (
     <article className={`rounded-2xl border-2 p-4 ${COHORT_STYLE[cohort]}`}>
       <div className="text-xs text-slate-600">{a.generated_by === 'bank' ? t('activity.fromBank') : t('activity.adapted')}</div>
-      <h2 className="text-xl font-bold">{p.title[lang] ?? p.title.en}</h2>
-      {(p.why[lang] || p.why.en) && <p className="mt-1 text-sm text-slate-700">{p.why[lang] || p.why.en}</p>}
+      <h2 className="text-xl font-bold">{pick(p.title, ui)}</h2>
+      {pick(p.why, ui) && <p className="mt-1 text-sm text-slate-700">{pick(p.why, ui)}</p>}
 
-      {(p.materials[lang] ?? p.materials.en ?? []).length > 0 && (
+      {materials.length > 0 && (
         <div className="mt-3">
           <div className="text-xs font-semibold uppercase text-slate-600">{t('activity.materials')}</div>
-          <p className="text-sm">{(p.materials[lang] ?? p.materials.en ?? []).join(' · ')}</p>
+          <p className="text-sm">{materials.join(' · ')}</p>
         </div>
       )}
 
@@ -105,7 +113,7 @@ function ActivityCard({ a, cohort, onRated }: { a: Activity; cohort: Cohort; onR
             <li key={i} className="flex gap-3 rounded-xl bg-white p-3">
               <span className="font-bold text-slate-500">{i + 1}</span>
               <div>
-                <p>{s[lang] || s.en}</p>
+                <p>{pick(s, ui)}</p>
                 <p className="text-xs text-slate-500">{t('activity.minutes', { n: s.minutes })}</p>
               </div>
             </li>
@@ -126,10 +134,10 @@ function ActivityCard({ a, cohort, onRated }: { a: Activity; cohort: Cohort; onR
         </div>
       )}
 
-      {(p.watch_for[lang] || p.watch_for.en) && (
+      {pick(p.watch_for, ui) && (
         <div className="mt-3">
           <div className="text-xs font-semibold uppercase text-slate-600">{t('activity.watchFor')}</div>
-          <p className="text-sm">{p.watch_for[lang] || p.watch_for.en}</p>
+          <p className="text-sm">{pick(p.watch_for, ui)}</p>
         </div>
       )}
 
@@ -139,7 +147,7 @@ function ActivityCard({ a, cohort, onRated }: { a: Activity; cohort: Cohort; onR
           <a href={a.source.url} target="_blank" rel="noreferrer" className="underline">
             {a.source.name}
           </a>{' '}
-          — {a.source.note}
+          — {a.source[`note_${ui}`] || a.source.note}
         </p>
       )}
 

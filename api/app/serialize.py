@@ -36,9 +36,11 @@ def student_out(s: Student, language: str | None = None) -> dict:
     lang = language if language in langs else langs[0]
     finished = [c for c in s.checkins if c.status in ("scored", "needs_review") and c.language == lang]
     last = finished[-1] if finished else None
+    review = next((c for c in reversed(s.checkins) if c.status == "needs_review"), None)
     return {
         "id": s.id,
         "first_name": s.first_name,
+        "names": s.names or {},
         "avatar": s.avatar,
         "grade": s.grade,
         "home_lang": s.home_lang,
@@ -49,13 +51,14 @@ def student_out(s: Student, language: str | None = None) -> dict:
         "levels": {code: level_out(s, code) for code in langs},
         "checkins": len(finished),
         "last_checkin_at": last.started_at.isoformat() if last else None,
-        "pending_review": any(c.status == "needs_review" for c in s.checkins),
+        "pending_review": review is not None,
+        "review_checkin_id": review.id if review else None,  # the check waiting for the teacher's confirmation
         "patterns": (last.diagnosis.error_patterns if last and last.diagnosis else []),
     }
 
 
 def classroom_out(c: Classroom, *, students: bool = False) -> dict:
-    out = {"id": c.id, "name": c.name, "grade": c.grade, "language": c.language,
+    out = {"id": c.id, "name": c.name, "names": c.names or {}, "grade": c.grade, "language": c.language,
            "languages": reading_languages(c.language) or [c.language], "students_count": len(c.students)}
     if students:
         out["students"] = [student_out(s) for s in c.students]
@@ -95,6 +98,7 @@ def checkin_out(c: Checkin, next_item: Item | None = None) -> dict:
         "student_id": c.student_id,
         "local_id": c.local_id,
         "language": c.language,
+        "main_language": c.student.main_language,  # the child's regional test: the app's other language
         "status": c.status,
         "source": c.source,
         "start_level": c.start_level,

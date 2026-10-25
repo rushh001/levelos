@@ -3,7 +3,8 @@
   "tagline": "A 3-minute reading check that shows each child's real level and what to do next.",
   "online": "Online",
   "offline": "Offline",
-  "pendingUploads": "{{count}} check-ins waiting to sync",
+  "pendingUploads_one": "{{count}} reading check waiting to be sent",
+  "pendingUploads_other": "{{count}} reading checks waiting to be sent",
   "back": "Back",
   "cancel": "Cancel",
   "save": "Save",
@@ -30,21 +31,27 @@
     "create": "New class",
     "name": "Class name",
     "grade": "Grade",
-    "language": "Reading language",
-    "students": "{{count}} children"
+    "language": "Main reading language",
+    "languageHint": "The language the children learn to read in. The English reading test is always there too.",
+    "students_one": "{{count}} child",
+    "students_other": "{{count}} children",
+    "beta": "beta"
   },
   "dashboard": {
     "groups": "Reading groups",
     "groupsHint": "Children grouped by reading level. A dotted border means the level is not yet confirmed by a second check.",
     "notAssessed": "Not checked yet",
-    "pendingReview": "{{count}} check-in needs your confirmation",
+    "pendingReview_one": "1 reading check is waiting for your confirmation. Tap the child to open it.",
+    "pendingReview_other": "{{count}} reading checks are waiting for your confirmation. Tap a child to open it.",
     "addChild": "Add child",
     "childName": "Child's first name",
+    "otherName": "Name in {{language}} letters (optional)",
     "avatar": "Picture",
     "add": "Add",
     "noChildren": "No children in this group",
     "topPatterns": "Most common difficulties",
-    "children": "{{count}} children",
+    "children_one": "{{count}} child",
+    "children_other": "{{count}} children",
     "confirmedCount": "{{count}} confirmed"
   },
   "cohort": {
@@ -96,19 +103,21 @@
     "ta": "Tamil",
     "te": "Telugu",
     "or": "Odia",
-    "ml": "Malayalam"
+    "ml": "Malayalam",
+    "bn": "Bengali"
   },
   "readingTest": {
     "label": "Reading test",
     "start": "Start {{language}} reading check",
-    "groupFor": "Group in {{language}}"
+    "groupFor": "Group in {{language}}",
+    "tag": "{{language}} test"
   },
   "student": {
     "provisional": "Not yet confirmed",
     "confirmed": "Confirmed",
-    "provisionalHelp": "A level is confirmed when two check-ins in a row agree.",
-    "history": "Past check-ins",
-    "noHistory": "No check-ins yet.",
+    "provisionalHelp": "A level is confirmed when two reading checks in a row agree.",
+    "history": "Past reading checks",
+    "noHistory": "No reading checks yet.",
     "startCheckin": "Start reading check",
     "group": "Group",
     "moveGroup": "Move to group",
@@ -120,7 +129,7 @@
     "autoStart": "The reading check starts at the last confirmed level, or by grade."
   },
   "checkin": {
-    "item": "Item {{n}}",
+    "item": "Card {{n}}",
     "sayToChild": "Say to the child",
     "showChild": "Show the phone to the child. Tap the microphone when they are ready.",
     "record": "Start recording",
@@ -134,7 +143,7 @@
       "wrong_item": "That sounded like a different text. Make sure the child reads this card, and record again.",
       "bad_audio": "The recording could not be read. Please record again."
     },
-    "failed": "Could not score this clip now. Mark it by tapping instead.",
+    "failed": "Could not check this recording now. Mark it by tapping instead.",
     "markByTap": "Mark by tapping instead",
     "markHelp": "Tap every letter or word the child read wrongly, then save.",
     "saveMarks": "Save marks",
@@ -151,7 +160,7 @@
     "stopConfirm": "Stop this check? Nothing is saved for this child.",
     "micPermission": "Microphone permission is needed. Allow it in the browser and try again.",
     "micUnsupported": "This browser cannot record audio. Use Chrome on Android.",
-    "notPlaced": "These items do not place the child yet. Read one more item, or set the level yourself.",
+    "notPlaced": "These cards do not show the level yet. Read one more card, or choose the level yourself.",
     "playInstruction": "Play the instruction",
     "listenAll": "Listen to the recording",
     "listenWord": "Listen to this word"
@@ -182,7 +191,7 @@
     "pause": "Pause",
     "noRecording": "The recording is not available.",
     "deleteRecordings": "Delete recordings",
-    "deleteConfirm": "Delete this check-in's recordings? The scores stay.",
+    "deleteConfirm": "Delete the recordings of this reading check? The marks stay.",
     "keptDays": "Recordings are kept for {{days}} days so you can listen again, then deleted."
   },
   "activity": {
@@ -195,7 +204,7 @@
     "practiceWords": "Practice words",
     "watchFor": "Watch for",
     "source": "Adapted from",
-    "fromBank": "From the activity bank",
+    "fromBank": "Ready-made activity",
     "adapted": "Adapted for this group",
     "another": "Another activity",
     "rate": "How useful was this?",
@@ -216,5 +225,14 @@
     "onPhone": "Saved on this phone",
     "waiting": "Waiting to send",
     "failedShort": "Will retry"
+  },
+  "errors": {
+    "offline": "No network. Check the connection and try again.",
+    "session": "Please log in again.",
+    "notFound": "This could not be found. It may have been removed.",
+    "tooLong": "The recording is too long. Please record again.",
+    "confirmFirst": "First confirm the words the app was not sure about.",
+    "nothingRead": "No card has been read yet.",
+    "checkMoved": "This reading check has moved on. Go back to the child's page and open it again."
   }
 }

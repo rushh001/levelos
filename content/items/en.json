@@ -4,10 +4,38 @@
   "status": "draft: awaiting educator review",
   "spec": "Same five-level ladder as the regional-language tool (letter, word, paragraph, story) so one engine and one dashboard serve every language. ASER's own English tool uses a different ladder (capital letters, small letters, words, sentences); this deviation is stated in the README. Letters: lowercase, 5 per card, letter name or sound both accepted. Words: familiar 3-letter CVC words, 5 per card. Paragraph: 4 linked sentences of at most 6 words. Story: 7-10 linked sentences. Original text written for LevelOS.",
   "instructions": {
-    "letter": { "hi": "इन अंग्रेज़ी अक्षरों को एक-एक करके पढ़ो।", "en": "Read these letters one by one." },
-    "word": { "hi": "इन अंग्रेज़ी शब्दों को एक-एक करके पढ़ो।", "en": "Read these words one by one." },
-    "paragraph": { "hi": "इसे ज़ोर से पढ़ो।", "en": "Read this aloud. You can keep your finger on the words." },
-    "story": { "hi": "यह कहानी ज़ोर से पढ़ो।", "en": "Read this story aloud." }
+    "letter": {
+      "hi": "इन अंग्रेज़ी अक्षरों को एक-एक करके पढ़ो।",
+      "mr": "ही इंग्रजी अक्षरे एक-एक करून वाच.",
+      "kn": "ಈ ಇಂಗ್ಲಿಷ್ ಅಕ್ಷರಗಳನ್ನು ಒಂದೊಂದಾಗಿ ಓದು.",
+      "ta": "இந்த ஆங்கில எழுத்துகளை ஒவ்வொன்றாகப் படி.",
+      "bn": "এই ইংরেজি অক্ষরগুলো একটা একটা করে পড়ো।",
+      "en": "Read these letters one by one."
+    },
+    "word": {
+      "hi": "इन अंग्रेज़ी शब्दों को एक-एक करके पढ़ो।",
+      "mr": "हे इंग्रजी शब्द एक-एक करून वाच.",
+      "kn": "ಈ ಇಂಗ್ಲಿಷ್ ಪದಗಳನ್ನು ಒಂದೊಂದಾಗಿ ಓದು.",
+      "ta": "இந்த ஆங்கிலச் சொற்களை ஒவ்வொன்றாகப் படி.",
+      "bn": "এই ইংরেজি শব্দগুলো একটা একটা করে পড়ো।",
+      "en": "Read these words one by one."
+    },
+    "paragraph": {
+      "hi": "इसे ज़ोर से पढ़ो। उँगली रखकर पढ़ सकते हो।",
+      "mr": "हे मोठ्याने वाच. बोट ठेवून वाचले तरी चालेल.",
+      "kn": "ಇದನ್ನು ಜೋರಾಗಿ ಓದು. ಬೆರಳು ಇಟ್ಟುಕೊಂಡು ಓದಬಹುದು.",
+      "ta": "இதை உரக்கப் படி. விரலை வைத்துப் படிக்கலாம்.",
+      "bn": "এটা জোরে পড়ো। আঙুল রেখে পড়তে পারো।",
+      "en": "Read this aloud. You can keep your finger on the words."
+    },
+    "story": {
+      "hi": "यह कहानी ज़ोर से पढ़ो।",
+      "mr": "ही गोष्ट मोठ्याने वाच.",
+      "kn": "ಈ ಕಥೆಯನ್ನು ಜೋರಾಗಿ ಓದು.",
+      "ta": "இந்தக் கதையை உரக்கப் படி.",
+      "bn": "এই গল্পটা জোরে পড়ো।",
+      "en": "Read this story aloud."
+    }
   },
   "items": [
     { "id": "en-letter-a", "level": "letter", "units": ["s", "m", "t", "a", "p"] },

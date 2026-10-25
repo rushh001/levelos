@@ -40,6 +40,7 @@ class Classroom(Base):
     name: Mapped[str] = mapped_column(String(120))
     grade: Mapped[int] = mapped_column(Integer, default=2)
     language: Mapped[str] = mapped_column(String(8), default="hi")  # default assessment language
+    names: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # the name per interface language, if given
 
     teacher: Mapped[Teacher] = relationship(back_populates="classrooms")
     students: Mapped[list[Student]] = relationship(back_populates="classroom", order_by="Student.first_name")
@@ -51,6 +52,8 @@ class Student(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     classroom_id: Mapped[str] = mapped_column(ForeignKey("classrooms.id"), index=True)
     first_name: Mapped[str] = mapped_column(String(80))  # pseudonymous: first name + avatar only
+    # The same first name per interface language when the teacher gives both spellings ({"en": "Meena", "hi": "मीना"}).
+    names: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     avatar: Mapped[str] = mapped_column(String(32), default="🙂")
     grade: Mapped[int] = mapped_column(Integer, default=2)
     home_lang: Mapped[str | None] = mapped_column(String(8), nullable=True)  # None = the class language

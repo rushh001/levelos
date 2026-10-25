@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,22 +12,31 @@ from .api import classes as class_routes
 from .auth import check_secret
 from .config import settings
 from .content import available_languages, languages
-from .db import Base, SessionLocal, engine
+from .db import SessionLocal, create_schema
 from .llm import budget
+from .llm import diagnose as diag
 from .services.checkins import migrate_levels, purge_audio
 from .speech.audio import ffmpeg_available
+
+
+_startup_tasks: set[asyncio.Task] = set()
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     check_secret()
-    # Hackathon-scale schema management: create tables if missing. Swap for Alembic if the schema churns.
-    Base.metadata.create_all(bind=engine)
+    # Hackathon-scale schema management: create missing tables and added columns. Swap for Alembic if it churns.
+    create_schema()
     db = SessionLocal()
     try:
         purge_audio(db)  # recordings past the retention period
         db.commit()
         migrate_levels(db)  # one level per child -> one per language (no-op once done)
+        # Diagnoses of a Kannada (Marathi, Tamil, Bengali) class from before they were written in its language.
+        for checkin_id, h in diag.relocalize(db):
+            task = asyncio.create_task(diag.run_claude(checkin_id, h))
+            _startup_tasks.add(task)
+            task.add_done_callback(_startup_tasks.discard)
     finally:
         db.close()
     yield

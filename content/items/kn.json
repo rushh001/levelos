@@ -1,0 +1,24 @@
+{
+  "language": "kn",
+  "version": "0.1.0",
+  "status": "draft (beta): awaiting review by a Kannada-speaking educator",
+  "spec": "ASER 2024 reading tool (Kannada). Letters: commonly used letters, 5 per card. Words: familiar words of 2 letters + 1-2 vowel signs (kagunita), no ottakshara, 5 per card. Paragraph (Std I level): 4 linked sentences of at most 6 words. Story (Std II level): 7-10 linked sentences, few ottakshara. Original text written for LevelOS (parallel to the Hindi bank for comparable difficulty), not copied from ASER Centre tools.",
+  "instructions": {
+    "letter": { "kn": "ಈ ಅಕ್ಷರಗಳನ್ನು ಒಂದೊಂದಾಗಿ ಓದು.", "hi": "इन अक्षरों को एक-एक करके पढ़ो।", "en": "Read these letters one by one." },
+    "word": { "kn": "ಈ ಪದಗಳನ್ನು ಒಂದೊಂದಾಗಿ ಓದು.", "hi": "इन शब्दों को एक-एक करके पढ़ो।", "en": "Read these words one by one." },
+    "paragraph": { "kn": "ಇದನ್ನು ಜೋರಾಗಿ ಓದು. ಬೆರಳು ಇಟ್ಟುಕೊಂಡು ಓದಬಹುದು.", "hi": "इसे ज़ोर से पढ़ो। उँगली रखकर पढ़ सकते हो।", "en": "Read this aloud. You can keep your finger on the words." },
+    "story": { "kn": "ಈ ಕಥೆಯನ್ನು ಜೋರಾಗಿ ಓದು.", "hi": "यह कहानी ज़ोर से पढ़ो।", "en": "Read this story aloud." }
+  },
+  "items": [
+    { "id": "kn-letter-a", "level": "letter", "units": ["ಕ", "ಮ", "ಸ", "ರ", "ಲ"] },
+    { "id": "kn-letter-b", "level": "letter", "units": ["ನ", "ಪ", "ಗ", "ತ", "ಬ"] },
+    { "id": "kn-letter-c", "level": "letter", "units": ["ಹ", "ಜ", "ದ", "ಚ", "ವ"] },
+    { "id": "kn-word-a", "level": "word", "units": ["ಮನೆ", "ಹಸು", "ನೀರು", "ಕಾಲು", "ಹೂವು"] },
+    { "id": "kn-word-b", "level": "word", "units": ["ಮಳೆ", "ಹಾಲು", "ಮೀನು", "ಕೋತಿ", "ಆನೆ"] },
+    { "id": "kn-word-c", "level": "word", "units": ["ಕುರಿ", "ಬಾಳೆ", "ತಲೆ", "ಗೂಡು", "ಗಾಳಿ"] },
+    { "id": "kn-para-a", "level": "paragraph", "title": "ಮೀನಾಳ ಬೆಕ್ಕು", "sentences": ["ನನ್ನ ಹೆಸರು ಮೀನಾ.", "ನನ್ನ ಬಳಿ ಒಂದು ಬೆಕ್ಕು ಇದೆ.", "ಬೆಕ್ಕಿನ ಬಣ್ಣ ಕಪ್ಪು.", "ಅದು ದಿನವೂ ಹಾಲು ಕುಡಿಯುತ್ತದೆ."] },
+    { "id": "kn-para-b", "level": "paragraph", "title": "ಕಾಗದದ ದೋಣಿ", "sentences": ["ಇಂದು ತುಂಬಾ ಮಳೆ ಬಂತು.", "ಅಂಗಳದಲ್ಲಿ ನೀರು ನಿಂತಿತು.", "ರಾಮು ಕಾಗದದ ದೋಣಿ ಮಾಡಿದನು.", "ದೋಣಿ ನೀರಿನಲ್ಲಿ ತೇಲತೊಡಗಿತು."] },
+    { "id": "kn-story-a", "level": "story", "title": "ಸಂತೆಯಲ್ಲಿ ಮೋನು", "sentences": ["ಸೋನುವಿಗೆ ಒಬ್ಬ ತಮ್ಮ ಇದ್ದಾನೆ.", "ಅವನ ಹೆಸರು ಮೋನು.", "ಒಂದು ದಿನ ಇಬ್ಬರೂ ಸಂತೆಗೆ ಹೋದರು.", "ಸಂತೆಯಲ್ಲಿ ತುಂಬಾ ಜನ ಇದ್ದರು.", "ಮೋನು ಬಲೂನು ಮಾರುವವನನ್ನು ನೋಡಿದನು.", "ಅವನು ಬಲೂನಿಗಾಗಿ ಓಡಿ ಜನರ ನಡುವೆ ಕಳೆದುಹೋದನು.", "ಸೋನುವಿಗೆ ತುಂಬಾ ಭಯವಾಯಿತು.", "ಅವನು ಮೋನುವನ್ನು ಎಲ್ಲ ಕಡೆ ಹುಡುಕಿದನು.", "ಮೋನು ಬಲೂನು ಮಾರುವವನ ಹತ್ತಿರ ನಿಂತಿದ್ದನು.", "ಸೋನು ಅವನನ್ನು ಅಪ್ಪಿಕೊಂಡನು."] },
+    { "id": "kn-story-b", "level": "story", "title": "ಮಾವಿನ ಮರ", "sentences": ["ರಾಣಿಯ ಮನೆಯ ಹತ್ತಿರ ಒಂದು ತೋಟ ಇದೆ.", "ತೋಟದಲ್ಲಿ ಒಂದು ದೊಡ್ಡ ಮಾವಿನ ಮರ ಇದೆ.", "ಬೇಸಿಗೆಯಲ್ಲಿ ಮರದಲ್ಲಿ ತುಂಬಾ ಹಣ್ಣುಗಳು ಬಿಡುತ್ತವೆ.", "ಒಂದು ದಿನ ರಾಣಿ ತನ್ನ ಗೆಳತಿಯ ಜೊತೆ ತೋಟಕ್ಕೆ ಹೋದಳು.", "ಇಬ್ಬರೂ ಮರದ ಕೆಳಗೆ ಕುಳಿತು ಮಾವಿನ ಹಣ್ಣು ತಿಂದರು.", "ಆಗ ಒಂದು ಕೋತಿ ಮರದಿಂದ ಕೆಳಗೆ ಇಳಿಯಿತು.", "ಕೋತಿ ರಾಣಿಯ ಹಣ್ಣನ್ನು ಕಸಿದುಕೊಂಡು ಓಡಿತು.", "ಇಬ್ಬರು ಗೆಳತಿಯರೂ ಜೋರಾಗಿ ನಕ್ಕರು."] }
+  ]
+}

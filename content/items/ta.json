@@ -1,0 +1,24 @@
+{
+  "language": "ta",
+  "version": "0.1.0",
+  "status": "draft (beta): awaiting review by a Tamil-speaking educator",
+  "spec": "ASER 2024 reading tool (Tamil). Letters: commonly used letters (vowels and consonant letters with their inherent vowel), 5 per card. Words: familiar words of 2-3 letters, no grantha letters, 5 per card. Paragraph (Std I level): 4 linked sentences of at most 6 words. Story (Std II level): 7-10 linked sentences. Original text written for LevelOS (parallel to the Hindi bank for comparable difficulty), not copied from ASER Centre tools.",
+  "instructions": {
+    "letter": { "ta": "இந்த எழுத்துகளை ஒவ்வொன்றாகப் படி.", "hi": "इन अक्षरों को एक-एक करके पढ़ो।", "en": "Read these letters one by one." },
+    "word": { "ta": "இந்தச் சொற்களை ஒவ்வொன்றாகப் படி.", "hi": "इन शब्दों को एक-एक करके पढ़ो।", "en": "Read these words one by one." },
+    "paragraph": { "ta": "இதை உரக்கப் படி. விரலை வைத்துப் படிக்கலாம்.", "hi": "इसे ज़ोर से पढ़ो। उँगली रखकर पढ़ सकते हो।", "en": "Read this aloud. You can keep your finger on the words." },
+    "story": { "ta": "இந்தக் கதையை உரக்கப் படி.", "hi": "यह कहानी ज़ोर से पढ़ो।", "en": "Read this story aloud." }
+  },
+  "items": [
+    { "id": "ta-letter-a", "level": "letter", "units": ["க", "ம", "ப", "த", "ட"] },
+    { "id": "ta-letter-b", "level": "letter", "units": ["ச", "ந", "வ", "ல", "ர"] },
+    { "id": "ta-letter-c", "level": "letter", "units": ["அ", "இ", "ய", "ள", "ன"] },
+    { "id": "ta-word-a", "level": "word", "units": ["மரம்", "ஆடு", "மயில்", "காது", "வீடு"] },
+    { "id": "ta-word-b", "level": "word", "units": ["மலை", "குடை", "கடல்", "பால்", "எலி"] },
+    { "id": "ta-word-c", "level": "word", "units": ["மீன்", "மாடு", "கதவு", "காகம்", "பூனை"] },
+    { "id": "ta-para-a", "level": "paragraph", "title": "மீனாவின் பூனை", "sentences": ["என் பெயர் மீனா.", "என்னிடம் ஒரு பூனை உள்ளது.", "பூனையின் நிறம் கருப்பு.", "அது தினமும் பால் குடிக்கும்."] },
+    { "id": "ta-para-b", "level": "paragraph", "title": "காகிதப் படகு", "sentences": ["இன்று நிறைய மழை பெய்தது.", "தெருவில் தண்ணீர் தேங்கியது.", "ராமு காகிதப் படகு செய்தான்.", "படகு தண்ணீரில் மிதந்தது."] },
+    { "id": "ta-story-a", "level": "story", "title": "சந்தையில் மோனு", "sentences": ["சோனுவுக்கு ஒரு தம்பி இருக்கிறான்.", "அவன் பெயர் மோனு.", "ஒரு நாள் இருவரும் சந்தைக்குச் சென்றனர்.", "சந்தையில் நிறைய கூட்டம் இருந்தது.", "மோனு பலூன் விற்பவரைப் பார்த்தான்.", "அவன் பலூன் வாங்க ஓடி, கூட்டத்தில் தொலைந்து போனான்.", "சோனு மிகவும் பயந்தான்.", "அவன் மோனுவை எல்லா இடத்திலும் தேடினான்.", "மோனு பலூன் விற்பவர் அருகே நின்றுகொண்டிருந்தான்.", "சோனு அவனைக் கட்டி அணைத்துக்கொண்டான்."] },
+    { "id": "ta-story-b", "level": "story", "title": "மாமரம்", "sentences": ["ராணியின் வீட்டுக்கு அருகில் ஒரு தோட்டம் உள்ளது.", "தோட்டத்தில் ஒரு பெரிய மாமரம் உள்ளது.", "கோடையில் மரத்தில் நிறைய மாம்பழங்கள் காய்க்கும்.", "ஒரு நாள் ராணி தன் தோழியுடன் தோட்டத்திற்குச் சென்றாள்.", "இருவரும் மரத்தடியில் அமர்ந்து மாம்பழம் சாப்பிட்டனர்.", "அப்போது ஒரு குரங்கு மரத்திலிருந்து கீழே இறங்கியது.", "குரங்கு ராணியின் மாம்பழத்தைப் பறித்துக்கொண்டு ஓடியது.", "இரண்டு தோழிகளும் சத்தமாகச் சிரித்தனர்."] }
+  ]
+}

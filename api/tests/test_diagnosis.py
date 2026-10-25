@@ -83,12 +83,12 @@ def test_validation_drops_unsupported_claims():
     out = diag.validate({
         "error_patterns": ["matra_vowel_sign", "letter_recognition", "conjunct"],
         "evidence": [
-            {"pattern": "matra_vowel_sign", "item_id": "hi-para-a", "word_indices": [0, 7], "note_en": "x", "note_hi": "y"},
-            {"pattern": "letter_recognition", "item_id": "hi-para-a", "word_indices": [1], "note_en": "", "note_hi": ""},
-            {"pattern": "conjunct", "item_id": "hi-story-z", "word_indices": [0], "note_en": "", "note_hi": ""},
+            {"pattern": "matra_vowel_sign", "item_id": "hi-para-a", "word_indices": [0, 7], "note_en": "x", "note_local": "y"},
+            {"pattern": "letter_recognition", "item_id": "hi-para-a", "word_indices": [1], "note_en": "", "note_local": ""},
+            {"pattern": "conjunct", "item_id": "hi-story-z", "word_indices": [0], "note_en": "", "note_local": ""},
         ],
         "word_notes": [{"item_id": "hi-para-a", "i": 0, "real_word": False}, {"item_id": "hi-para-a", "i": 9, "real_word": True}],
-        "summary_hi": "मीना को मात्राओं में कठिनाई है।", "summary_en": "Meena misreads vowel signs.", "confidence": "high",
+        "summary_local": "मीना को मात्राओं में कठिनाई है।", "summary_en": "Meena misreads vowel signs.", "confidence": "high",
     }, inp)
     assert out["error_patterns"] == ["matra_vowel_sign"]  # uncertain-only and unknown-item claims dropped
     assert out["evidence"][0]["words"] == [{"i": 0, "ref": "पानी", "heard": "पनी"}]  # bogus index 7 dropped
@@ -97,10 +97,10 @@ def test_validation_drops_unsupported_claims():
 
 def test_validation_rejects_empty_summary_or_all_unsupported():
     inp = evidence_input(("पानी", "पनी", False))
-    bad = {"error_patterns": ["conjunct"], "evidence": [], "word_notes": [], "summary_hi": "x", "summary_en": "y",
+    bad = {"error_patterns": ["conjunct"], "evidence": [], "word_notes": [], "summary_local": "x", "summary_en": "y",
            "confidence": "high"}
     assert diag.validate(bad, inp) is None
-    empty = {"error_patterns": [], "evidence": [], "word_notes": [], "summary_hi": "", "summary_en": "y",
+    empty = {"error_patterns": [], "evidence": [], "word_notes": [], "summary_local": "", "summary_en": "y",
              "confidence": "low"}
     assert diag.validate(empty, inp) is None
 
@@ -123,9 +123,9 @@ def claude_on(monkeypatch):
         return ({  # written in the schema Claude must follow
             "error_patterns": ["matra_vowel_sign"],
             "evidence": [{"pattern": "matra_vowel_sign", "item_id": word_item["item_id"], "word_indices": idx,
-                          "note_en": "Drops the long vowel sign.", "note_hi": "बड़ी मात्रा छूट रही है।"}],
+                          "note_en": "Drops the long vowel sign.", "note_local": "बड़ी मात्रा छूट रही है।"}],
             "word_notes": [{"item_id": word_item["item_id"], "i": i, "real_word": False} for i in idx],
-            "summary_hi": "Meena को मात्राएँ पढ़ने में कठिनाई है। बारहखड़ी का अभ्यास कराएँ।",
+            "summary_local": "Meena को मात्राएँ पढ़ने में कठिनाई है। बारहखड़ी का अभ्यास कराएँ।",
             "summary_en": "Meena drops vowel signs. Practise the barakhadi chart.",
             "confidence": "medium",
         }, {"id": "msg_test", "model": "claude-opus-5-5", "stop_reason": "end_turn", "usage": None})

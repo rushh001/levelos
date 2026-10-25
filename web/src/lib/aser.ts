@@ -3,6 +3,7 @@
  * api/app/levels/aser_rules.py; api/tests/test_offline_parity.py fails if the numbers below drift from it.
  * The server re-applies the same rules when the check-in syncs.
  */
+import { wcpmFloor } from './content'
 import type { ItemLevel, Level } from './types'
 
 export const ITEM_LEVELS: ItemLevel[] = ['letter', 'word', 'paragraph', 'story']
@@ -22,14 +23,15 @@ export interface Outcome {
   correct: number
   hesitations: number | null
   wcpm: number | null
+  wcpmFloor: number | null // the text's language's own speed floor (longer words than Hindi), else the default
 }
 
-export function outcomeFromMarks(level: ItemLevel, marks: boolean[], durationMs: number | null): Outcome {
+export function outcomeFromMarks(level: ItemLevel, marks: boolean[], durationMs: number | null, lang: string): Outcome {
   const correct = marks.filter(Boolean).length
   const passage = level === 'paragraph' || level === 'story'
   // Same rounding as the server (one decimal) so a borderline reading lands on the same side.
   const wcpm = passage && durationMs ? Math.round((correct * 600_000) / durationMs) / 10 : null
-  return { level, total: marks.length, correct, hesitations: null, wcpm }
+  return { level, total: marks.length, correct, hesitations: null, wcpm, wcpmFloor: wcpmFloor(lang, level) }
 }
 
 export function itemPassed(o: Outcome): boolean {
@@ -38,7 +40,7 @@ export function itemPassed(o: Outcome): boolean {
   }
   if (o.total - o.correct > THRESHOLDS.passageMaxErrors) return false
   if (o.hesitations !== null && o.hesitations > THRESHOLDS.passageMaxHesitations) return false
-  const floor = THRESHOLDS.passageMinWcpm[o.level]
+  const floor = o.wcpmFloor ?? THRESHOLDS.passageMinWcpm[o.level]
   if (o.wcpm !== null && floor !== undefined && o.wcpm < floor) return false
   return true
 }

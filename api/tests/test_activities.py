@@ -1,6 +1,8 @@
 """Activity bank integrity, candidate ranking, and the generate -> validate -> fallback pipeline (fake model)."""
 
 import asyncio
+import json
+import re
 
 import pytest
 
@@ -10,8 +12,10 @@ from app.llm import activities as act
 from app.llm.patterns import PATTERNS
 from tests.test_api import client, login, make_student, run_checkin, script  # noqa: F401  (fixtures)
 
+TEACHER_LANGUAGES = ("en", "hi", "mr", "kn", "ta", "bn")
 CTX = {"cohort": "word", "language": "hi", "grade": 2, "group_size": 6,
-       "pattern_counts": {"matra_vowel_sign": 4, "sight_word": 1}, "misread_words": ["पानी", "केला", "नाव"]}
+       "pattern_counts": {"matra_vowel_sign": 4, "sight_word": 1}, "misread_words": ["पानी", "केला", "नाव"],
+       "teacher_language": {"code": "hi", "name": "Hindi"}}
 
 
 # ---- the bank
@@ -27,10 +31,12 @@ def test_bank_entries_are_complete_and_cited():
         assert set(a["cohorts"]) <= set(COHORTS) and a["cohorts"], a["id"]
         assert set(a["patterns"]) <= set(PATTERNS) and a["patterns"], a["id"]
         assert 8 <= sum(s["minutes"] for s in a["steps"]) <= 12, a["id"]
-        for field in ("title", "watch_for"):
-            assert a[field]["en"] and a[field]["hi"], (a["id"], field)
-        assert all(s["en"] and s["hi"] for s in a["steps"]), a["id"]
-        assert a["materials"]["en"] and a["materials"]["hi"], a["id"]
+        for lang in TEACHER_LANGUAGES:  # every interface language reads every activity
+            for field in ("title", "watch_for"):
+                assert a[field][lang], (a["id"], field, lang)
+            assert all(s[lang] for s in a["steps"]), (a["id"], lang)
+            assert len(a["materials"][lang]) == len(a["materials"]["en"]), (a["id"], lang)
+            assert lang == "en" or a["source"][f"note_{lang}"], (a["id"], lang)
 
 
 def test_every_cohort_and_pattern_has_activities():
@@ -38,6 +44,32 @@ def test_every_cohort_and_pattern_has_activities():
         assert len([a for a in act.bank()["activities"] if c in a["cohorts"]]) >= 3, c
     covered = {p for a in act.bank()["activities"] for p in a["patterns"]}
     assert set(PATTERNS) - {"insufficient_audio"} <= covered
+
+
+def test_examples_follow_the_language_the_group_reads():
+    # A general activity shows English examples to an English group and Hindi ones to a Hindi group, in both
+    # interface languages; nothing is left as a {ex1} placeholder.
+    a = act.entry("correct-the-incorrect")
+    en, hi = act.localize(a, "en"), act.localize(a, "hi")
+    assert all("My dog likes my bell" in en["steps"][0][ui] for ui in ("en", "hi"))
+    assert all("गाय का रंग सफाद है" in hi["steps"][0][ui] for ui in ("en", "hi"))
+    for entry in act.bank()["activities"]:
+        for lang in ("en", "hi", "mr", "ta", "kn", "bn"):
+            if entry.get("script", "latin" if lang == "en" else "indic") != ("latin" if lang == "en" else "indic"):
+                continue  # not offered in this language's script
+            shown = json.dumps(act.localize(entry, lang), ensure_ascii=False)
+            assert not re.search(r"\{[a-z]+\d?\}", shown), (entry["id"], lang)
+        assert act.source_of(entry)["note_hi"], entry["id"]
+
+
+def test_a_tamil_group_sees_tamil_letters_and_the_charts_own_name():
+    chart = act.localize(act.entry("barakhadi-chart-reading"), "ta")
+    assert (chart["title"]["en"], chart["title"]["hi"]) == ("Uyirmei chart reading", "उयिरमेय चार्ट पढ़ना")
+    assert "உயிர்மெய்" in chart["title"]["ta"]  # in the Tamil app, the chart's Tamil name
+    assert "ಕಾಗುಣಿತ" in act.localize(act.entry("barakhadi-chart-reading"), "kn")["title"]["kn"]
+    assert "க கா கி கீ" in chart["steps"][0]["en"] and "क का कि की" not in json.dumps(chart, ensure_ascii=False)
+    split = act.localize(act.entry("conjunct-break-and-join"), "bn")["steps"][0]
+    assert "বন্ধু → ব + ন্ + ধু" in split["en"] and "বন্ধু → ব + ন্ + ধু" in split["hi"]
 
 
 def test_candidates_follow_the_groups_difficulties():
@@ -51,11 +83,11 @@ def test_candidates_follow_the_groups_difficulties():
 
 
 def good_plan(source_id, minutes=(3, 4, 3)):
-    return {"source_activity_id": source_id, "title_en": "Change one matra", "title_hi": "एक मात्रा बदलो",
-            "materials_en": ["Board"], "materials_hi": ["बोर्ड"],
-            "steps": [{"minutes": m, "en": f"Step {i}", "hi": f"चरण {i}"} for i, m in enumerate(minutes)],
-            "practice_words": ["पानी", "पनी"], "watch_for_en": "Matra position", "watch_for_hi": "मात्रा की जगह",
-            "why_en": "The group drops matras.", "why_hi": "समूह मात्राएँ छोड़ता है।"}
+    return {"source_activity_id": source_id, "title_en": "Change one matra", "title_local": "एक मात्रा बदलो",
+            "materials_en": ["Board"], "materials_local": ["बोर्ड"],
+            "steps": [{"minutes": m, "en": f"Step {i}", "local": f"चरण {i}"} for i, m in enumerate(minutes)],
+            "practice_words": ["पानी", "पनी"], "watch_for_en": "Matra position", "watch_for_local": "मात्रा की जगह",
+            "why_en": "The group drops matras.", "why_local": "समूह मात्राएँ छोड़ता है।"}
 
 
 @pytest.fixture
@@ -95,6 +127,16 @@ def test_accepted_plan(fake_models):
     assert out["plan"]["title"]["hi"] == "एक मात्रा बदलो"
     messages, ids = fake_models["gen_calls"][0]
     assert '"misread_words"' in messages[0]["content"] and len(ids) == 3
+
+
+def test_a_plan_for_a_kannada_class_is_in_kannada_and_english(fake_models):
+    fake_models["plans"] = [lambda ids: good_plan(ids[0]) | {"title_local": "ಒಂದು ಸ್ವರ ಚಿಹ್ನೆ ಬದಲಿಸಿ"}]
+    fake_models["verdicts"] = [OK]
+    out = asyncio.run(act.generate(CTX | {"language": "kn", "teacher_language": {"code": "kn", "name": "Kannada"}}))
+    assert out["accepted"] and out["plan"]["title"] == {"en": "Change one matra", "kn": "ಒಂದು ಸ್ವರ ಚಿಹ್ನೆ ಬದಲಿಸಿ"}
+    assert set(out["plan"]["steps"][0]) == {"minutes", "en", "kn"}
+    messages, _ = fake_models["gen_calls"][0]
+    assert '"teacher_language": {"code": "kn"' in messages[0]["content"]
 
 
 def test_reviewer_rejection_triggers_one_regeneration(fake_models):

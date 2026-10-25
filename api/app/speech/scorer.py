@@ -17,7 +17,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import asdict, dataclass, field, fields
 
 from ..config import settings
-from ..content import Item, languages
+from ..content import Item, languages, wcpm_floor
 from ..levels.aser_rules import DEFAULT_THRESHOLDS, ItemOutcome, Thresholds, item_passed
 from . import audio, azure, cache, gemini, sarvam
 from .align import _vote, extras, fuse, normalize, read_correctly, tokenize
@@ -89,7 +89,8 @@ class ItemScore:
         wcpm = None
         if self.level in ("paragraph", "story") and self.reading_ms:
             wcpm = round(correct * 60_000 / self.reading_ms, 1)
-        return ItemOutcome(self.level, total, correct, total - correct, self.hesitations, wcpm)
+        return ItemOutcome(self.level, total, correct, total - correct, self.hesitations, wcpm,
+                           wcpm_floor=wcpm_floor(self.lang, self.level))
 
     def evaluate(self, thresholds: Thresholds = DEFAULT_THRESHOLDS) -> ItemScore:
         """(Re)compute counts and pass/fail from the words, honouring any teacher taps. Call after each tap."""
@@ -328,6 +329,14 @@ async def score_item(
         return score
     fused = fuse(ref, {n: r.words for n, r in independent.items()}, lang, primary=primary,
                  letter_item=item.letter_item)
+    if item.letter_item:
+        # Recognisers often drop a single spoken letter altogether, so "nobody heard anything" is no proof the
+        # child skipped it: the teacher confirms (with the recording). In languages where single letters are
+        # unreliable for them (`confirm_letters`), every letter they did not both hear as right goes to the teacher.
+        confirm_all = languages().get(lang, {}).get("confirm_letters", False)
+        for fw in fused:
+            if all(h is None for h in fw.heard.values()) or (confirm_all and not read_correctly(fw.label)):
+                fw.uncertain = True
 
     pa = results.get("azure_pa")
     pa_words = _pa_per_ref(ref, pa, lang) if pa is not None and pa.ok and pa.timings else [None] * len(ref)

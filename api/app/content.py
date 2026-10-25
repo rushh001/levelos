@@ -74,6 +74,17 @@ def latin_script(lang: str) -> bool:
     return languages().get(lang, {}).get("script") == "Latin"
 
 
+def teacher_language(main: str) -> str:
+    """The language a teacher reads diagnoses and activities in besides English: the class's own language when the
+    app has an interface in it (a Kannada class: Kannada), else Hindi."""
+    return main if main != "en" and languages().get(main, {}).get("ui") else "hi"
+
+
+def wcpm_floor(lang: str, level: str) -> float | None:
+    """The language's own reading-speed floor for a passage level, if its words are longer than Hindi's."""
+    return languages().get(lang, {}).get("wcpm_floor", {}).get(level)
+
+
 def get_item(item_id: str) -> Item:
     lang = item_id.split("-", 1)[0]
     try:

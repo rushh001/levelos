@@ -3,18 +3,23 @@ import { useTranslation } from 'react-i18next'
 import { Link, Navigate } from 'react-router-dom'
 import { Api } from '../api'
 import { Button, ErrorBox, Page, Spinner } from '../components/ui'
+import { bankLanguages, isBeta } from '../lib/content'
+import { nameIn } from '../lib/names'
+import { regionalFor, useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
-export default function Classes() {
+/** The teacher's classes. Opening the app with one class goes straight to it; `list` (back from a class) stays here. */
+export default function Classes({ list }: { list?: boolean }) {
   const { t } = useTranslation()
+  const ui = useUiLang()
   const { data, error, loading, reload } = useAsync(() => Api.classes())
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
   const [grade, setGrade] = useState(2)
-  const [language, setLanguage] = useState('hi')
+  const [language, setLanguage] = useState(() => regionalFor(ui === 'en' ? null : ui)) // a new class reads in the app's regional language
 
   if (loading && !data) return <Page><Spinner label={t('loading')} /></Page>
-  if (data && data.length === 1 && !creating) return <Navigate to={`/class/${data[0].id}`} replace />
+  if (data && data.length === 1 && !creating && !list) return <Navigate to={`/class/${data[0].id}`} replace />
 
   const create = async (e: FormEvent) => {
     e.preventDefault()
@@ -32,7 +37,7 @@ export default function Classes() {
         {data?.map((c) => (
           <li key={c.id}>
             <Link to={`/class/${c.id}`} className="block rounded-2xl bg-white p-4 shadow-sm">
-              <div className="text-lg font-semibold">{c.name}</div>
+              <div className="text-lg font-semibold">{nameIn(c, c.name, ui)}</div>
               <div className="text-sm text-slate-600">{t('classes.students', { count: c.students_count })}</div>
             </Link>
           </li>
@@ -58,10 +63,15 @@ export default function Classes() {
           <label className="flex items-center justify-between gap-3">
             <span>{t('classes.language')}</span>
             <select value={language} onChange={(e) => setLanguage(e.target.value)} className="rounded-lg border px-3 py-2">
-              <option value="hi">हिन्दी</option>
-              <option value="en">English</option>
+              {bankLanguages().map((l) => (
+                <option key={l} value={l}>
+                  {t(`lang.${l}`, { defaultValue: l })}
+                  {isBeta(l) ? ` (${t('classes.beta')})` : ''}
+                </option>
+              ))}
             </select>
           </label>
+          <p className="text-xs text-slate-500">{t('classes.languageHint')}</p>
           <div className="flex gap-2">
             <Button type="submit">{t('save')}</Button>
             <Button kind="secondary" onClick={() => setCreating(false)}>

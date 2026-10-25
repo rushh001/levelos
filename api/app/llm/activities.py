@@ -18,14 +18,14 @@ import anthropic
 from sqlalchemy.orm import Session
 
 from ..config import settings
-from ..content import latin_script
+from ..content import languages, latin_script, teacher_language
 from ..levels.aser_rules import cohort_for_level, effective_level
 from ..models import Classroom
 from .diagnose import _get_client, claude_enabled
 from .patterns import PATTERNS
 
 log = logging.getLogger(__name__)
-PROMPT_VERSION = "act-v2"
+PROMPT_VERSION = "act-v4"
 MIN_MINUTES, MAX_MINUTES = 8, 12
 
 
@@ -39,8 +39,36 @@ def entry(activity_id: str) -> dict | None:
 
 
 def source_of(a: dict) -> dict:
+    """The source, its note in English (`note`) and in each interface language it has (`note_hi`, `note_kn`, …)."""
     src = bank()["sources"][a["source"]["ref"]]
-    return {"name": src["name"], "url": src["url"], "note": a["source"]["note"]}
+    return {"name": src["name"], "url": src["url"]} | {k: v for k, v in a["source"].items() if k.startswith("note")}
+
+
+def ui_languages() -> set[str]:
+    return {"en"} | {code for code, cfg in languages().items() if cfg.get("ui")}
+
+
+def localize(a: dict, language: str) -> dict:
+    """The entry as a group reading in `language` sees it: example letters and words ({ex1}, {row}, …) in that
+    language's script, so a Tamil group never gets Hindi examples (a language without its own falls back to the
+    Hindi ones, or English for Latin script). A value given per interface language ({"en": …, "kn": …}, like the
+    chart's name) goes into the text of that language."""
+    examples = a.get("examples", {})
+    words = examples.get(language) or examples.get("en" if latin_script(language) else "hi") or {}
+    ui_langs = ui_languages()
+
+    def fill(v, ui: str = "en"):
+        if isinstance(v, str):
+            for key, word in words.items():
+                v = v.replace("{" + key + "}", word.get(ui) or word["en"] if isinstance(word, dict) else word)
+            return v
+        if isinstance(v, list):
+            return [fill(x, ui) for x in v]
+        if isinstance(v, dict):
+            return {k: fill(x, k if k in ui_langs else ui) for k, x in v.items()}
+        return v
+
+    return {k: fill(v) for k, v in a.items() if k != "examples"}
 
 
 # ---------------------------------------------------------------- cohort context
@@ -50,6 +78,7 @@ def cohort_context(db: Session, classroom: Classroom, cohort: str, language: str
     """Who is in the group in one reading language (default: the class language) and what they found hard (from
     each child's latest diagnosis in that language). No names leave here."""
     lang = language or classroom.language
+    local = teacher_language(classroom.language)
     members, tally, words = 0, {p: 0 for p in PATTERNS}, {}
     for s in classroom.students:
         row = s.level_in(lang)
@@ -73,6 +102,7 @@ def cohort_context(db: Session, classroom: Classroom, cohort: str, language: str
         "group_size": members,
         "pattern_counts": {p: n for p, n in tally.items() if n},
         "misread_words": [w for w, _ in sorted(words.items(), key=lambda kv: -kv[1])][:12],
+        "teacher_language": {"code": local, "name": languages()[local]["english_name"]},
     }
 
 
@@ -83,8 +113,9 @@ def candidates(cohort: str, pattern_counts: dict[str, int], k: int = 3, language
     script = "latin" if latin_script(language) else "indic"
     pool = [a for a in bank()["activities"] if cohort in a["cohorts"] and a.get("script", script) == script]
     order = {a["id"]: i for i, a in enumerate(pool)}
-    return sorted(pool, key=lambda a: (-sum(pattern_counts.get(p, 0) for p in a["patterns"]), "script" not in a,
-                                       order[a["id"]]))[:k]
+    ranked = sorted(pool, key=lambda a: (-sum(pattern_counts.get(p, 0) for p in a["patterns"]), "script" not in a,
+                                         order[a["id"]]))
+    return [localize(a, language) for a in ranked[:k]]
 
 
 # ---------------------------------------------------------------- plans
@@ -97,18 +128,19 @@ def plan_from_bank(a: dict, ctx: dict) -> dict:
         "steps": a["steps"],
         "practice_words": ctx["misread_words"][:6],
         "watch_for": a["watch_for"],
-        "why": {"en": "", "hi": ""},
+        "why": {"en": ""},
     }
 
 
-def plan_from_claude(out: dict) -> dict:
+def plan_from_claude(out: dict, local: str) -> dict:
+    """Claude's plan, its teacher's-language text filed under that language's code (`local`: hi, kn, ta, …)."""
     return {
-        "title": {"en": out["title_en"], "hi": out["title_hi"]},
-        "materials": {"en": out["materials_en"], "hi": out["materials_hi"]},
-        "steps": [{"minutes": s["minutes"], "en": s["en"], "hi": s["hi"]} for s in out["steps"]],
+        "title": {"en": out["title_en"], local: out["title_local"]},
+        "materials": {"en": out["materials_en"], local: out["materials_local"]},
+        "steps": [{"minutes": s["minutes"], "en": s["en"], local: s["local"]} for s in out["steps"]],
         "practice_words": out["practice_words"],
-        "watch_for": {"en": out["watch_for_en"], "hi": out["watch_for_hi"]},
-        "why": {"en": out["why_en"], "hi": out["why_hi"]},
+        "watch_for": {"en": out["watch_for_en"], local: out["watch_for_local"]},
+        "why": {"en": out["why_en"], local: out["why_local"]},
     }
 
 
@@ -123,11 +155,11 @@ def check_plan(out: dict, allowed: list[str]) -> list[str]:
         problems.append(f"{len(steps)} steps; use 3 or 4")
     if not MIN_MINUTES <= total <= MAX_MINUTES:
         problems.append(f"steps add up to {total} minutes; the plan must take about 10")
-    for key in ("title_en", "title_hi", "watch_for_en", "watch_for_hi"):
+    for key in ("title_en", "title_local", "watch_for_en", "watch_for_local"):
         if not str(out.get(key, "")).strip():
             problems.append(f"{key} is empty")
-    if any(not str(s.get("en", "")).strip() or not str(s.get("hi", "")).strip() for s in steps):
-        problems.append("every step needs English and Hindi text")
+    if any(not str(s.get("en", "")).strip() or not str(s.get("local", "")).strip() for s in steps):
+        problems.append("every step needs English and teacher's-language text")
     return problems
 
 
@@ -147,9 +179,13 @@ Rules:
 that activity's method; adapt only the content, wording and timing. Do not merge activities or invent a new one.
 - Use the group's misread words as practice material where the activity allows (`practice_words`: 4–8 words in \
 the group's reading language, taken from the misread words or close variants that train the same difficulty).
+- Every example letter or word in the steps is in the group's reading language and its script (a Tamil group gets \
+Tamil letters, never Hindi ones), as the candidates already show.
 - 3 or 4 steps whose minutes add up to 10. Each step is one or two short sentences a teacher can follow while \
-standing in front of the group, in English (`en`) and simple Hindi (`hi`).
-- `why_en` / `why_hi`: one sentence linking the activity to the group's difficulty, in plain words.
+standing in front of the group, in English (`en`) and in the teacher's language (`local`; `teacher_language` \
+names it: Hindi, Marathi, Kannada, Tamil or Bengali), in plain everyday words and that language's own script. \
+Every `*_local` field (title, materials, steps, watch_for, why) is in that language.
+- `why_en` / `why_local`: one sentence linking the activity to the group's difficulty, in plain words.
 - No children's names, no scores or labels for children, nothing that shames a child, nothing unsafe.
 """
 
@@ -185,20 +221,20 @@ def generation_schema(candidate_ids: list[str]) -> dict:
         "type": "object",
         "properties": {
             "source_activity_id": {"type": "string", "enum": candidate_ids},
-            "title_en": text, "title_hi": text,
-            "materials_en": texts, "materials_hi": texts,
+            "title_en": text, "title_local": text,
+            "materials_en": texts, "materials_local": texts,
             "steps": {"type": "array", "items": {
                 "type": "object",
-                "properties": {"minutes": {"type": "integer"}, "en": text, "hi": text},
-                "required": ["minutes", "en", "hi"],
+                "properties": {"minutes": {"type": "integer"}, "en": text, "local": text},
+                "required": ["minutes", "en", "local"],
                 "additionalProperties": False,
             }},
             "practice_words": texts,
-            "watch_for_en": text, "watch_for_hi": text,
-            "why_en": text, "why_hi": text,
+            "watch_for_en": text, "watch_for_local": text,
+            "why_en": text, "why_local": text,
         },
-        "required": ["source_activity_id", "title_en", "title_hi", "materials_en", "materials_hi", "steps",
-                     "practice_words", "watch_for_en", "watch_for_hi", "why_en", "why_hi"],
+        "required": ["source_activity_id", "title_en", "title_local", "materials_en", "materials_local", "steps",
+                     "practice_words", "watch_for_en", "watch_for_local", "why_en", "why_local"],
         "additionalProperties": False,
     }
 
@@ -277,7 +313,7 @@ async def generate(ctx: dict, *, blocked: str | None = None, on_usage=None) -> d
     if blocked:
         return fallback | {"validation": {"skipped": blocked}}
 
-    ids = [a["id"] for a in cands]
+    ids, local = [a["id"] for a in cands], ctx["teacher_language"]["code"]
     messages = [{"role": "user", "content": json.dumps(
         {"group": ctx, "candidates": [_bank_view(a) for a in cands]}, ensure_ascii=False)}]
     attempts = []
@@ -291,8 +327,8 @@ async def generate(ctx: dict, *, blocked: str | None = None, on_usage=None) -> d
         verdict: dict = {}
         if not problems:
             try:
-                verdict = await call_validate(_bank_view(entry(out["source_activity_id"])),
-                                              plan_from_claude(out), ctx, on_usage)
+                chosen = next(a for a in cands if a["id"] == out["source_activity_id"])
+                verdict = await call_validate(_bank_view(chosen), plan_from_claude(out, local), ctx, on_usage)
             except ActivityUnavailable as e:
                 verdict = {"error": str(e)}
             if verdict.get("error"):
@@ -301,7 +337,7 @@ async def generate(ctx: dict, *, blocked: str | None = None, on_usage=None) -> d
                 problems = verdict.get("issues") or ["rejected by the reviewer"]
         attempts.append({"problems": problems, "review": verdict})
         if not problems:
-            return {"source_activity_id": out["source_activity_id"], "plan": plan_from_claude(out),
+            return {"source_activity_id": out["source_activity_id"], "plan": plan_from_claude(out, local),
                     "validation": {"attempts": attempts}, "accepted": True, "generated_by": settings.claude_model}
         if problems == ["reviewer unavailable"]:
             break

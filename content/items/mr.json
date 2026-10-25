@@ -1,0 +1,24 @@
+{
+  "language": "mr",
+  "version": "0.1.0",
+  "status": "draft (beta): awaiting review by a Marathi-speaking educator",
+  "spec": "ASER 2024 reading tool (Marathi). Letters: commonly used letters, 5 per card. Words: familiar words of 2 letters + 1-2 matras, no conjuncts, 5 per card. Paragraph (Std I level): 4 linked sentences of at most 6 words. Story (Std II level): 7-10 linked sentences, few conjuncts. Original text written for LevelOS (parallel to the Hindi bank for comparable difficulty), not copied from ASER Centre tools.",
+  "instructions": {
+    "letter": { "mr": "ही अक्षरे एक-एक करून वाच.", "hi": "इन अक्षरों को एक-एक करके पढ़ो।", "en": "Read these letters one by one." },
+    "word": { "mr": "हे शब्द एक-एक करून वाच.", "hi": "इन शब्दों को एक-एक करके पढ़ो।", "en": "Read these words one by one." },
+    "paragraph": { "mr": "हे मोठ्याने वाच. बोट ठेवून वाचले तरी चालेल.", "hi": "इसे ज़ोर से पढ़ो। उँगली रखकर पढ़ सकते हो।", "en": "Read this aloud. You can keep your finger on the words." },
+    "story": { "mr": "ही गोष्ट मोठ्याने वाच.", "hi": "यह कहानी ज़ोर से पढ़ो।", "en": "Read this story aloud." }
+  },
+  "items": [
+    { "id": "mr-letter-a", "level": "letter", "units": ["क", "म", "स", "र", "ळ"] },
+    { "id": "mr-letter-b", "level": "letter", "units": ["न", "प", "ग", "त", "ण"] },
+    { "id": "mr-letter-c", "level": "letter", "units": ["ह", "ज", "द", "च", "ब"] },
+    { "id": "mr-word-a", "level": "word", "units": ["पाणी", "वही", "पोळी", "केळी", "दिवा"] },
+    { "id": "mr-word-b", "level": "word", "units": ["भाजी", "होडी", "शाळा", "फूल", "मासा"] },
+    { "id": "mr-word-c", "level": "word", "units": ["ससा", "हात", "दूध", "डोळा", "नाक"] },
+    { "id": "mr-para-a", "level": "paragraph", "title": "मीनाची मांजर", "sentences": ["माझे नाव मीना आहे.", "माझ्याकडे एक मांजर आहे.", "मांजरीचा रंग काळा आहे.", "ती रोज दूध पिते."] },
+    { "id": "mr-para-b", "level": "paragraph", "title": "कागदाची होडी", "sentences": ["आज खूप पाऊस पडला.", "अंगणात पाणी साचले.", "राजूने कागदाची होडी केली.", "होडी पाण्यावर तरंगू लागली."] },
+    { "id": "mr-story-a", "level": "story", "title": "जत्रेत मोनू", "sentences": ["सोनूला एक लहान भाऊ आहे.", "त्याचे नाव मोनू आहे.", "एके दिवशी दोघे जत्रेत गेले.", "जत्रेत खूप गर्दी होती.", "मोनूला फुगेवाला दिसला.", "तो फुगा घ्यायला धावला आणि गर्दीत हरवला.", "सोनू खूप घाबरला.", "त्याने मोनूला सगळीकडे शोधले.", "मोनू फुगेवाल्याजवळ उभा होता.", "सोनूने त्याला घट्ट मिठी मारली."] },
+    { "id": "mr-story-b", "level": "story", "title": "आंब्याचे झाड", "sentences": ["राणीच्या घराजवळ एक बाग आहे.", "बागेत आंब्याचे एक मोठे झाड आहे.", "उन्हाळ्यात झाडाला खूप आंबे लागतात.", "एके दिवशी राणी मैत्रिणीसोबत बागेत गेली.", "दोघी झाडाखाली बसून आंबे खाऊ लागल्या.", "तेवढ्यात एक माकड झाडावरून खाली उतरले.", "माकडाने राणीचा आंबा हिसकावून घेतला.", "दोघी मैत्रिणी जोरजोरात हसू लागल्या."] }
+  ]
+}

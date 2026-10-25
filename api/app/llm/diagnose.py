@@ -13,11 +13,13 @@ import json
 import logging
 
 import anthropic
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..config import settings
+from ..content import languages, teacher_language
 from ..db import SessionLocal
-from ..models import Checkin, Diagnosis
+from ..models import Checkin, Classroom, Diagnosis, Student
 from . import budget, rules
 from .evidence import build_input, input_hash
 from .patterns import ITEM_LEVEL_PATTERNS, PATTERNS
@@ -38,9 +40,9 @@ DIAGNOSIS_SCHEMA = {
                     "item_id": {"type": "string"},
                     "word_indices": {"type": "array", "items": {"type": "integer"}},
                     "note_en": {"type": "string"},
-                    "note_hi": {"type": "string"},
+                    "note_local": {"type": "string"},
                 },
-                "required": ["pattern", "item_id", "word_indices", "note_en", "note_hi"],
+                "required": ["pattern", "item_id", "word_indices", "note_en", "note_local"],
                 "additionalProperties": False,
             },
         },
@@ -54,11 +56,11 @@ DIAGNOSIS_SCHEMA = {
                 "additionalProperties": False,
             },
         },
-        "summary_hi": {"type": "string"},
         "summary_en": {"type": "string"},
+        "summary_local": {"type": "string"},  # in the teacher's language (`teacher_language`)
         "confidence": {"type": "string", "enum": ["low", "medium", "high"]},
     },
-    "required": ["error_patterns", "evidence", "word_notes", "summary_hi", "summary_en", "confidence"],
+    "required": ["error_patterns", "evidence", "word_notes", "summary_en", "summary_local", "confidence"],
     "additionalProperties": False,
 }
 
@@ -71,7 +73,9 @@ class DiagnosisUnavailable(Exception):
 
 
 def validate(out: dict, inp: dict) -> dict | None:
-    """Keep only evidence that points at real error words; drop patterns left without support."""
+    """Keep only evidence that points at real error words; drop patterns left without support. The teacher's-language
+    texts are stored under that language's code (summary["kn"], note_kn), English under "en"."""
+    local = inp.get("teacher_language", {}).get("code", "hi")
     items = {it["item_id"]: it for it in inp["items"]}
     evidence, supported = [], set()
     for ev in out.get("evidence", []):
@@ -86,13 +90,14 @@ def validate(out: dict, inp: dict) -> dict | None:
             continue  # a pattern must not rest on unconfirmed words alone
         evidence.append({"pattern": p, "item_id": item["item_id"],
                          "words": [{"i": i, "ref": errs[i]["ref"], "heard": errs[i]["heard"]} for i in idx],
-                         "note_en": (ev.get("note_en") or "").strip(), "note_hi": (ev.get("note_hi") or "").strip()})
+                         "note_en": (ev.get("note_en") or "").strip(),
+                         f"note_{local}": (ev.get("note_local") or "").strip()})
         supported.add(p)
     patterns = [p for p in dict.fromkeys(out.get("error_patterns", [])) if p in supported][:3]
     evidence = [e for e in evidence if e["pattern"] in patterns]
-    summary = {"hi": (out.get("summary_hi") or "").strip(), "en": (out.get("summary_en") or "").strip()}
+    summary = {"en": (out.get("summary_en") or "").strip(), local: (out.get("summary_local") or "").strip()}
     has_errors = any(it["error_words"] for it in inp["items"])
-    if not summary["hi"] or not summary["en"] or (has_errors and not patterns and out.get("error_patterns")):
+    if not summary[local] or not summary["en"] or (has_errors and not patterns and out.get("error_patterns")):
         return None  # empty summary, or every claimed pattern was unsupported
     notes = [n for n in out.get("word_notes", [])
              if n.get("item_id") in items and any(w["i"] == n.get("i") for w in items[n["item_id"]]["error_words"])]
@@ -161,7 +166,9 @@ async def call_claude(payload: dict, on_usage=None, effort: str | None = None) -
 
 
 def _payload(checkin: Checkin) -> dict:
-    return {"child_name": checkin.student.first_name, **build_input(checkin)}
+    code = teacher_language(checkin.student.main_language)
+    return {"child_name": checkin.student.first_name,
+            "teacher_language": {"code": code, "name": languages()[code]["english_name"]}, **build_input(checkin)}
 
 
 def _save(db: Session, checkin: Checkin, result: dict, model: str, raw: dict) -> Diagnosis:
@@ -193,6 +200,26 @@ def refresh_rules(db: Session, checkin: Checkin) -> str | None:
     _save(db, checkin, rules.diagnose(inp, checkin.student.first_name), "rules", {"input_hash": h})
     db.commit()
     return h
+
+
+def relocalize(db: Session) -> list[tuple[str, str]]:
+    """Diagnoses written before a class's own language became the teacher's (a Kannada class's were in Hindi and
+    English): rewrite each with the rules now, in English and the class's language. Returns (check-in id, evidence
+    hash) for those Claude had written, so Claude can write them again. A no-op once done."""
+    regional = [code for code in languages() if teacher_language(code) not in ("hi", "en")]
+    again = []
+    for d in db.scalars(select(Diagnosis).join(Checkin).join(Student).join(Classroom).where(
+            func.coalesce(Student.home_lang, Classroom.language).in_(regional))).all():
+        c = d.checkin
+        if not c.items or teacher_language(c.student.main_language) in (d.summary or {}):
+            continue
+        inp = _payload(c)
+        h = input_hash(inp)
+        if d.model != "rules":
+            again.append((c.id, h))
+        _save(db, c, rules.diagnose(inp, c.student.first_name), "rules", {"input_hash": h})
+    db.commit()
+    return again
 
 
 async def run_claude(checkin_id: str, expected_hash: str | None = None) -> None:

@@ -2,9 +2,11 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
+import { ApiError, OfflineError } from '../api'
 import { db } from '../db'
 import { useAuth } from '../lib/auth'
-import { setReadingLang } from '../lib/readingLang'
+import { nameIn } from '../lib/names'
+import { LANG_SHORT, dateLocale, nextUiLang, rememberRegional, setUiLang, useUiLang } from '../lib/uiLang'
 import type { Cohort, ItemPublic, Level, StudentSummary } from '../lib/types'
 
 export function useOnline() {
@@ -22,23 +24,31 @@ export function useOnline() {
   return online
 }
 
-export function Page({ title, back, children, wide }: { title?: string; back?: string | true; children: ReactNode; wide?: boolean }) {
-  const { t, i18n } = useTranslation()
+/** `tag`: a short line under the title (which reading test this is), so the title itself keeps the room.
+ * `regional`: the language of the class or child on the page; the language button pairs it with English. */
+export function Page({
+  title,
+  tag,
+  back,
+  children,
+  wide,
+  regional,
+}: {
+  title?: string
+  tag?: string
+  back?: string | true
+  children: ReactNode
+  wide?: boolean
+  regional?: string | null
+}) {
+  const { t } = useTranslation()
+  const ui = useUiLang()
   const online = useOnline()
   const { teacher, logout } = useAuth()
   const navigate = useNavigate()
   const pending = useLiveQuery(() => db.checkins.where('status').anyOf('queued', 'failed').count(), [], 0)
-
-  const toggleLang = () => {
-    const next = i18n.language === 'hi' ? 'en' : 'hi'
-    void i18n.changeLanguage(next)
-    setReadingLang(next) // the teacher switched to English: give the English reading test too
-    try {
-      localStorage.setItem('levelos.uiLang', next)
-    } catch {
-      /* storage unavailable: the language still switches for this session */
-    }
-  }
+  const next = nextUiLang(ui, regional)
+  useEffect(() => rememberRegional(regional), [regional])
 
   return (
     <div className={`mx-auto flex min-h-full flex-col px-4 pb-10 pt-4 ${wide ? 'max-w-3xl' : 'max-w-md'}`}>
@@ -52,7 +62,10 @@ export function Page({ title, back, children, wide }: { title?: string; back?: s
             ←
           </button>
         )}
-        <h1 className="min-w-0 flex-1 truncate text-xl font-bold text-blue-700">{title ?? t('appName')}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-xl font-bold text-blue-700">{title ?? t('appName')}</h1>
+          {tag && <div className="truncate text-xs font-medium text-blue-800">{tag}</div>}
+        </div>
         {pending > 0 && (
           <span
             className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
@@ -68,8 +81,13 @@ export function Page({ title, back, children, wide }: { title?: string; back?: s
         >
           {online ? t('online') : t('offline')}
         </span>
-        <button onClick={toggleLang} className="rounded-md border px-2 py-0.5 text-xs" aria-label="language">
-          {i18n.language === 'hi' ? 'EN' : 'हि'}
+        <button
+          onClick={() => setUiLang(next)}
+          className="rounded-md border px-2 py-0.5 text-xs"
+          aria-label="language"
+          title={t(`lang.${next}`, { defaultValue: next })}
+        >
+          {LANG_SHORT[next] ?? next}
         </button>
         {teacher && (
           <button onClick={logout} className="text-xs text-slate-500 underline">
@@ -91,12 +109,29 @@ export function Spinner({ label }: { label?: string }) {
   )
 }
 
+/** A teacher-facing message for any error, in the interface language; the server's own (English, technical) text
+ * stays only as a tooltip for whoever debugs it. */
+function errorText(error: Error, t: (key: string) => string): string {
+  if (error instanceof OfflineError) return t('errors.offline')
+  if (!(error instanceof ApiError)) return t('error')
+  const m = error.message
+  if (error.status === 401) return t('errors.session')
+  if (error.status === 404) return t('errors.notFound')
+  if (error.status === 413) return t('errors.tooLong')
+  if (error.status >= 500) return t('login.serverError')
+  if (/uncertain words/.test(m)) return t('errors.confirmFirst')
+  if (/do not place the child/.test(m)) return t('checkin.notPlaced')
+  if (/no items were read/.test(m)) return t('errors.nothingRead')
+  if (/check-in is |ladder is complete|expected a /.test(m)) return t('errors.checkMoved')
+  return t('error')
+}
+
 export function ErrorBox({ error, onRetry }: { error: Error | null; onRetry?: () => void }) {
   const { t } = useTranslation()
   if (!error) return null
   return (
-    <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
-      <p>{error.message || t('error')}</p>
+    <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800" title={error.message}>
+      <p>{errorText(error, t)}</p>
       {onRetry && (
         <button onClick={onRetry} className="mt-2 font-medium underline">
           {t('retry')}
@@ -201,6 +236,7 @@ export function LevelBadge({ level, confirmed, large }: { level: Level | null; c
 }
 
 export function ChildChip({ s, to }: { s: StudentSummary; to: string }) {
+  const ui = useUiLang()
   return (
     <Link
       to={to}
@@ -209,7 +245,7 @@ export function ChildChip({ s, to }: { s: StudentSummary; to: string }) {
       }`}
     >
       <span className="text-lg leading-none">{s.avatar}</span>
-      <span>{s.first_name}</span>
+      <span>{nameIn(s, s.first_name, ui)}</span>
       {s.pending_review && <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />}
     </Link>
   )
@@ -240,5 +276,5 @@ export function ReadingCard({ item }: { item: ItemPublic }) {
 }
 
 export function formatDate(iso: string, lang: string) {
-  return new Date(iso).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short' })
+  return new Date(iso).toLocaleDateString(dateLocale(lang), { day: 'numeric', month: 'short' })
 }

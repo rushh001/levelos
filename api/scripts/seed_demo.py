@@ -20,7 +20,7 @@ from datetime import timedelta
 
 from app.auth import hash_pin
 from app.content import Item, items, pick_item
-from app.db import Base, SessionLocal, engine
+from app.db import Base, SessionLocal, create_schema, engine
 from app.levels.aser_rules import LEVEL_ORDER, next_item_level
 from app.llm import diagnose as diag
 from app.models import Classroom, Student, Teacher, utcnow
@@ -52,6 +52,12 @@ CHILDREN = [
     ("फ़रहान", "⭐", [None, None], "matra", [None, None], "vowel"),
 ]
 DAYS_AGO = {"hi": (14, 4), "en": (13, 3)}
+# Each name in the other script, so the class reads naturally whichever language the app is in.
+NAMES_EN = {"आरव": "Aarav", "सना": "Sana", "इमरान": "Imran", "दीया": "Diya", "मीना": "Meena", "रवि": "Ravi",
+            "कबीर": "Kabir", "पूजा": "Pooja", "रोहन": "Rohan", "नेहा": "Neha", "प्रिया": "Priya", "अर्जुन": "Arjun",
+            "काव्या": "Kavya", "विक्रम": "Vikram", "अंजलि": "Anjali", "फ़रहान": "Farhan"}
+CLASS_NAME = "कक्षा 2 – अ"
+CLASS_NAMES = {"hi": CLASS_NAME, "en": "Class 2 – A"}
 
 CONFUSABLE = {"ब": "व", "व": "ब", "घ": "ध", "ध": "घ", "म": "भ", "भ": "म", "स": "श", "श": "स", "न": "ल", "ल": "न",
               "प": "फ", "ग": "म", "त": "न", "क": "फ", "र": "व", "ह": "ढ", "ज": "ञ", "द": "ड", "च": "ज"}
@@ -183,23 +189,30 @@ def seed_history(db, teacher, student, spec, languages, rng, vocab) -> None:
                 run_checkin(db, teacher, student, lang, target, profile, days_ago, rng, vocab)
 
 
-def add_missing_history(db, rng, vocab) -> int:
-    """A demo seeded before English was added: give each demo child the past check-ins of any language they have
-    none in yet. Children a teacher added later, and languages already tested, are left alone."""
+def upgrade_demo(db, rng, vocab) -> int:
+    """A demo seeded by an earlier version: give each demo child the past check-ins of any language they have none
+    in yet, and the class and children their English names. Children a teacher added later, languages already
+    tested and names already set are left alone. Returns how many children changed."""
     specs = {spec[0]: spec for spec in CHILDREN}
     updated = 0
     for t in db.query(Teacher).filter(Teacher.login.in_([login for login, _, _ in LOGINS])).all():
         for cls in t.classrooms:
+            if cls.name == CLASS_NAME and not cls.names:
+                cls.names = dict(CLASS_NAMES)
             for s in cls.students:
                 spec = specs.get(s.first_name)
                 if spec is None:
                     continue
+                changed = not s.names
+                if changed:
+                    s.names = {"hi": s.first_name, "en": NAMES_EN[s.first_name]}
                 plan = {"hi": spec[2], "en": spec[4]}
                 missing = [lang for lang, targets in plan.items()
                            if any(targets) and not any(c.language == lang for c in s.checkins)]
                 if missing:
                     seed_history(db, t, s, spec, missing, rng, vocab)
-                    updated += 1
+                updated += changed or bool(missing)
+    db.commit()
     return updated
 
 
@@ -213,7 +226,7 @@ def main() -> None:
 
     if args.reset:
         Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    create_schema()
     db = SessionLocal()
     rng = random.Random(args.seed)
     vocab = {lang: sorted({w for it in items(lang).values() for w in tokenize(it.text, lang)}) for lang in ("hi", "en")}
@@ -221,8 +234,8 @@ def main() -> None:
         if not args.if_empty:
             sys.exit("demo data already present (use --reset to start over)")
         svc.migrate_levels(db)
-        added = add_missing_history(db, rng, vocab)
-        print(f"demo data already present; added check-ins for {added} children" if added
+        updated = upgrade_demo(db, rng, vocab)
+        print(f"demo data already present; brought {updated} children up to date" if updated
               else "demo data already present; nothing to do")
         return
 
@@ -234,11 +247,12 @@ def main() -> None:
     db.commit()
 
     for t in teachers:
-        cls = Classroom(teacher_id=t.id, name="कक्षा 2 – अ", grade=2, language="hi")
+        cls = Classroom(teacher_id=t.id, name=CLASS_NAME, names=dict(CLASS_NAMES), grade=2, language="hi")
         db.add(cls)
         db.commit()
         for spec in CHILDREN:
-            s = Student(classroom_id=cls.id, first_name=spec[0], avatar=spec[1], grade=2)
+            s = Student(classroom_id=cls.id, first_name=spec[0], names={"hi": spec[0], "en": NAMES_EN[spec[0]]},
+                        avatar=spec[1], grade=2)
             db.add(s)
             db.commit()
             seed_history(db, t, s, spec, ("hi", "en"), rng, vocab)

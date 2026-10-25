@@ -1,6 +1,6 @@
-/** Item banks bundled into the app, so a check-in can run with no network (the service worker precaches them). */
-import en from '../../../content/items/en.json'
-import hi from '../../../content/items/hi.json'
+/** Item banks bundled into the app, so a check-in can run with no network (the service worker precaches them).
+ * Every bank in content/items/ is included, with the language settings (tier, speed floors) from languages.json. */
+import languageConfig from '../../../content/languages.json'
 import type { Bilingual, ItemLevel, ItemPublic } from './types'
 
 interface RawItem {
@@ -17,10 +17,32 @@ interface Bank {
   items: RawItem[]
 }
 
-const BANKS: Record<string, Bank> = { hi: hi as Bank, en: en as Bank }
+interface LanguageConfig {
+  tier?: number
+  wcpm_floor?: Record<string, number>
+}
+
+const files = import.meta.glob<{ default: Bank }>('../../../content/items/*.json', { eager: true })
+const BANKS: Record<string, Bank> = Object.fromEntries(Object.values(files).map((m) => [m.default.language, m.default]))
+const LANGUAGES = languageConfig as unknown as Record<string, LanguageConfig>
 
 export function hasBank(lang: string): boolean {
   return lang in BANKS
+}
+
+/** Languages a reading check can be given in, in the order of languages.json (Hindi, English, then the rest). */
+export function bankLanguages(): string[] {
+  return Object.keys(LANGUAGES).filter((lang) => lang in BANKS)
+}
+
+/** Supported but not yet validated with children's recordings and teacher testing. */
+export function isBeta(lang: string): boolean {
+  return (LANGUAGES[lang]?.tier ?? 2) > 1
+}
+
+/** The language's own reading-speed floor for a passage level (same rule as the server's content.wcpm_floor). */
+export function wcpmFloor(lang: string, level: string): number | null {
+  return LANGUAGES[lang]?.wcpm_floor?.[level] ?? null
 }
 
 function toPublic(bank: Bank, raw: RawItem): ItemPublic {

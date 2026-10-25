@@ -25,20 +25,35 @@ def _check_lang(lang: str | None) -> None:
         raise HTTPException(422, f"no item bank for language {lang!r}")
 
 
+Names = dict[str, str]  # the same name per interface language, e.g. {"en": "Meena", "hi": "मीना"}
+
+
+def _names(names: Names | None, limit: int) -> Names | None:
+    if names is None:
+        return None
+    clean = {lang: n.strip() for lang, n in names.items() if isinstance(n, str) and n.strip()}
+    if any(len(lang) > 8 or len(n) > limit for lang, n in clean.items()):
+        raise HTTPException(422, f"names must be at most {limit} characters")
+    return clean or None
+
+
 class ClassIn(BaseModel):
     name: str = Field(min_length=1, max_length=120)
+    names: Names | None = None
     grade: int = Field(ge=1, le=8)
     language: str = "hi"
 
 
 class ClassPatch(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=120)
+    names: Names | None = None
     grade: int | None = Field(default=None, ge=1, le=8)
     language: str | None = None
 
 
 class StudentIn(BaseModel):
     first_name: str = Field(min_length=1, max_length=80)
+    names: Names | None = None
     avatar: str = Field(default="🙂", max_length=32)
     grade: int | None = Field(default=None, ge=1, le=8)
     home_lang: str | None = None
@@ -46,6 +61,7 @@ class StudentIn(BaseModel):
 
 class StudentPatch(BaseModel):
     first_name: str | None = Field(default=None, min_length=1, max_length=80)
+    names: Names | None = None
     avatar: str | None = Field(default=None, max_length=32)
     grade: int | None = Field(default=None, ge=1, le=8)
     home_lang: str | None = None
@@ -62,7 +78,8 @@ def list_classes(teacher: Teacher = Depends(current_teacher)) -> list[dict]:
 @router.post("/classes", status_code=201)
 def create_class(body: ClassIn, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
     _check_lang(body.language)
-    c = Classroom(teacher_id=teacher.id, name=body.name.strip(), grade=body.grade, language=body.language)
+    c = Classroom(teacher_id=teacher.id, name=body.name.strip(), names=_names(body.names, 120), grade=body.grade,
+                  language=body.language)
     db.add(c)
     db.commit()
     return classroom_out(c, students=True)
@@ -79,7 +96,7 @@ def patch_class(class_id: str, body: ClassPatch, teacher: Teacher = Depends(curr
     c = owned_class(db, teacher, class_id)
     _check_lang(body.language)
     for k, v in body.model_dump(exclude_none=True).items():
-        setattr(c, k, v)
+        setattr(c, k, _names(v, 120) if k == "names" else v)
     db.commit()
     return classroom_out(c, students=True)
 
@@ -89,8 +106,8 @@ def add_student(class_id: str, body: StudentIn, teacher: Teacher = Depends(curre
                 db: Session = Depends(get_db)) -> dict:
     c = owned_class(db, teacher, class_id)
     _check_lang(body.home_lang)
-    s = Student(classroom_id=c.id, first_name=body.first_name.strip(), avatar=body.avatar,
-                grade=body.grade or c.grade, home_lang=body.home_lang)
+    s = Student(classroom_id=c.id, first_name=body.first_name.strip(), names=_names(body.names, 80),
+                avatar=body.avatar, grade=body.grade or c.grade, home_lang=body.home_lang)
     db.add(s)
     db.commit()
     return student_out(s)
@@ -120,7 +137,7 @@ def patch_student(student_id: str, body: StudentPatch, teacher: Teacher = Depend
         raise HTTPException(422, f"cohort must be one of {COHORTS}")
     for k, v in body.model_dump(exclude_none=True,
                                 exclude={"cohort_override", "clear_cohort_override", "language"}).items():
-        setattr(s, k, v)
+        setattr(s, k, _names(v, 80) if k == "names" else v)
     lang = body.language or s.main_language
     if body.cohort_override is not None:
         level_row(s, lang).cohort_override = body.cohort_override

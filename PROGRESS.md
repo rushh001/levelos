@@ -60,6 +60,32 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 - [x] English checks: error patterns and the instant rule-based advice in English-reading terms (letter sounds, vowel sounds, blends); a tap-marked check now says so instead of "record somewhere quieter"
 - [x] 130 API tests; browser run: dashboard per language, app-language toggle, an English check (tap-marked) moving only the English level, English group activity
 
+### 25 Oct (later) — one language at a time, from the teacher's side (asked for by Z)
+- [x] Audit: every teacher screen captured in English and in Hindi (24 screens). Mixing came from data, not labels: Hindi names and class name in English, Hindi example words in English activities, English-only source notes, English server errors, and the English test explained in English to a Hindi-medium child
+- [x] Names per interface language (Meena / मीना, Class 2 – A / कक्षा 2 – अ); diagnosis text shows the name in the app's language; a teacher can add a child's second spelling; a deployed demo gets the names on its next start (new `names` column added at startup)
+- [x] What the teacher says to the child: Hindi test in Hindi; English test in the class's language (Hindi in the Hindi app, as ASER does), meaning shown below, matching 🔊 recording (4 new Hindi recordings)
+- [x] Activities: example words follow the language the group reads; source notes in Hindi; earlier activities listed in the app's language (were always Hindi)
+- [x] Errors in the app's language (no server text); "reading check" and "card" instead of check-in / item; correct plurals ("1 child")
+- [x] Class page banner lists the children waiting for confirmation, one tap opens the check; back from a class reaches the class list (was a loop with one class); test language shown under the page title (titles no longer cut off); each language's level with its own status on the child page
+- [x] 134 API tests; browser run repeated in both languages
+
+### 25 Oct (night) — Marathi, Tamil, Kannada, Bengali reading tests (beta) (asked for by Z)
+- [x] Z chose: children tested in these four languages (same ASER flow as Hindi), teacher screens stay English/Hindi; the team finds native speakers to review the cards
+- [x] Reading cards for all four (3 letter, 3 word cards, 2 paragraphs, 2 stories each, parallel to the Hindi bank), instructions in each language (+ English/Hindi meaning), 16 spoken instructions; Bengali added to the language config; Odia's unverified Azure code set (`or-IN`, confirmed in Microsoft's list)
+- [x] Reading-speed floors per language: their words are longer (aksharas per word: Hindi 1.97, Bengali 2.52, Marathi 2.71, Kannada 3.27, Tamil 4.01), so Hindi's 15 / 20 would have marked fluent readers as halting; floors give the same aksharas a minute (Marathi 11 / 15, Bengali 12 / 16, Kannada 9 / 12, Tamil 7.5 / 10), on the server and offline
+- [x] Common-word lists, Claude script notes (Bengali, Tamil, Kannada), rule-based advice without Hindi-only terms, activity examples in each script (uyirmei / kagunita charts named as such), offline cards for every language, language menu for new classes (beta marked)
+- [x] Synthetic-voice check through the live pipeline: paragraphs 4 / 4 fully correct, word cards 12 / 12 after replacing five words the recognisers heard as more common ones; single letters unreliable in all four → letters the recognisers did not both hear as right go to the teacher (`confirm_letters`); in every language, a letter neither heard goes to the teacher. Hindi/English real-recording eval unchanged (117 / 118, 9 / 9 cards)
+- [x] Browser run: a Tamil class created, a child tested in Tamil (cards, Tamil instruction with English/Hindi meaning), grouped by the Tamil level
+- [x] 145 API tests
+
+### 25 Oct (late night) — teacher's screens in Marathi, Kannada, Tamil, Bengali (asked for by Z)
+- [x] Z: a Kannada test's result offered Hindi; a Kannada class should show Kannada and English, not Hindi, and the same for the others
+- [x] Interface in Marathi, Kannada, Tamil and Bengali (all strings, AI-drafted); the language button pairs English with the class's language (EN ⇄ ಕ for a Kannada class) and remembers it for pages without a class
+- [x] Diagnoses (Claude and the rule-based fallback) and activities in English and the class's language; Claude is told the teacher's language and its own terms (kagunita, uyirmei, ottakshara) and still never genders the child; these classes' earlier diagnoses (written in Hindi) are rewritten at startup
+- [x] Activity bank translated into the four languages (22 activities: title, materials, steps, what to watch for, source note), so the activity without Claude or offline is in the class's language too
+- [x] The English test's instruction spoken in each of the four languages (16 clips); dates in each language's format
+- [x] 150 API tests
+
 ---
 
 ## 2. Blocked / waiting on a person
@@ -71,6 +97,7 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 | Android phone test (Chrome) | Z | Microphone, layout and offline on a real budget phone |
 | 3 teachers for one round of testing (Tue 28 – Wed 29) | Z + R | User-testing evidence (35% of the score) |
 | Educator check of item banks + activity bank (status: draft) | R | Fidelity claims in the PPT |
+| Native-speaking teachers to check the Marathi, Tamil, Kannada and Bengali cards, word lists, interface strings, advice and activity translations (beta) | Z + R | Beta languages shown to judges as reviewed, not just drafted |
 | Rotate the Azure keys after the hackathon (they were pasted in chat) | Z | Hygiene |
 
 ---
@@ -89,7 +116,7 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 | 7 | Feature freeze; consent form, PPT outline, video script drafts | CC drafts, R/Z finalise | Wed 29 |
 | 8 | 3-min video | Z | Thu 30 – Fri 31 |
 | 9 | Submit; flip repo public (MIT); no commits after | Z | Sat 1 Nov afternoon |
-| 10 | Regional languages after mentor approval: Marathi, Odia, Tamil, Kannada, Telugu (configured), Malayalam (configure first) — each needs an item bank, instruction audio and an educator's review | Z + R, CC | after approval |
+| 10 | ~~Marathi, Tamil, Kannada, Bengali reading tests (beta)~~ done 25 Oct; next: Odia, Telugu, Malayalam (configure first) — each needs an item bank, instruction audio, word lists and an educator's review; later the teacher's screens in those languages | Z + R, CC | after approval |
 
 ## 4. Open questions
 - Tier-2 languages: engine and vendor config exist, no item banks. Plan: mention as "engine-ready" in the PPT, do not demo.
@@ -110,3 +137,6 @@ cd web && npm run dev                                         # http://localhost
 - **24 Oct (evening)** — pushed `117c462`; Postgres + Docker verified; recording replay; README + document.md.
 - **24 Oct (night)** — pushed `5fb28f0`; Z deployed to Vercel + Render (Neon); fixed login blocked by a trailing slash in `CORS_ORIGINS`.
 - **25 Oct** — every child tested in English and the regional language (own level and group each); app opens in English; English activities and advice.
+- **25 Oct (later)** — one language at a time from the teacher's side: names, instructions to the child, activities, errors and wording.
+- **25 Oct (night)** — Marathi, Tamil, Kannada and Bengali reading tests in beta; speed floors per language; teacher-confirmed letter cards.
+- **25 Oct (late night)** — teacher's screens, diagnoses and activities in Marathi, Kannada, Tamil and Bengali; the language button pairs English with the class's language.

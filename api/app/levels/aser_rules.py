@@ -68,6 +68,9 @@ class ItemOutcome:
     wcpm: float | None = None  # words correct per minute; None if no duration available
     # Teacher's judgement overrides the automatic one when present.
     teacher_passed: bool | None = None
+    # The text's language's own speed floor, when its words are longer than Hindi's (Tamil: 4 aksharas a word
+    # against Hindi's 2), so the floor means the same reading pace in every language. None: the default floor.
+    wcpm_floor: float | None = None
 
 
 def item_passed(o: ItemOutcome, t: Thresholds = DEFAULT_THRESHOLDS) -> bool:
@@ -85,7 +88,7 @@ def item_passed(o: ItemOutcome, t: Thresholds = DEFAULT_THRESHOLDS) -> bool:
         return False
     if o.hesitations is not None and o.hesitations > t.passage_max_hesitations:
         return False
-    floor = t.passage_min_wcpm.get(o.item_level)
+    floor = o.wcpm_floor if o.wcpm_floor is not None else t.passage_min_wcpm.get(o.item_level)
     if o.wcpm is not None and floor is not None and o.wcpm < floor:
         return False
     return True

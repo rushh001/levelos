@@ -1,7 +1,22 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import bn from './locales/bn.json'
 import en from './locales/en.json'
 import hi from './locales/hi.json'
+import kn from './locales/kn.json'
+import mr from './locales/mr.json'
+import ta from './locales/ta.json'
+
+// The interface languages: English and each regional language a class can read in.
+const resources = {
+  en: { translation: en },
+  hi: { translation: hi },
+  mr: { translation: mr },
+  kn: { translation: kn },
+  ta: { translation: ta },
+  bn: { translation: bn },
+}
+export const UI_LANGS = Object.keys(resources)
 
 let saved: string | null = null
 try {
@@ -11,8 +26,8 @@ try {
 }
 
 i18n.use(initReactI18next).init({
-  resources: { en: { translation: en }, hi: { translation: hi } },
-  lng: saved ?? 'en',
+  resources,
+  lng: saved && UI_LANGS.includes(saved) ? saved : 'en',
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
 })

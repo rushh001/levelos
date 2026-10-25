@@ -60,7 +60,7 @@ Render and Vercel deploy straight from `github.com/rushh001/levelos`. Claude Cod
 5. Click **Apply** (or **Deploy Blueprint**). The first build takes about 5–8 minutes (it installs ffmpeg and the Python packages). Click into the service and watch **Logs**.
 6. When the service shows **Live**, copy its address from the top of the page, e.g. `https://levelos-api.onrender.com`.
 7. Open `https://levelos-api.onrender.com/api/health` in a browser. You should see:
-   - `"ok": true`, `"env": "prod"`, `"ffmpeg": true`, `"languages": ["hi", "en"]`
+   - `"ok": true`, `"env": "prod"`, `"ffmpeg": true`, `"languages": ["hi", "en", "mr", "kn", "ta", "bn"]`
    - `"speech_paths": {"sarvam": true, "azure": true, "gemini": false}` and `"claude": true`
    - `"claude_budget": {"spent_usd": 0, "cap_usd": 400, "available": true, …}`
 

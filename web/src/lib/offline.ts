@@ -9,8 +9,10 @@
  */
 import { Api, ApiError, OfflineError } from '../api'
 import { db, type QueuedCheckin } from '../db'
+import i18n from '../i18n'
 import { nextItemLevel, outcomeFromMarks, placedLevel, startLevel } from './aser'
 import { pickItem } from './content'
+import { nameIn } from './names'
 import type { ItemLevel, ItemPublic, Level, StudentDetail } from './types'
 
 export function newLocalId(): string {
@@ -26,9 +28,10 @@ export async function startOffline(s: StudentDetail, language: string): Promise<
     localId,
     studentId: s.id,
     classId: s.class_id,
-    studentName: s.first_name,
+    studentName: nameIn(s, s.first_name, i18n.language),
     avatar: s.avatar,
     language,
+    mainLanguage: s.assessment_language,
     startLevel: startLevel(s.grade, level?.confirmed_level ?? null, level?.cohort_override ?? null),
     startedAt: Date.now(),
     items: [],
@@ -38,7 +41,7 @@ export async function startOffline(s: StudentDetail, language: string): Promise<
 }
 
 export function outcomes(c: QueuedCheckin) {
-  return c.items.map((it) => outcomeFromMarks(it.level, it.marks, it.durationMs))
+  return c.items.map((it) => outcomeFromMarks(it.level, it.marks, it.durationMs, c.language))
 }
 
 export function nextItem(c: QueuedCheckin): ItemPublic | null {

@@ -1,0 +1,24 @@
+{
+  "language": "bn",
+  "version": "0.1.0",
+  "status": "draft (beta): awaiting review by a Bengali-speaking educator",
+  "spec": "ASER 2024 reading tool (Bengali). Letters: commonly used letters, 5 per card. Words: familiar words of 2 letters + 1-2 vowel signs (kar), no juktakkhor, 5 per card. Paragraph (Std I level): 4 linked sentences of at most 6 words. Story (Std II level): 7-10 linked sentences, few juktakkhor. Original text written for LevelOS (parallel to the Hindi bank for comparable difficulty), not copied from ASER Centre tools.",
+  "instructions": {
+    "letter": { "bn": "এই অক্ষরগুলো একটা একটা করে পড়ো।", "hi": "इन अक्षरों को एक-एक करके पढ़ो।", "en": "Read these letters one by one." },
+    "word": { "bn": "এই শব্দগুলো একটা একটা করে পড়ো।", "hi": "इन शब्दों को एक-एक करके पढ़ो।", "en": "Read these words one by one." },
+    "paragraph": { "bn": "এটা জোরে পড়ো। আঙুল রেখে পড়তে পারো।", "hi": "इसे ज़ोर से पढ़ो। उँगली रखकर पढ़ सकते हो।", "en": "Read this aloud. You can keep your finger on the words." },
+    "story": { "bn": "এই গল্পটা জোরে পড়ো।", "hi": "यह कहानी ज़ोर से पढ़ो।", "en": "Read this story aloud." }
+  },
+  "items": [
+    { "id": "bn-letter-a", "level": "letter", "units": ["ক", "ম", "স", "র", "ল"] },
+    { "id": "bn-letter-b", "level": "letter", "units": ["ন", "প", "গ", "ত", "ব"] },
+    { "id": "bn-letter-c", "level": "letter", "units": ["হ", "জ", "দ", "চ", "ট"] },
+    { "id": "bn-word-a", "level": "word", "units": ["মাছ", "বাড়ি", "গাছ", "পাখি", "নদী"] },
+    { "id": "bn-word-b", "level": "word", "units": ["দুধ", "কলা", "হাতি", "মাথা", "জামা"] },
+    { "id": "bn-word-c", "level": "word", "units": ["সাপ", "ছাতা", "লেবু", "ঘোড়া", "চাকা"] },
+    { "id": "bn-para-a", "level": "paragraph", "title": "মীনার বিড়াল", "sentences": ["আমার নাম মীনা।", "আমার একটা বিড়াল আছে।", "বিড়ালটার রং কালো।", "সে রোজ দুধ খায়।"] },
+    { "id": "bn-para-b", "level": "paragraph", "title": "কাগজের নৌকা", "sentences": ["আজ খুব বৃষ্টি হলো।", "উঠোনে জল জমে গেল।", "রামু কাগজের নৌকা বানাল।", "নৌকাটা জলে ভাসতে লাগল।"] },
+    { "id": "bn-story-a", "level": "story", "title": "মেলায় মনু", "sentences": ["সোনুর একটা ছোট ভাই আছে।", "তার নাম মনু।", "একদিন দুজনে মেলা দেখতে গেল।", "মেলায় খুব ভিড় ছিল।", "মনু বেলুনওয়ালাকে দেখতে পেল।", "সে বেলুন কিনতে দৌড়ে গিয়ে ভিড়ে হারিয়ে গেল।", "সোনু খুব ভয় পেল।", "সে মনুকে সব জায়গায় খুঁজল।", "মনু বেলুনওয়ালার পাশে দাঁড়িয়ে ছিল।", "সোনু তাকে জড়িয়ে ধরল।"] },
+    { "id": "bn-story-b", "level": "story", "title": "আমগাছ", "sentences": ["রানির বাড়ির কাছে একটা বাগান আছে।", "বাগানে একটা বড় আমগাছ আছে।", "গরমকালে গাছে অনেক আম ধরে।", "একদিন রানি তার বন্ধুর সঙ্গে বাগানে গেল।", "দুজনে গাছের নিচে বসে আম খেতে লাগল।", "তখন একটা বাঁদর গাছ থেকে নেমে এল।", "বাঁদরটা রানির আম কেড়ে নিল।", "দুই বন্ধু জোরে জোরে হাসতে লাগল।"] }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-language data pack config. tier 1 = validated (eval set + teacher testing); tier 2 = supported, labelled beta. `primary` breaks ties between speech paths and `sarvam_mode` picks Sarvam's output mode (default verbatim; English needs codemix, since verbatim writes English sentences in Devanagari); both set from the Day-1 spike. Vendor codes marked VERIFY are unconfirmed. Azure PA (reference-aware pronunciation assessment) exists only for some locales.",
+  "_comment": "Per-language data pack config. tier 1 = validated (eval set + teacher testing); tier 2 = supported, labelled beta. `primary` breaks ties between speech paths and `sarvam_mode` picks Sarvam's output mode (default verbatim; English needs codemix, since verbatim writes English sentences in Devanagari); both set from the Day-1 spike. Vendor codes marked VERIFY are unconfirmed. Azure PA (reference-aware pronunciation assessment) exists only for some locales. `wcpm_floor`: the reading-speed floor for paragraph and story when the language's words are longer than Hindi's, set for the same aksharas per minute as Hindi's 15 / 20 words (aksharas per word in the bank's passages: hi 1.97, mr 2.71, bn 2.52, kn 3.27, ta 4.01); provisional until recordings calibrate it. `confirm_letters`: on letter cards the teacher confirms every letter the recognisers did not both hear as right, because single spoken letters are unreliable for them in this language (synthetic-voice check, 25 Oct); in every language a letter neither recogniser heard goes to the teacher.",
   "hi": {
     "name": "हिन्दी",
     "english_name": "Hindi",
@@ -26,8 +26,10 @@
     "english_name": "Marathi",
     "script": "Devanagari",
     "direction": "ltr",
+    "wcpm_floor": { "paragraph": 11, "story": 15 },
+    "confirm_letters": true,
     "tier": 2,
-    "ui": false,
+    "ui": true,
     "primary": "sarvam",
     "vendors": { "sarvam": "mr-IN", "azure_stt": "mr-IN", "azure_pa": null, "gemini": "Marathi", "azure_tts": "mr-IN-AarohiNeural" }
   },
@@ -46,8 +48,10 @@
     "english_name": "Kannada",
     "script": "Kannada",
     "direction": "ltr",
+    "wcpm_floor": { "paragraph": 9, "story": 12 },
+    "confirm_letters": true,
     "tier": 2,
-    "ui": false,
+    "ui": true,
     "primary": "sarvam",
     "vendors": { "sarvam": "kn-IN", "azure_stt": "kn-IN", "azure_pa": null, "gemini": "Kannada", "azure_tts": "kn-IN-SapnaNeural" }
   },
@@ -56,8 +60,10 @@
     "english_name": "Tamil",
     "script": "Tamil",
     "direction": "ltr",
+    "wcpm_floor": { "paragraph": 7.5, "story": 10 },
+    "confirm_letters": true,
     "tier": 2,
-    "ui": false,
+    "ui": true,
     "primary": "sarvam",
     "vendors": { "sarvam": "ta-IN", "azure_stt": "ta-IN", "azure_pa": "ta-IN", "gemini": "Tamil", "azure_tts": "ta-IN-PallaviNeural" }
   },
@@ -79,6 +85,18 @@
     "tier": 2,
     "ui": false,
     "primary": "sarvam",
-    "vendors": { "sarvam": "od-IN", "azure_stt": "VERIFY", "azure_pa": null, "gemini": "Odia", "azure_tts": "or-IN-SubhasiniNeural" }
+    "vendors": { "sarvam": "od-IN", "azure_stt": "or-IN", "azure_pa": null, "gemini": "Odia", "azure_tts": "or-IN-SubhasiniNeural" }
+  },
+  "bn": {
+    "name": "বাংলা",
+    "english_name": "Bengali",
+    "script": "Bengali",
+    "direction": "ltr",
+    "wcpm_floor": { "paragraph": 12, "story": 16 },
+    "confirm_letters": true,
+    "tier": 2,
+    "ui": true,
+    "primary": "sarvam",
+    "vendors": { "sarvam": "bn-IN", "azure_stt": "bn-IN", "azure_pa": null, "gemini": "Bengali", "azure_tts": "bn-IN-TanishaaNeural" }
   }
 }

@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Api, ApiError } from '../api'
-import { InstructionAudio } from '../components/InstructionAudio'
 import { ReviewPanel } from '../components/ReviewPanel'
+import { SayToChild } from '../components/SayToChild'
 import { TapToMark } from '../components/TapToMark'
 import { Button, ErrorBox, Page, ReadingCard, Spinner } from '../components/ui'
 import type { Checkin as CheckinT, ItemPublic, Level, UploadResult } from '../lib/types'
@@ -21,7 +21,7 @@ type Notice = { kind: 'info' | 'warn' | 'ok'; text: string } | null
 
 export default function Checkin() {
   const { id = '' } = useParams()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: checkin, setData: setCheckin, error, reload } = useAsync(() => Api.checkin(id), [id])
   const recorder = useRecorder()
@@ -122,13 +122,12 @@ export default function Checkin() {
     return <Page back>{error ? <ErrorBox error={error} onRetry={reload} /> : <Spinner label={t('loading')} />}</Page>
   }
 
-  const lang = checkin.language === 'hi' ? 'hi' : 'en'
-  const uiLang = i18n.language === 'hi' ? 'hi' : 'en'
-
   return (
     <Page
-      title={item ? `${t('checkin.item', { n: position })} · ${t(`lang.${checkin.language}`, { defaultValue: checkin.language })}` : undefined}
+      title={item ? t('checkin.item', { n: position }) : undefined}
+      tag={t('readingTest.tag', { language: t(`lang.${checkin.language}`, { defaultValue: checkin.language }) })}
       back={`/student/${checkin.student_id}`}
+      regional={checkin.main_language}
       wide
     >
       {notice && (
@@ -178,18 +177,7 @@ export default function Checkin() {
 
       {item && !checkin.awaiting_review && (
         <>
-          <div className="mb-3 rounded-xl bg-blue-50 p-3">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <div className="text-xs font-medium uppercase text-blue-800">{t('checkin.sayToChild')}</div>
-                <div className="text-lg">{item.instructions[lang] ?? item.instructions.en}</div>
-                {lang !== uiLang && item.instructions[uiLang] && (
-                  <div className="text-sm text-slate-600">{item.instructions[uiLang]}</div>
-                )}
-              </div>
-              <InstructionAudio key={item.id} lang={checkin.language} level={item.level} />
-            </div>
-          </div>
+          <SayToChild item={item} test={checkin.language} />
 
           <ReadingCard item={item} />
 

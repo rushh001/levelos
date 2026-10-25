@@ -1,7 +1,8 @@
 export type Level = 'beginner' | 'letter' | 'word' | 'paragraph' | 'story'
 export type ItemLevel = Exclude<Level, 'beginner'>
 export type Cohort = 'letter' | 'word' | 'paragraph'
-export type Bilingual = { hi?: string; en?: string }
+/** Text in English and the teacher's language ({en, hi} for a Hindi class, {en, kn} for a Kannada one). */
+export type Bilingual = Partial<Record<string, string>>
 
 export interface Teacher {
   id: string
@@ -24,6 +25,7 @@ export interface LangLevel {
 export interface StudentSummary extends LangLevel {
   id: string
   first_name: string
+  names?: Record<string, string> // the name per interface language, when given (Meena / मीना)
   avatar: string
   grade: number
   home_lang: string | null
@@ -34,12 +36,14 @@ export interface StudentSummary extends LangLevel {
   checkins: number
   last_checkin_at: string | null
   pending_review: boolean
+  review_checkin_id: string | null // the reading check waiting for the teacher's confirmation
   patterns: string[]
 }
 
 export interface ClassSummary {
   id: string
   name: string
+  names?: Record<string, string>
   grade: number
   language: string
   languages: string[]
@@ -109,7 +113,7 @@ export interface Evidence {
   item_id: string
   words: { i: number; ref: string; heard: string | null }[]
   note_en: string
-  note_hi: string
+  [note: `note_${string}`]: string | undefined // in the teacher's language: note_hi, note_kn, …
 }
 
 export interface Diagnosis {
@@ -128,6 +132,7 @@ export interface Checkin {
   student_id: string
   local_id: string | null
   language: string
+  main_language: string // the child's regional test: the app's other language
   status: CheckinStatus
   source: 'ai' | 'offline_marks'
   start_level: ItemLevel
@@ -182,8 +187,8 @@ export interface Health {
 
 export interface ActivityPlan {
   title: Bilingual
-  materials: { hi?: string[]; en?: string[] }
-  steps: { minutes: number; hi: string; en: string }[]
+  materials: Partial<Record<string, string[]>>
+  steps: { minutes: number; en: string; [lang: string]: string | number }[]
   practice_words: string[]
   watch_for: Bilingual
   why: Bilingual
@@ -194,7 +199,7 @@ export interface Activity {
   cohort: Cohort
   language: string
   source_activity_id: string
-  source: { name: string; url: string; note: string } | null
+  source: { name: string; url: string; note: string; [note: `note_${string}`]: string | undefined } | null
   plan: ActivityPlan
   accepted: boolean
   generated_by: string

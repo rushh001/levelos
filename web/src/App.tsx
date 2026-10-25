@@ -45,6 +45,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<RequireTeacher><Classes /></RequireTeacher>} />
+        <Route path="/classes" element={<RequireTeacher><Classes list /></RequireTeacher>} />
         <Route path="/class/:id" element={<RequireTeacher><ClassDashboard /></RequireTeacher>} />
         <Route path="/class/:id/activity/:cohort" element={<RequireTeacher><ActivityPage /></RequireTeacher>} />
         <Route path="/student/:id" element={<RequireTeacher><Student /></RequireTeacher>} />

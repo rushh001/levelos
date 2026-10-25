@@ -5,8 +5,10 @@ import { Api } from '../api'
 import { ReviewPanel } from '../components/ReviewPanel'
 import { WordChips, WordLegend, wordCorrect } from '../components/WordChips'
 import { ErrorBox, LevelBadge, Page, Spinner } from '../components/ui'
+import { nameIn, withName } from '../lib/names'
 import { patternKey } from '../lib/readingLang'
-import type { Checkin, ItemResult, Level, Word } from '../lib/types'
+import type { Checkin, Evidence, ItemResult, Level, Word } from '../lib/types'
+import { pick, useUiLang } from '../lib/uiLang'
 import { useClip, wordAt } from '../lib/useClip'
 import { useAsync } from '../lib/useAsync'
 
@@ -14,8 +16,8 @@ const LEVELS: Level[] = ['beginner', 'letter', 'word', 'paragraph', 'story']
 
 export default function Result() {
   const { id = '' } = useParams()
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language === 'hi' ? 'hi' : 'en'
+  const { t } = useTranslation()
+  const ui = useUiLang()
   const { data: checkin, setData: setCheckin, error, reload } = useAsync(() => Api.checkin(id), [id])
   const { data: student, reload: reloadStudent } = useAsync(
     () => (checkin ? Api.student(checkin.student_id) : Promise.resolve(null)),
@@ -63,11 +65,14 @@ export default function Result() {
   const d = checkin.diagnosis
   const confirmedNow =
     student && checkin.level_final && student.levels[checkin.language]?.confirmed_level === checkin.level_final
+  const named = (text?: string) => (student && text ? withName(text, student, ui) : text ?? '')
 
   return (
     <Page
-      title={student ? `${student.avatar} ${student.first_name} · ${t(`lang.${checkin.language}`, { defaultValue: checkin.language })}` : undefined}
+      title={student ? `${student.avatar} ${nameIn(student, student.first_name, ui)}` : undefined}
+      tag={t('readingTest.tag', { language: t(`lang.${checkin.language}`, { defaultValue: checkin.language }) })}
       back={`/student/${checkin.student_id}`}
+      regional={checkin.main_language}
     >
       <ErrorBox error={actionError} />
 
@@ -130,7 +135,7 @@ export default function Result() {
               ))}
             </div>
           )}
-          <p className="mt-2 text-slate-800">{d.summary[lang] ?? d.summary.en}</p>
+          <p className="mt-2 text-slate-800">{named(pick(d.summary, ui) ?? '')}</p>
           {d.evidence.some((e) => e.words.length) && (
             <ul className="mt-2 space-y-1 text-sm text-slate-600">
               {d.evidence
@@ -139,7 +144,7 @@ export default function Result() {
                   <li key={k}>
                     <span className="font-medium">{t(patternKey(e.pattern, checkin.language))}:</span>{' '}
                     {e.words.map((w) => `${w.ref} → ${w.heard ?? '—'}`).join(', ')}
-                    {(lang === 'hi' ? e.note_hi : e.note_en) && <span> — {lang === 'hi' ? e.note_hi : e.note_en}</span>}
+                    {noteOf(e, ui) && <span> — {named(noteOf(e, ui))}</span>}
                   </li>
                 ))}
             </ul>
@@ -189,6 +194,11 @@ export default function Result() {
       )}
     </Page>
   )
+}
+
+/** An evidence note in the interface language (`note_kn`), else in English. */
+function noteOf(e: Evidence, ui: string): string | undefined {
+  return e[`note_${ui}`] || e.note_en
 }
 
 function ItemCard({ checkinId, item, onTapWord }: { checkinId: string; item: ItemResult; onTapWord?: (w: Word) => void }) {

@@ -186,6 +186,25 @@ async def _done(result):
     return result
 
 
+def heard(name, text, lang):
+    return PathPlan(name, lambda _w: _done(PathResult(name, text, tokenize(text, lang))))
+
+
+def test_a_letter_nobody_heard_goes_to_the_teacher():
+    letters = get_item("hi-letter-a")  # क म स र ल
+    s = score([heard("sarvam", "क म स", "hi"), heard("azure_stt", "क म स", "hi")], item=letters)
+    assert [(w["label"], w["uncertain"]) for w in s.words[3:]] == [("omit", True), ("omit", True)]
+    assert s.needs_review  # three sure, two unsure: the card could pass or fail
+
+
+def test_beta_language_letters_are_confirmed_by_the_teacher():
+    same = "क म स र ड"  # both recognisers heard ड for the last letter
+    mr = score([heard("sarvam", same, "mr"), heard("azure_stt", same, "mr")], item=get_item("mr-letter-a"))
+    assert (mr.words[4]["label"], mr.words[4]["uncertain"]) == ("sub", True)
+    hi = score([heard("sarvam", same, "hi"), heard("azure_stt", same, "hi")], item=get_item("hi-letter-a"))
+    assert (hi.words[4]["label"], hi.words[4]["uncertain"]) == ("sub", False)  # Hindi: validated, verdict stands
+
+
 def test_round_trip_through_dict():
     s = score([path("sarvam", PARA.text)])
     again = ItemScore.from_dict(s.to_dict()).evaluate()

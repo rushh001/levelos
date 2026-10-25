@@ -106,7 +106,7 @@ export const Api = {
   createClass: (body: { name: string; grade: number; language: string }) => post<ClassSummary>('/classes', body),
   dashboard: (classId: string, language?: string) =>
     api<Dashboard>(`/classes/${classId}/dashboard${language ? `?language=${language}` : ''}`),
-  addStudent: (classId: string, body: { first_name: string; avatar: string }) =>
+  addStudent: (classId: string, body: { first_name: string; avatar: string; names?: Record<string, string> }) =>
     post<StudentSummary>(`/classes/${classId}/students`, body),
 
   student: (id: string) => api<StudentDetail>(`/students/${id}`),

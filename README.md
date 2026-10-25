@@ -1,6 +1,6 @@
 # LevelOS
 
-**A 3-minute, voice-first reading check on the teacher's phone.** It finds each child's real reading level the ASER way, shows what kind of mistakes the child makes, regroups the class for Teaching at the Right Level, and gives the teacher a 10-minute activity for each group. Hindi and English. Works offline.
+**A 3-minute, voice-first reading check on the teacher's phone.** It finds each child's real reading level the ASER way, shows what kind of mistakes the child makes, regroups the class for Teaching at the Right Level, and gives the teacher a 10-minute activity for each group. Hindi and English, with Marathi, Tamil, Kannada and Bengali in beta. Works offline.
 
 Built for the AI for Foundational Learning Hackathon (Challenge 02: Learning-Level Visibility) by Team rushhies.
 
@@ -15,11 +15,11 @@ Built for the AI for Foundational Learning Hackathon (Challenge 02: Learning-Lev
 ## What it does
 
 - **Adaptive reading check (ASER)**: letters → words → paragraph → story, one card at a time, moving up on a pass and down on a fail until the level is bracketed. The child reads from a large card; the teacher records.
-- **English and regional-language tests**: as in ASER, each child is tested in English and in their regional language (Hindi today), with a separate level and group in each. Switching the app to English switches the test to English; a **Reading test** switch picks the language on its own. The app opens in English.
+- **English and regional-language tests**: as in ASER, each child is tested in English and in their regional language (Hindi; **Marathi, Tamil, Kannada and Bengali in beta**), with a separate level and group in each. Switching the app to English switches the test to English; a **Reading test** switch picks the language on its own. The teacher's screens are in English and in the class's own language, one at a time: the language button pairs English with the class's language (a Kannada class switches between English and Kannada, never Hindi), and in each everything is in that language (names, advice, activities, messages). What the teacher says to the child is in the language the child is taught in.
 - **Scoring that cannot "auto-correct" the child**: two speech recognisers (Sarvam, Azure) transcribe without seeing the text; deterministic code aligns their transcripts with the card akshara by akshara and marks every word right, wrong, skipped or self-corrected.
 - **Honest uncertainty**: words the recognisers disagree on are marked *uncertain*; if they could change the result, the teacher confirms them — listening to the child's recording, with a 🔊 per word — before the check moves on.
 - **ASER rules in code decide the level**; two agreeing check-ins confirm it; the teacher can override anything.
-- **Diagnosis by Claude**: the error pattern (matras, conjuncts, blending, letter confusion, sight words, guessing, fluency; for English: letter sounds, vowel sounds, blends) with the exact words as evidence, and a short note for the teacher in Hindi and English.
+- **Diagnosis by Claude**: the error pattern (matras, conjuncts, blending, letter confusion, sight words, guessing, fluency; for English: letter sounds, vowel sounds, blends) with the exact words as evidence, and a short note for the teacher in English and the class's language.
 - **Class dashboard** in three TaRL groups with each group's main difficulties.
 - **10-minute activity per group**, adapted by Claude from a cited bank of 22 activities (Pratham TaRL, ASER, StoryWeaver; English groups get phonics versions, never barakhadi or matra work) and checked by a second model.
 - **Replay**: every card's recording can be played again for 30 days (only by that teacher), with words highlighted as they are read.
@@ -77,7 +77,7 @@ Full table: [document.md §8](document.md#8-guardrails).
 
 On nine real recordings (an adult reading scripted mistakes in Hindi and English on an Android phone; references confirmed by listening back), the live configuration agreed on **117 of 118 words (99.2%)** and gave the expected pass/fail on **9 of 9** cards; the one miss was sent to the teacher as uncertain, and it caught a slip the reader didn't notice. Children's voices are not yet in the set. Details: [eval/README.md](eval/README.md).
 
-130 automated tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
+150 automated tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
 
 ## Run locally
 
@@ -122,7 +122,7 @@ More: [document.md](document.md) (full description) · [PROGRESS.md](PROGRESS.md
 
 ## Content and sources
 
-Item banks are original texts written to the ASER 2024 reading-tool specification (test-enforced); the activity bank adapts activities from Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure and StoryWeaver, each entry citing its source. Both are drafts awaiting an educator's review. Error categories follow Raman & Rao (Interspeech 2025). English and Hindi are complete. Regional languages come next, after mentor approval: Marathi, Odia, Tamil, Kannada and Telugu (and Gujarati) are configured in the engine but have no item banks yet, and Malayalam is still to be configured; each is a data pack (language config, item bank, instruction audio, review), not new code ([document.md §11](document.md#11-content-item-banks-activities-languages)).
+Item banks are original texts written to the ASER 2024 reading-tool specification (test-enforced); the activity bank adapts activities from Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure and StoryWeaver, each entry citing its source. Both are drafts awaiting an educator's review. Error categories follow Raman & Rao (Interspeech 2025). English and Hindi are complete. **Marathi, Tamil, Kannada and Bengali are in beta**: the child is tested in that language with ASER-style reading cards (drafted, awaiting native-speaking educators), spoken instructions, a reading-speed floor fitted to the language's word length and activity examples in its script, with the teacher's screens, diagnoses and activities in that language and English (translations drafted, awaiting the same review); checked end to end with synthetic voices only. Odia, Telugu and Gujarati are configured without item banks; Malayalam is still to be configured. Each language is a data pack (language config, item bank, instruction audio, word lists, review), not new code ([document.md §11](document.md#11-content-item-banks-activities-languages)).
 
 ## Known limitations
 
@@ -130,6 +130,7 @@ Item banks are original texts written to the ASER 2024 reading-tool specificatio
 - Item and activity banks are AI-drafted and await an educator's review.
 - Single letters are hardest for the recognisers, so letter cards ask the teacher to confirm more often (replay makes it quick).
 - The English test uses the same letter → word → paragraph → story ladder as Hindi, not ASER's own English tool (capital letters, small letters, words, sentences, meaning).
+- Beta languages (Marathi, Tamil, Kannada, Bengali) are not yet validated with children; single letters are unreliable for the recognisers there, so the teacher confirms letter cards by ear.
 - On free plans the API sleeps when idle (a monitor keeps it awake) and Azure allows one request at a time.
 
 ## Licence
