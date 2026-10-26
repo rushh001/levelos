@@ -129,6 +129,8 @@ class ItemResult(Base):
     passed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     needs_review: Mapped[bool] = mapped_column(Boolean, default=False)
     offline_marks: Mapped[list | None] = mapped_column(JSON, nullable=True)  # teacher tap-to-mark, if any
+    # The meaning step after a word card: [{"word", "correct"}] for the words the child was shown pictures for.
+    meaning: Mapped[list | None] = mapped_column(JSON, nullable=True)
     audio_kept_path: Mapped[str | None] = mapped_column(String(255), nullable=True)  # consented eval set only
 
     checkin: Mapped[Checkin] = relationship(back_populates="items")

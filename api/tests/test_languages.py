@@ -72,6 +72,20 @@ def test_group_set_by_hand_applies_to_one_language(client, script):
     assert (s["levels"]["en"]["cohort_override"], s["levels"]["hi"]["cohort_override"]) == ("letter", None)
 
 
+def test_a_check_starts_at_the_childs_last_level_even_before_it_is_confirmed(client, script):
+    h = login(client)
+    _, st = make_student(client, h, grade=2)  # grade 2 starts at words
+    run_in(client, h, st["id"], "hi", LETTER_LEVEL, script)  # words failed, letters passed: Letter, provisional
+
+    def start(lang):
+        c = client.post("/api/checkins", json={"student_id": st["id"], "language": lang}, headers=h).json()
+        client.post(f"/api/checkins/{c['id']}/abandon", headers=h)
+        return c["start_level"]
+
+    assert start("hi") == "letter"  # the next Hindi check re-tests the letters, not the grade's words
+    assert start("en") == "letter"  # a first English check starts no higher than the child's Hindi level
+
+
 def test_dashboard_groups_each_language_separately(client, script):
     h = login(client)
     cls, st = make_student(client, h, grade=2)
@@ -254,6 +268,47 @@ def test_older_results_of_a_regional_class_are_rewritten_in_its_language(client,
     assert diag.relocalize(db) == []  # once only
 
 
+def test_the_meaning_step_is_kept_and_shown_to_the_diagnosis(client, db, script):
+    from app.llm.evidence import build_input
+
+    h = login(client)
+    _, st = make_student(client, h, grade=2)
+    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    c = upload(client, h, c)["checkin"]  # the word card
+    ir = c["items"][0]
+    answers = [{"word": "गाय", "correct": True}, {"word": "पानी", "correct": False}]
+    r = client.post(f"/api/checkins/{c['id']}/items/{ir['id']}/meaning", json={"answers": answers}, headers=h)
+    assert r.status_code == 200, r.text
+    assert r.json()["items"][0]["meaning"] == answers
+    assert build_input(db.get(Checkin, c["id"]))["items"][0]["meaning"] == {"asked": 2, "correct": 1}
+    bad = client.post(f"/api/checkins/{c['id']}/items/nope/meaning", json={"answers": answers}, headers=h)
+    assert bad.status_code == 404
+    off_card = client.post(f"/api/checkins/{c['id']}/items/{ir['id']}/meaning",
+                           json={"answers": [{"word": "cat", "correct": True}]}, headers=h)
+    assert off_card.status_code == 422  # only the card's own words
+    c = upload(client, h, c)["checkin"]  # the next card is not a word card
+    other = c["items"][1]
+    assert client.post(f"/api/checkins/{c['id']}/items/{other['id']}/meaning",
+                       json={"answers": answers}, headers=h).status_code == 409
+
+
+def test_timestamps_carry_their_utc_offset(client, script):
+    # SQLite hands stored UTC times back naive; the browser must not read them as local time (a check at 00:30 IST
+    # would otherwise show yesterday's date, and the activity page would make a new activity on every visit).
+    from datetime import datetime, timezone
+
+    from app.serialize import iso
+
+    assert iso(datetime(2026, 10, 26, 18, 36)) == "2026-10-26T18:36:00+00:00"
+    assert iso(datetime(2026, 10, 26, 18, 36, tzinfo=timezone.utc)) == "2026-10-26T18:36:00+00:00"
+    h = login(client)
+    cls, st = make_student(client, h, grade=2)
+    done = run_in(client, h, st["id"], "hi", WORD_LEVEL, script)
+    assert done["started_at"].endswith("+00:00") and done["scored_at"].endswith("+00:00")
+    a = client.post(f"/api/classes/{cls['id']}/activities", json={"cohort": "word"}, headers=h).json()
+    assert a["created_at"].endswith("+00:00")
+
+
 def test_names_per_interface_language(client):
     h = login(client)
     cls = client.post("/api/classes", json={"name": "कक्षा 3", "names": {"en": "Class 3", "hi": "कक्षा 3"}, "grade": 3},
@@ -290,10 +345,12 @@ def test_create_schema_adds_columns_to_tables_an_older_version_made(tmp_path):
     with old.begin() as conn:
         conn.execute(text("CREATE TABLE classrooms (id VARCHAR(32) PRIMARY KEY, name VARCHAR(120))"))
         conn.execute(text("CREATE TABLE students (id VARCHAR(32) PRIMARY KEY, first_name VARCHAR(80))"))
+        conn.execute(text("CREATE TABLE item_results (id VARCHAR(32) PRIMARY KEY, checkin_id VARCHAR(32), "
+                          "position INTEGER, item_id VARCHAR(64), item_level VARCHAR(16))"))
     create_schema(old)
     create_schema(old)  # the next start finds nothing to add
-    for table in ("classrooms", "students"):
-        assert "names" in {c["name"] for c in inspect(old).get_columns(table)}
+    for table, column in (("classrooms", "names"), ("students", "names"), ("item_results", "meaning")):
+        assert column in {c["name"] for c in inspect(old).get_columns(table)}, (table, column)
     old.dispose()
 
 

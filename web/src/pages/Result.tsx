@@ -76,26 +76,26 @@ export default function Result() {
     >
       <ErrorBox error={actionError} />
 
-      <section className="rounded-2xl bg-white p-4 shadow-sm">
-        <div className="text-sm text-slate-600">{t('result.level')}</div>
+      <section className="card">
+        <div className="text-sm text-mute">{t('result.level')}</div>
         {checkin.status === 'needs_review' ? (
           <div className="mt-1 text-lg font-semibold text-amber-800">{t('result.needsReview')}</div>
         ) : (
           <div className="mt-1 flex items-center gap-2">
             <LevelBadge level={checkin.level_final} large />
-            {checkin.teacher_overrode && <span className="text-xs text-slate-500">({t('result.overrode')})</span>}
+            {checkin.teacher_overrode && <span className="text-xs text-mute">({t('result.overrode')})</span>}
           </div>
         )}
         {checkin.status === 'scored' && student && (
-          <p className="mt-2 text-sm text-slate-600">{confirmedNow ? t('result.confirmedNote') : t('result.provisionalNote')}</p>
+          <p className="mt-2 text-sm text-mute">{confirmedNow ? t('result.confirmedNote') : t('result.provisionalNote')}</p>
         )}
         <label className="mt-3 flex items-center justify-between gap-2 text-sm">
-          <span className="text-slate-600">{t('result.changeLevel')}</span>
+          <span className="text-mute">{t('result.changeLevel')}</span>
           <select
             disabled={saving}
             value={checkin.teacher_overrode ? checkin.level_final ?? '' : ''}
             onChange={(e) => void act(() => Api.override(checkin.id, (e.target.value || null) as Level | null))}
-            className="rounded-lg border bg-white px-2 py-1.5"
+            className="select px-2 py-1.5"
           >
             <option value="">{t('result.clearOverride')}</option>
             {LEVELS.map((l) => (
@@ -119,25 +119,25 @@ export default function Result() {
       )}
 
       {d && (
-        <section className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
+        <section className="mt-4 card">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">{t('result.diagnosis')}</h2>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+            <span className="rounded-full bg-paper px-2 py-0.5 text-xs text-mute">
               {d.model === 'rules' ? t('result.quick') : t('result.ai')}
             </span>
           </div>
           {d.error_patterns.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {d.error_patterns.map((p) => (
-                <span key={p} className="rounded-full bg-violet-100 px-2 py-0.5 text-sm text-violet-900">
+                <span key={p} className="rounded-full bg-brand-soft px-2.5 py-0.5 text-sm font-medium text-brand-deep">
                   {t(patternKey(p, checkin.language))}
                 </span>
               ))}
             </div>
           )}
-          <p className="mt-2 text-slate-800">{named(pick(d.summary, ui) ?? '')}</p>
+          <p className="mt-2 text-ink">{named(pick(d.summary, ui) ?? '')}</p>
           {d.evidence.some((e) => e.words.length) && (
-            <ul className="mt-2 space-y-1 text-sm text-slate-600">
+            <ul className="mt-2 space-y-1 text-sm text-mute">
               {d.evidence
                 .filter((e) => e.words.length)
                 .map((e, k) => (
@@ -149,13 +149,13 @@ export default function Result() {
                 ))}
             </ul>
           )}
-          {waitingForAi && <p className="mt-2 text-xs text-slate-500">{t('result.updating')}</p>}
+          {waitingForAi && <p className="mt-2 text-xs text-mute">{t('result.updating')}</p>}
         </section>
       )}
 
       <section className="mt-4">
         <h2 className="font-semibold">{t('result.items')}</h2>
-        <p className="text-xs text-slate-500">{t('result.tapWord')}</p>
+        <p className="text-xs text-mute">{t('result.tapWord')}</p>
         <div className="mt-2">
           <WordLegend />
         </div>
@@ -172,13 +172,13 @@ export default function Result() {
       </section>
 
       {checkin.items.some((r) => r.has_audio) && (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-mute">
           <span>{t('result.keptDays', { days: health?.audio_retention_days ?? 30 })}</span>
           <button
             onClick={() => {
               if (window.confirm(t('result.deleteConfirm'))) void act(() => Api.deleteRecordings(checkin.id))
             }}
-            className="rounded-lg border border-slate-300 px-2 py-1 text-slate-600"
+            className="rounded-xl border border-line bg-white px-2 py-1 text-mute"
           >
             {t('result.deleteRecordings')}
           </button>
@@ -187,7 +187,7 @@ export default function Result() {
 
       {student && (
         <div className="mt-6 text-center">
-          <Link to={`/class/${student.class_id}`} className="font-semibold text-blue-700 underline">
+          <Link to={`/class/${student.class_id}`} className="font-semibold text-brand underline underline-offset-4">
             {t('result.backToClass')}
           </Link>
         </div>
@@ -206,7 +206,7 @@ function ItemCard({ checkinId, item, onTapWord }: { checkinId: string; item: Ite
   const clip = useClip(checkinId, item.id)
   const s = item.result
   return (
-    <div className="rounded-2xl bg-white p-3 shadow-sm">
+    <div className="rounded-2xl bg-white p-3 shadow-card">
       <div className="flex items-center justify-between gap-2">
         <span className="font-semibold">
           {t(`itemLevel.${item.item_level}`)} {item.passed ? '✓' : '✗'}
@@ -215,17 +215,17 @@ function ItemCard({ checkinId, item, onTapWord }: { checkinId: string; item: Ite
           {item.has_audio && (
             <button
               onClick={() => (clip.state === 'playing' ? clip.stop() : void clip.play())}
-              className="rounded-full border border-blue-200 px-3 py-1 text-sm font-semibold text-blue-800"
+              className="rounded-full border border-brand/20 bg-white px-3 py-1 text-sm font-semibold text-brand-deep shadow-card"
             >
               {clip.state === 'playing' ? `⏸ ${t('result.pause')}` : clip.state === 'loading' ? '…' : `▶ ${t('result.listen')}`}
             </button>
           )}
-          <span className="text-sm text-slate-600">
+          <span className="text-sm text-mute">
             {s.counts.correct}/{s.counts.total}
           </span>
         </span>
       </div>
-      {clip.state === 'error' && <p className="mt-1 text-xs text-slate-500">{t('result.noRecording')}</p>}
+      {clip.state === 'error' && <p className="mt-1 text-xs text-mute">{t('result.noRecording')}</p>}
       <div className="mt-2">
         <WordChips
           words={s.words}
@@ -234,9 +234,12 @@ function ItemCard({ checkinId, item, onTapWord }: { checkinId: string; item: Ite
           activeIndex={clip.state === 'playing' ? wordAt(s.words, clip.ms) : null}
         />
       </div>
-      <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-slate-500">
+      <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-mute">
         {item.source === 'offline_marks' && (
           <span>{s.ai_scored ? t('result.markedAndChecked') : t('result.markedByTeacher')}</span>
+        )}
+        {item.meaning && item.meaning.length > 0 && (
+          <span>{t('meaning.result', { correct: item.meaning.filter((a) => a.correct).length, asked: item.meaning.length })}</span>
         )}
         {(item.item_level === 'paragraph' || item.item_level === 'story') && s.hesitations !== null && (
           <span>{t('result.pauses', { count: s.hesitations })}</span>

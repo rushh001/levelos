@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-language data pack config. tier 1 = validated (eval set + teacher testing); tier 2 = supported, labelled beta. `primary` breaks ties between speech paths and `sarvam_mode` picks Sarvam's output mode (default verbatim; English needs codemix, since verbatim writes English sentences in Devanagari); both set from the Day-1 spike. Vendor codes marked VERIFY are unconfirmed. Azure PA (reference-aware pronunciation assessment) exists only for some locales. `wcpm_floor`: the reading-speed floor for paragraph and story when the language's words are longer than Hindi's, set for the same aksharas per minute as Hindi's 15 / 20 words (aksharas per word in the bank's passages: hi 1.97, mr 2.71, bn 2.52, kn 3.27, ta 4.01); provisional until recordings calibrate it. `confirm_letters`: on letter cards the teacher confirms every letter the recognisers did not both hear as right, because single spoken letters are unreliable for them in this language (synthetic-voice check, 25 Oct); in every language a letter neither recogniser heard goes to the teacher.",
+  "_comment": "Per-language data pack config. tier 1 = validated (eval set + teacher testing); tier 2 = supported, labelled beta. `primary` breaks ties between speech paths and `sarvam_mode` picks Sarvam's output mode (default verbatim; English needs codemix, since verbatim writes English sentences in Devanagari); both set from the Day-1 spike. Vendor codes marked VERIFY are unconfirmed. Azure PA (reference-aware pronunciation assessment) exists only for some locales. `wcpm_floor`: the reading-speed floor for paragraph and story when the language's words are longer than Hindi's, set for the same aksharas per minute as Hindi's 15 / 20 words (aksharas per word in the bank's passages: hi 1.97, mr 2.71, bn 2.52, kn 3.27, ta 4.01); provisional until recordings calibrate it. `confirm_letters`: on letter cards the teacher confirms every letter the recognisers did not both hear as right, because single spoken letters are unreliable for them in this language (synthetic-voice check, 25 Oct); in every language a letter neither recogniser heard goes to the teacher. `chart`: the letter chart the app's Show-the-class screen draws: consonants x vowel signs for an Indic script (barakhadi, kagunita, uyirmei), letters with picture words for English.",
   "hi": {
     "name": "हिन्दी",
     "english_name": "Hindi",
@@ -7,6 +7,7 @@
     "direction": "ltr",
     "tier": 1,
     "ui": true,
+    "chart": { "consonants": "क ख ग घ ङ च छ ज झ ञ ट ठ ड ढ ण त थ द ध न प फ ब भ म य र ल व श ष स ह", "vowel_signs": ["", "ा", "ि", "ी", "ु", "ू", "े", "ै", "ो", "ौ", "ं", "ः"] },
     "primary": "sarvam",
     "vendors": { "sarvam": "hi-IN", "azure_stt": "hi-IN", "azure_pa": "hi-IN", "gemini": "Hindi", "azure_tts": "hi-IN-SwaraNeural" }
   },
@@ -17,6 +18,34 @@
     "direction": "ltr",
     "tier": 1,
     "ui": true,
+    "chart": { "letters": "abcdefghijklmnopqrstuvwxyz", "pictures": {
+      "a": ["apple", "🍎"],
+      "b": ["ball", "⚽"],
+      "c": ["cat", "🐱"],
+      "d": ["dog", "🐶"],
+      "e": ["egg", "🥚"],
+      "f": ["fish", "🐟"],
+      "g": ["goat", "🐐"],
+      "h": ["hat", "🎩"],
+      "i": ["insect", "🐜"],
+      "j": ["jam", "🍯"],
+      "k": ["kite", "🪁"],
+      "l": ["lion", "🦁"],
+      "m": ["mango", "🥭"],
+      "n": ["nose", "👃"],
+      "o": ["orange", "🍊"],
+      "p": ["pen", "🖊️"],
+      "q": ["queen", "👸"],
+      "r": ["rat", "🐀"],
+      "s": ["sun", "☀️"],
+      "t": ["tap", "🚰"],
+      "u": ["umbrella", "☂️"],
+      "v": ["van", "🚐"],
+      "w": ["watch", "⌚"],
+      "x": ["fox", "🦊"],
+      "y": ["yellow", "🟡"],
+      "z": ["zebra", "🦓"]
+    } },
     "primary": "azure_stt",
     "sarvam_mode": "codemix",
     "vendors": { "sarvam": "en-IN", "azure_stt": "en-IN", "azure_pa": "en-IN", "gemini": "Indian English", "azure_tts": "en-IN-NeerjaNeural" }
@@ -30,6 +59,7 @@
     "confirm_letters": true,
     "tier": 2,
     "ui": true,
+    "chart": { "consonants": "क ख ग घ ङ च छ ज झ ञ ट ठ ड ढ ण त थ द ध न प फ ब भ म य र ल व श ष स ह ळ", "vowel_signs": ["", "ा", "ि", "ी", "ु", "ू", "े", "ै", "ो", "ौ", "ं", "ः"] },
     "primary": "sarvam",
     "vendors": { "sarvam": "mr-IN", "azure_stt": "mr-IN", "azure_pa": null, "gemini": "Marathi", "azure_tts": "mr-IN-AarohiNeural" }
   },
@@ -52,6 +82,7 @@
     "confirm_letters": true,
     "tier": 2,
     "ui": true,
+    "chart": { "consonants": "ಕ ಖ ಗ ಘ ಙ ಚ ಛ ಜ ಝ ಞ ಟ ಠ ಡ ಢ ಣ ತ ಥ ದ ಧ ನ ಪ ಫ ಬ ಭ ಮ ಯ ರ ಲ ವ ಶ ಷ ಸ ಹ ಳ", "vowel_signs": ["", "ಾ", "ಿ", "ೀ", "ು", "ೂ", "ೃ", "ೆ", "ೇ", "ೈ", "ೊ", "ೋ", "ೌ", "ಂ", "ಃ"] },
     "primary": "sarvam",
     "vendors": { "sarvam": "kn-IN", "azure_stt": "kn-IN", "azure_pa": null, "gemini": "Kannada", "azure_tts": "kn-IN-SapnaNeural" }
   },
@@ -64,6 +95,7 @@
     "confirm_letters": true,
     "tier": 2,
     "ui": true,
+    "chart": { "consonants": "க ங ச ஞ ட ண த ந ப ம ய ர ல வ ழ ள ற ன", "vowel_signs": ["", "ா", "ி", "ீ", "ு", "ூ", "ெ", "ே", "ை", "ொ", "ோ", "ௌ", "்"] },
     "primary": "sarvam",
     "vendors": { "sarvam": "ta-IN", "azure_stt": "ta-IN", "azure_pa": "ta-IN", "gemini": "Tamil", "azure_tts": "ta-IN-PallaviNeural" }
   },
@@ -96,6 +128,7 @@
     "confirm_letters": true,
     "tier": 2,
     "ui": true,
+    "chart": { "consonants": "ক খ গ ঘ ঙ চ ছ জ ঝ ঞ ট ঠ ড ঢ ণ ত থ দ ধ ন প ফ ব ভ ম য র ল শ ষ স হ ড় ঢ় য়", "vowel_signs": ["", "া", "ি", "ী", "ু", "ূ", "ৃ", "ে", "ৈ", "ো", "ৌ", "ং", "ঃ"] },
     "primary": "sarvam",
     "vendors": { "sarvam": "bn-IN", "azure_stt": "bn-IN", "azure_pa": null, "gemini": "Bengali", "azure_tts": "bn-IN-TanishaaNeural" }
   }

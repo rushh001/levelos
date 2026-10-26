@@ -107,21 +107,25 @@ def level_from_outcomes(outcomes: list[ItemOutcome], t: Thresholds = DEFAULT_THR
 GROUP_START = {"letter": "letter", "word": "word", "paragraph": "paragraph"}
 
 
-def start_level(grade: int | None, last_confirmed: str | None, group: str | None = None) -> str:
+def _rung(level: str) -> str:
+    """The card a known level is re-tested with: Beginner and Letter at letters, the others at their own rung."""
+    return "letter" if level in ("beginner", "letter") else level
+
+
+def start_level(grade: int | None, last_level: str | None, group: str | None = None,
+                other_levels: list[str] | None = None) -> str:
     """Where the adaptive ladder begins. A group the teacher chose by hand wins (the check starts at that group's
-    level); otherwise a known level is re-tested at that level; otherwise the grade decides. From the start the
-    ladder still moves up on a pass and down on a fail, so a child who has outgrown the group is not held in it."""
+    level); otherwise the child's last level in this test, confirmed or not, is re-tested at its own rung; otherwise
+    the grade decides, but never above the child's level in their other reading test (`other_levels`): a child
+    still at letters in Hindi starts the English test at letters. From the start the ladder still moves up on a
+    pass and down on a fail, so a child who has outgrown the group is not held in it."""
     if group in GROUP_START:
         return GROUP_START[group]
-    if last_confirmed in ("word", "paragraph", "story"):
-        return last_confirmed
-    if last_confirmed in ("beginner", "letter"):
-        return "letter"
-    if grade is None or grade <= 1:
-        return "letter"
-    if grade == 2:
-        return "word"
-    return "paragraph"
+    if last_level in LEVELS:
+        return _rung(last_level)
+    by_grade = "letter" if grade is None or grade <= 1 else "word" if grade == 2 else "paragraph"
+    known = [_rung(lv) for lv in (other_levels or []) if lv in LEVELS]
+    return min([by_grade, *known], key=ITEM_LEVELS.index)
 
 
 def next_item_level(

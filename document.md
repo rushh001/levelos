@@ -50,6 +50,8 @@ It was built for the AI for Foundational Learning Hackathon (Challenge 02: Learn
 | **Check-in** | One card at a time in large text (letters, words, a paragraph or a story) with the instruction to read to the child (and a 🔊 button that plays it). The teacher taps the microphone, the child reads, the teacher taps stop. About 5–15 seconds later the result of that card shows and the next card appears. If the app is unsure about some words, it asks the teacher to confirm them (with the recording to listen to) before moving on. The teacher can always mark a card by tapping instead of recording. |
 | **Result** | The level, the diagnosis ("what to work on"), every word marked (wrong in red, unsure in amber, self-corrected ↺), long pauses and reading speed, **▶ listen** to each card with the words highlighted as they are read, change the level, correct any word, delete the recordings. |
 | **10-minute activity** | From a group card: a 10-minute plan for that group, adapted to the words the children actually misread, with steps, materials, practice words, what to watch for and the source it comes from; the teacher can rate it. |
+| **Show the class** | Eight activities also open as a full-screen, big-text, tappable version the teacher holds up to the group: change one matra / vowel (each change glows), look-alike letters (say one, a child taps it), build a word from letter and matra cards with its picture (then swap one), quick-flash word cards that flip over with their picture (✓ / again piles), the barakhadi / kagunita / uyirmei or letter-sound chart with a pointer running along a row, column, diagonal or zig-zag and a *sing* mode (the alphabet song over a–z, or the row as a chant), find the wrong word, match words to pictures, and rhyme and read (an original four-line rhyme per language, read aloud line by line by the language's own voice, then "find the word"). The examples come from the bank entry in the group's language and the plan's practice words. Right answers chime, wrong ones get a soft low note; the teacher can mute it. |
+| **Meaning step** | After a word card, when enough of its words have pictures: the word and three pictures; the child points, the teacher taps (two rounds), as ASER's English tool asks the meaning of words read. Noted on the result and shown to the diagnosis; never part of the level. Works offline too. |
 
 The interface is in English and in the class's own language: Hindi, or Marathi, Tamil, Kannada or Bengali (beta). The language button in the header pairs English with the language of the class on screen — a Kannada class switches between English and Kannada, never Hindi; a page without a class offers the last class's language. The app opens in English. **Switching the interface language also switches the reading test** to that language, so a teacher who switches to English tests the children in English; the Reading test switch on the class and child pages changes only the test (for example, a Hindi interface giving the English test).
 
@@ -58,6 +60,8 @@ The interface is in English and in the class's own language: Hindi, or Marathi, 
 **What the teacher says to the child** is in the language the child is taught in: a Hindi test in Hindi; the English test in the app's language — English in the English app, Kannada in the Kannada app — as ASER explains its English test in the child's own language. When that differs from the app's language, its meaning is shown underneath for the teacher, and the 🔊 recording matches the spoken line.
 
 **Built for the teacher's day**: "reading check" and "card" rather than technical terms; a banner on the class page lists the children whose reading check waits for the teacher's confirmation, and one tap opens it; the class list is one tap back from a class (to add another class).
+
+**Made for children too.** The child sees a parrot (a parrot, because in India it is the childhood companion that talks) that speaks the instruction, the ASER ladder climbing as cards are passed, a microphone whose ring grows with their voice, and after every card a second of stars and "शाबाश!" / "Well done!" in the language of the test, the same whether the card passed or not: the pass or fail is a small line for the teacher. Animations are short and skippable, and off for phones set to reduce motion. The reading cards themselves stay in the plain system typeface, never the rounded display face used for headings, because a child learning to read must see textbook letter shapes.
 
 ---
 
@@ -101,7 +105,7 @@ Every recorded card goes through the same stages. Stages 2–6 run on the API fo
 |---|---|
 | Card types (rungs) | letter → word → paragraph → story |
 | Language | the reading test the teacher chose (English, or the class's regional language); each language has its own cards, history, level and group |
-| Where to start (all in the language being tested) | a **group the teacher set by hand** → that group's level (Letter group → letters, Word group → words, Paragraph group → paragraph); otherwise the last confirmed level (Word/Paragraph/Story → that rung, Beginner/Letter → letters); otherwise by grade (Grade ≤1 or unknown → letters, Grade 2 → words, Grade ≥3 → paragraph) |
+| Where to start (all in the language being tested) | a **group the teacher set by hand** → that group's level (Letter group → letters, Word group → words, Paragraph group → paragraph); otherwise the child's last level in this test, confirmed or not (Word/Paragraph/Story → that rung, Beginner/Letter → letters); otherwise by grade (Grade ≤1 or unknown → letters, Grade 2 → words, Grade ≥3 → paragraph), but never above the child's level in their other reading test — a child still at letters in Hindi starts the English test at letters |
 | Next card | pass → one rung up; fail → one rung down; stop when the level is bracketed (a pass just below a fail), at the top or bottom, or after 4 cards |
 | Which variant | the first variant of that rung the child did not read in this or the previous check-in (variants rotate) |
 | If the teacher is asked to confirm words | the ladder waits until they are confirmed, because the next rung depends on that card's pass/fail |
@@ -190,7 +194,7 @@ Code: `api/app/services/checkins.py` (`placed_level`, `_settle`, `replay_levels`
 
 ### Stage 7 — Diagnosis: what kind of mistakes (Claude)
 
-1. **Evidence (code)**: for every wrong word, deterministic features — only the vowel sign changed; first and last akshara right but the middle wrong (scaffolding); first akshara right; error on a conjunct; a common sight word; what each recogniser heard; pauses and speed per card.
+1. **Evidence (code)**: for every wrong word, deterministic features — only the vowel sign changed; first and last akshara right but the middle wrong (scaffolding); first akshara right; error on a conjunct; a common sight word; what each recogniser heard; pauses and speed per card; and, for a word card, how many words the child knew the meaning of in the picture step.
 2. **Instant rule-based diagnosis**: shown at once (and the only one when offline or when Claude is unavailable).
 3. **Claude Opus 5.5** (in the background, about 8 s after the last change so a burst of teacher corrections costs one call): reads only the structured evidence — no audio, no level decision — and returns JSON in a fixed schema: up to three **error patterns** from a fixed list, the evidence (cited by word index), whether each substitution is a real word, and a two-to-three-sentence summary for the teacher in English and the class's language (Hindi for a Hindi class, Kannada for a Kannada class; classes in a language without an interface get Hindi) with one thing to practise this week.
 4. **Checks**: every cited word must exist in the evidence; a pattern resting only on uncertain words, or citing nothing, is dropped; if nothing valid remains the rule-based diagnosis stays. Summaries use the child's name without guessing gender (Hindi constructions like "मीना को … में कठिनाई है"; in Marathi, Kannada and Tamil the name comes first, "ಮೀನಾ: …", since their verbs show gender too).
@@ -321,7 +325,7 @@ At about $0.02 per check-in, $400 covers roughly 20,000 check-in diagnoses.
 | `students` | **first name and an emoji only** (the name may also be stored in the other script, e.g. Meena / मीना), grade, home language if it differs from the class's |
 | `student_levels` | per child and language: provisional and confirmed level, group set by hand |
 | `checkins` | one reading check: language, starting rung, status (in progress / needs review / scored / abandoned), suggested and final level, override flag, the phone's ID for offline check-ins |
-| `item_results` | one card: the full scored result (every word, what each recogniser heard, timings, pauses, speed, pass/fail), source (AI or taps) |
+| `item_results` | one card: the full scored result (every word, what each recogniser heard, timings, pauses, speed, pass/fail), source (AI or taps), the meaning step's answers |
 | `item_audio` | the MP3 playback copy of a card's recording (kept 30 days) |
 | `diagnoses` | error patterns, evidence, summaries, confidence, model used |
 | `level_history` | every change of a child's level and its cause |
@@ -337,8 +341,11 @@ At about $0.02 per check-in, $400 covers roughly 20,000 check-in diagnoses.
 ## 11. Content: item banks, activities, languages
 
 - **Item banks** (`content/items/hi.json`, `en.json`): original texts written to the ASER 2024 reading-tool specification — commonly used letters (5 per card); familiar words of two letters with one or two matras (5 per card); a Std I paragraph (4 linked sentences of at most 6 words); a Std II story (7–10 sentences). Three variants of each card, two of each passage. A test checks every bank against the specification. English uses the same five-level ladder (lowercase letters, CVC words, a 4-sentence paragraph, a story); ASER's own English tool uses a different one — capital letters → small letters → simple words → simple sentences, with the meaning of words and sentences asked in the child's language. Status: draft, awaiting an educator's review.
-- **Activity bank** (`content/activities/bank.json`): 22 activities, each adapted to about 10 minutes from an activity described in its cited source — Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure, StoryWeaver. Five work only in Indic scripts and five are their English versions (same method, phonics content), marked with `script`. Written in English and Hindi, with Marathi, Kannada, Tamil and Bengali versions for those classes' teachers (AI-drafted, to be reviewed with the cards). Status: draft, each entry to be checked against its source.
+- **Activity bank** (`content/activities/bank.json`): 24 activities, each adapted to about 10 minutes from an activity described in its cited source (two, "Rhyme and read" and "Match words to pictures", extend their sources' chart reading and picture cards, and say so in their notes) — Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure, StoryWeaver. Five work only in Indic scripts and five are their English versions (same method, phonics content), marked with `script`. Written in English and Hindi, with Marathi, Kannada, Tamil and Bengali versions for those classes' teachers (AI-drafted, to be reviewed with the cards). Status: draft, each entry to be checked against its source.
 - **Instruction audio** (`web/public/audio/<lang>/<level>.mp3`, and `en-<lang>/` for the English test explained in a regional language): generated by `scripts/make_instruction_audio.py` (`--missing` makes only new files).
+- **Show-the-class data**: the screens read the bank entry's `examples` for the group's language (`chain`, `build`, `swap`, `ex1`, `fix`, `row`, `column`, `words`) and the plan's practice words; the letter chart (consonants × vowel signs per Indic script, letters with picture words for English) is `chart` in `languages.json`. Adding a language's chart is one line of data.
+- **Rhymes** (`content/rhymes/<lang>.json`): one original four-line rhyme per language in Std 1 vocabulary (drafted and checked by a second pass, awaiting native-speaking educators), with the words to find; `scripts/make_rhyme_audio.py` records each line with the language's Azure voice into `web/public/audio/rhyme/<lang>/`.
+- **Pictures** (`content/pictures.json`, `web/public/pictures/`): the words of the word cards and other Std 1 words mapped to OpenMoji drawings (CC BY-SA 4.0, [openmoji.org](https://openmoji.org)), fetched once by `scripts/fetch_pictures.py` from a curated word → emoji list. A word without a picture simply has none: the meaning step runs only when a card has three or more pictured words. The song melodies and sound effects are synthesised on the phone (`web/src/lib/sound.ts`, `music.ts`); the alphabet song's tune is the public-domain "Twinkle, Twinkle".
 - **Languages** (`content/languages.json`):
   - **English and Hindi** are complete (Tier 1: item banks, instruction audio, interface, real-recording evaluation).
   - **Marathi, Tamil, Kannada and Bengali** are in **beta** (Tier 2): reading cards to the ASER specification (drafted, parallel to the Hindi bank for comparable difficulty, awaiting review by native-speaking educators), instruction audio, common-word lists, activity examples in each script, script notes for Claude, and a reading-speed floor per language. The teacher's screens, diagnoses and activities are in that language and English (AI-drafted translations, awaiting the same review); the child reads in the class's language, and the teacher says the instruction in it. Diagnoses a class received before its language had an interface (in Hindi and English) are rewritten in its language when the server starts. Letter cards are confirmed by the teacher (see Stage 4).
@@ -364,7 +371,7 @@ The one miss was marked uncertain and sent to the teacher. The system also caugh
 
 **Beta languages (synthetic voices, plumbing only)**: an Azure neural voice read every Marathi, Tamil, Kannada and Bengali word card, the first paragraph and two letter cards, scored by the live pipeline. Paragraphs: 4 / 4 read fully correctly. Word cards: all 12 pass; five words the recognisers heard as a more common word (Tamil படம் → பணம் "money", இலை → இல்லை "no"; Kannada ದೋಣಿ → "Dhoni"; Marathi गाय → काय "what", बोट → पोट) were replaced with equally familiar words. Single letters were unreliable in all four languages, hence teacher-confirmed letter cards. This shows the services, locales and scripts work end to end; it says nothing about children's speech.
 
-**Software tests**: 150 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
+**Software tests**: 153 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
 
 ---
 
@@ -372,7 +379,7 @@ The one miss was marked uncertain and sent to the teacher. The system also caugh
 
 | Layer | Technology |
 |---|---|
-| Web app | React 18, TypeScript, Vite 5, Tailwind CSS 3, React Router 6, i18next (Hindi/English), vite-plugin-pwa (Workbox service worker), Dexie (IndexedDB), MediaRecorder |
+| Web app | React 18, TypeScript, Vite 5, Tailwind CSS 3, React Router 6, i18next (six interface languages), vite-plugin-pwa (Workbox service worker), Dexie (IndexedDB), MediaRecorder, Web Audio (microphone meter); the Baloo display fonts (SIL OFL) bundled per script, one weight, 195 KB in all; body text and reading cards use the phone's system fonts |
 | API | Python 3.12, FastAPI, Uvicorn, SQLAlchemy 2, Pydantic 2 / pydantic-settings, httpx, Anthropic Python SDK, rapidfuzz (edit distance), `regex` (grapheme clusters), bcrypt, PyJWT, psycopg 3, ffmpeg (imageio-ffmpeg locally) |
 | Database | Postgres (Neon) in production; SQLite in development and tests |
 | Hosting | Vercel (web app), Render free plan with Docker (API), Neon via Vercel Storage (database), UptimeRobot (keep-alive ping) |
@@ -399,17 +406,24 @@ api/
     llm/               evidence, rules (fallback diagnosis), diagnose (Claude), prompts, patterns,
                        activities (generate + review), budget (spend ledger and caps)
   scripts/             seed_demo, run_clips (evaluation), claude_spend, diagnose_pending,
-                       make_instruction_audio
-  tests/               150 tests
+                       make_instruction_audio, make_rhyme_audio, fetch_pictures
+  tests/               153 tests
   Dockerfile
 web/
   src/pages/           Login, Classes, ClassDashboard, Student, Checkin, OfflineCheckin, Result, ActivityPage
-  src/components/      header and shared UI, WordChips, ReviewPanel, TapToMark, InstructionAudio
-  src/lib/             types, auth, useRecorder, useClip (replay), aser (offline ladder), content, offline (sync)
+  src/components/      header and shared UI, Mascot (the parrot), Ladder, Celebration, Stars, RecordControls,
+                       WordChips, ReviewPanel, TapToMark, InstructionAudio, SayToChild,
+                       MeaningCheck (the picture step), SoundToggle,
+                       show/ (Show the class: Chain, Pairs, Build, Flash, Chart, FindWrong, PictureMatch, Rhyme)
+  src/lib/             types, auth, useRecorder, useClip (replay), aser (offline ladder), content, offline (sync),
+                       graphemes (cards and syllables), cheer (what the child hears after a card),
+                       sound (synthesised chimes and tunes), music (the songs), pictures (word pictures)
   src/api.ts           API client (offline cache, recordings)
   src/db.ts            IndexedDB tables (offline queue, clips, cache)
   src/locales/         interface strings: en, hi, mr, kn, ta, bn
-  public/audio/        pre-recorded instructions
+  public/audio/        pre-recorded instructions, and rhyme/ for the rhymes' lines
+  public/fonts/        the display face (Baloo, OFL), one file per script
+  public/pictures/     OpenMoji drawings for the word pictures (CC BY-SA 4.0)
   vercel.json
 content/               item banks, activity bank, language config
 eval/                  scripted clips, gold transcripts, results
@@ -462,7 +476,7 @@ Web app: `VITE_API_BASE` — the API's address (empty in development, where Vite
 - **Content review**: the item banks and activity bank are AI-drafted and must be checked by an educator against their sources before they are presented as ASER- or TaRL-faithful.
 - **Single letters** are the hardest for the recognisers (Azure especially), so letter cards ask the teacher to confirm more often; the replay makes that quick.
 - **Halting** uses word timings where Azure Pronunciation Assessment is available (Hindi, English, Tamil) and otherwise silence detection, which a noisy classroom can mask.
-- **Beta languages** (Marathi, Tamil, Kannada, Bengali): reading cards, interface strings, rule-based advice and activity translations are AI-drafted and await native-speaking educators; accuracy is checked only with synthetic voices; the speed floors are derived from word length, not yet from children's readings; letter cards rely on the teacher. Odia, Telugu and Gujarati have no item banks yet; Malayalam is not configured.
+- **Beta languages** (Marathi, Tamil, Kannada, Bengali): reading cards, interface strings, rule-based advice, activity translations, rhymes and picture word lists are AI-drafted and await native-speaking educators; accuracy is checked only with synthetic voices; the speed floors are derived from word length, not yet from children's readings; letter cards rely on the teacher. Odia, Telugu and Gujarati have no item banks yet; Malayalam is not configured.
 - **The English ladder** follows the shared letter → word → paragraph → story ladder, not ASER's English tool (capital letters, small letters, words, sentences, meaning); moving to the ASER English tool is the natural next step if English stays the focus.
 - **Free tiers**: the API sleeps after inactivity on Render's free plan (a monitor keeps it awake); Azure's free tier allows one request at a time.
 - **Roadmap** (from the build plan): numeracy (the ASER maths ladder), validated Tier 2 languages, integration with state platforms, parent reports, on-device speech recognition.

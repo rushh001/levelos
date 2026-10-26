@@ -10,6 +10,7 @@ from ..levels.aser_rules import COHORTS
 from ..llm import activities as act
 from ..llm import budget
 from ..models import Classroom, GeneratedActivity, Teacher
+from ..serialize import iso
 from .classes import owned_class
 
 router = APIRouter(prefix="/api", tags=["activities"])
@@ -41,7 +42,7 @@ def activity_out(g: GeneratedActivity) -> dict:
         "accepted": g.accepted,
         "generated_by": g.validation.get("generated_by", "bank"),
         "teacher_rating": g.teacher_rating,
-        "created_at": g.created_at.isoformat(),
+        "created_at": iso(g.created_at),
     }
 
 

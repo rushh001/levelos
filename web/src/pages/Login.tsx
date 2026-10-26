@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ApiError, OfflineError } from '../api'
+import { Mascot } from '../components/Mascot'
 import { Button, Page } from '../components/ui'
 import { useAuth } from '../lib/auth'
 
@@ -54,23 +55,30 @@ export default function Login() {
 
   return (
     <Page>
-      <p className="text-slate-600">{t('tagline')}</p>
-      <form onSubmit={onSubmit} className="mt-8 space-y-4 rounded-2xl bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold">{t('login.title')}</h2>
+      <div className="flex items-center gap-4">
+        <Mascot mood={busy ? 'speaking' : 'idle'} size={96} className="shrink-0" />
+        <p className="font-display text-2xl leading-snug text-brand-deep" style={{ textWrap: 'balance' }}>
+          {t('tagline')}
+        </p>
+      </div>
+      <form onSubmit={onSubmit} className="card mt-8 space-y-4 p-5">
+        <h2 className="font-display text-lg text-ink">{t('login.title')}</h2>
         <label className="block">
-          <span className="text-sm text-slate-600">{t('login.loginId')}</span>
+          <span className="text-sm text-mute">{t('login.loginId')}</span>
           <input
+            id="login-id"
             value={loginId}
             onChange={(e) => setLoginId(e.target.value)}
             autoCapitalize="none"
             autoComplete="username"
-            className="mt-1 w-full rounded-lg border px-3 py-3 text-lg"
+            className="field mt-1"
             required
           />
         </label>
         <label className="block">
-          <span className="text-sm text-slate-600">{t('login.pin')}</span>
+          <span className="text-sm text-mute">{t('login.pin')}</span>
           <input
+            id="login-pin"
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
             type="password"
@@ -78,12 +86,12 @@ export default function Login() {
             autoComplete="current-password"
             minLength={4}
             maxLength={12}
-            className="mt-1 w-full rounded-lg border px-3 py-3 text-lg tracking-widest"
+            className="field mt-1 tracking-widest"
             required
           />
         </label>
-        {busy && slow && <p className="text-sm text-slate-600">{t('login.waking')}</p>}
-        {error && <p className="text-sm text-red-700">{error}</p>}
+        {busy && slow && <p className="text-sm text-mute">{t('login.waking')}</p>}
+        {error && <p className="text-sm text-coral-deep pop">{error}</p>}
         <Button type="submit" disabled={busy} className="w-full">
           {t('login.submit')}
         </Button>
@@ -92,7 +100,7 @@ export default function Login() {
         <Button kind="secondary" onClick={() => void submit('demo', '1234')} disabled={busy}>
           {t('login.tryDemo')}
         </Button>
-        <p className="mt-2 text-xs text-slate-500">{t('login.demoHint')}</p>
+        <p className="mt-2 text-xs text-mute">{t('login.demoHint')}</p>
       </div>
     </Page>
   )

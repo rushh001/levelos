@@ -41,9 +41,9 @@ export function ReviewPanel({
   const complete = open.every(({ r, w }) => key(r, w) in answers)
 
   return (
-    <section className="space-y-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
+    <section className="space-y-3 rounded-2xl border-2 border-sun/60 bg-sun-soft p-4 shadow-card">
       <h2 className="text-lg font-semibold">{t('checkin.confirmTitle')}</h2>
-      <p className="text-sm text-slate-700">{t('checkin.confirmHelp')}</p>
+      <p className="text-sm text-ink">{t('checkin.confirmHelp')}</p>
       {items.map((r) => (
         <ItemReview
           key={r.id}
@@ -95,12 +95,12 @@ function ItemReview({
       {item.has_audio && (
         <button
           onClick={() => (clip.state === 'playing' ? clip.stop() : void clip.play())}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white py-2 font-semibold text-blue-800"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand/20 bg-white py-2 font-semibold text-brand-deep shadow-card"
         >
           {clip.state === 'playing' ? '⏸' : clip.state === 'loading' ? '…' : '▶'} {t('checkin.listenAll')}
         </button>
       )}
-      {clip.state === 'error' && <p className="text-xs text-slate-500">{t('result.noRecording')}</p>}
+      {clip.state === 'error' && <p className="text-xs text-mute">{t('result.noRecording')}</p>}
       <ul className="space-y-2">
         {open.map((w) => {
           const k = keyOf(item, w)
@@ -111,14 +111,14 @@ function ItemReview({
                   <button
                     onClick={() => playWord(w)}
                     aria-label={t('checkin.listenWord')}
-                    className="shrink-0 rounded-full border border-blue-200 px-2.5 py-1.5 text-lg"
+                    className="shrink-0 rounded-full border border-brand/20 bg-white px-2.5 py-1.5 text-lg shadow-card"
                   >
                     🔊
                   </button>
                 )}
                 <div className="min-w-0">
                   <div className="text-2xl font-semibold">{w.ref}</div>
-                  <div className="truncate text-xs text-slate-500">
+                  <div className="truncate text-xs text-mute">
                     {t('checkin.heard', { heard: heardForms(w, letters).join(' · ') })}
                   </div>
                 </div>
@@ -131,9 +131,9 @@ function ItemReview({
                     className={`rounded-xl border px-3 py-2 font-semibold ${
                       answers[k] === v
                         ? v
-                          ? 'border-green-600 bg-green-600 text-white'
-                          : 'border-red-600 bg-red-600 text-white'
-                        : 'border-slate-300 bg-white'
+                          ? 'border-leaf bg-leaf text-white'
+                          : 'border-coral bg-coral text-white'
+                        : 'border-line bg-white'
                     }`}
                   >
                     {v ? `✓ ${t('checkin.readRight')}` : `✗ ${t('checkin.readWrong')}`}

@@ -100,6 +100,11 @@ def test_group_chosen_by_teacher_sets_the_start():
     assert start_level(1, None, "paragraph") == "paragraph"
     assert start_level(2, "story", "word") == "word"  # the teacher's group wins over the last level
     assert start_level(3, None, None) == "paragraph"  # "group by level": unchanged
+    # A first test in a new language starts no higher than the child's level in their other test.
+    assert start_level(2, None, None, ["letter"]) == "letter"
+    assert start_level(3, None, None, ["word"]) == "word"
+    assert start_level(1, None, None, ["story"]) == "letter"  # the grade rung was lower already
+    assert start_level(2, "paragraph", None, ["letter"]) == "paragraph"  # this test's own level wins
 
 
 def test_ladder_moves_up_then_brackets():

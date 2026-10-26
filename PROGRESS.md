@@ -86,6 +86,25 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 - [x] The English test's instruction spoken in each of the four languages (16 clips); dates in each language's format
 - [x] 150 API tests
 
+### 26 Oct — child-friendly, animated UI (asked for by the mentor: "one of the best and simplest UIs", visuals children like)
+- [x] Z chose: a simple mascot (yes), the English picture-meaning check (later), six Show-the-class screens
+- [x] A visual identity: warm palette, the Baloo display face in every script (bundled, 195 KB, offline), card and button system, enter and press motion, skeletons with the parrot; off under reduced-motion
+- [x] Child-facing moments in the check: parrot that speaks the instruction, the ASER ladder on screen, live microphone meter, a star burst with "शाबाश!" in the test's language after every card (pass or fail stays a small teacher line)
+- [x] Show the class: full-screen tappable versions of six activities (matra/vowel chain, look-alike pairs, word building + swap, flash cards, barakhadi/kagunita/uyirmei/letter-sound chart with a running pointer, find the wrong word), driven by the bank's per-language examples and the plan's practice words; chart data per script in languages.json
+- [x] Teacher pages restyled (login, classes, dashboard with group glyphs, child, result, activity); browser screenshots of every screen in English; strings in all six languages
+- [x] Z: a check now starts at the child's last level even before it is confirmed, and a first test in a new language no higher than the other test's level; the ladder drawn as stairs with the parrot on the current step; the child's page links to its group's activity
+
+### 26 Oct (later) — activities with pictures, sounds, songs and rhymes (asked for by Z: "make them interesting … music, poems, images, animations")
+- [x] Pictures: 169 Std 1 words in six languages mapped to OpenMoji drawings (80 files, 221 KB, CC BY-SA 4.0), curated and verified by agents; `scripts/fetch_pictures.py`
+- [x] The meaning step after a word card (ASER's English tool asks word meaning): a word and three pictures, the teacher taps what the child points to; stored on the card, shown on the result, given to the diagnosis; never part of the level; offline too
+- [x] Sounds synthesised on the phone (chime, soft wrong note, fanfare, ticks, a music-box melody); mute button remembered on the phone
+- [x] Songs: the alphabet song over a–z and a chant for any row of the barakhadi / kagunita / uyirmei chart, cells lighting up in time
+- [x] Two new bank activities in six languages: "Rhyme and read" (an original four-line rhyme per language, written and then checked by a second agent, recorded line by line with the language's voice, 24 clips) and "Match words to pictures"; their source notes say honestly what is the source's and what is ours
+- [x] Flash cards flip over with their picture; word building shows the word's picture; the chart's English letters carry OpenMoji pictures; a "More to show the class" shelf on the activity page opens any screen in two taps
+- [x] A six-lens review of the day's work (child's view, teacher's flow, React correctness, offline and performance, backend and data, languages and copy): 46 notes, the real ones fixed — the stop button now silences a song, the fanfare no longer plays twice, the parrot sits centred on its step, the teacher's cue (the letter to say, the word to find) hides behind an eye so the class listens instead of reading it, the meaning step never shows a child a wrong mark and asks "कहाँ है?" (no gender to agree with), flash cards show the word alone, the chart gains ण ङ ञ and ড় ঢ় য়, the regional source notes now say what is ours, misleading English pictures removed, iOS audio unlocked on the first tap, offline sync resends missing meaning answers, the activity bank no longer ships whole in the app (760 → 569 KB)
+- [x] Found on the way: timestamps left the server without a UTC offset, so between midnight and 05:30 IST the app took today's activity for yesterday's and made a new one on each visit; fixed with a test
+- [x] 153 API tests
+
 ---
 
 ## 2. Blocked / waiting on a person

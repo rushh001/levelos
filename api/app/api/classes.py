@@ -7,7 +7,7 @@ from ..content import available_languages, reading_languages
 from ..db import get_db
 from ..levels.aser_rules import COHORTS
 from ..models import Classroom, LevelHistory, Student, Teacher
-from ..serialize import checkin_out, classroom_out, student_out
+from ..serialize import checkin_out, classroom_out, iso, student_out
 from ..services.checkins import level_row, owned_student
 
 router = APIRouter(prefix="/api", tags=["classes"])
@@ -122,7 +122,7 @@ def get_student(student_id: str, language: str | None = None, teacher: Teacher =
         **student_out(s, language),
         "class_id": s.classroom_id,
         "checkins_list": [checkin_out(c) for c in reversed(s.checkins) if c.status != "abandoned"],
-        "level_history": [{"at": h.at.isoformat(), "provisional": h.provisional, "confirmed": h.confirmed,
+        "level_history": [{"at": iso(h.at), "provisional": h.provisional, "confirmed": h.confirmed,
                            "source": h.source, "checkin_id": h.checkin_id} for h in history],
     }
 

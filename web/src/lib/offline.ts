@@ -32,7 +32,15 @@ export async function startOffline(s: StudentDetail, language: string): Promise<
     avatar: s.avatar,
     language,
     mainLanguage: s.assessment_language,
-    startLevel: startLevel(s.grade, level?.confirmed_level ?? null, level?.cohort_override ?? null),
+    startLevel: startLevel(
+      s.grade,
+      level?.confirmed_level ?? level?.provisional_level ?? null,
+      level?.cohort_override ?? null,
+      Object.entries(s.levels)
+        .filter(([l]) => l !== language)
+        .map(([, lv]) => lv.confirmed_level ?? lv.provisional_level)
+        .filter((lv): lv is NonNullable<typeof lv> => lv !== null),
+    ),
     startedAt: Date.now(),
     items: [],
     status: 'in_progress',
@@ -67,6 +75,17 @@ export async function addItem(
     })
 }
 
+/** The picture step's answers for the last item saved (a word card). */
+export async function addMeaning(localId: string, meaning: { word: string; correct: boolean }[]) {
+  await db.checkins
+    .where('localId')
+    .equals(localId)
+    .modify((c) => {
+      const last = c.items[c.items.length - 1]
+      if (last) last.meaning = meaning
+    })
+}
+
 /** Ends the local ladder: provisional level from the marks (null if the items do not place the child). */
 export async function finishOffline(localId: string, teacherLevel?: Level): Promise<void> {
   const c = await db.checkins.get(localId)
@@ -95,6 +114,12 @@ async function syncOne(c: QueuedCheckin) {
       server = (await Api.markItem(server.id, it.itemId, it.marks, it.durationMs ?? undefined)).checkin
     }
     server = c.teacherLevel ? await Api.override(server.id, c.teacherLevel) : await Api.finish(server.id)
+  }
+  // The picture step's answers, for any card the server does not have them for yet (a sync may have broken off
+  // between a card's marks and its answers).
+  for (let k = 0; k < Math.min(server.items.length, c.items.length); k++) {
+    const it = c.items[k]
+    if (it.meaning?.length && !server.items[k].meaning) server = await Api.meaning(server.id, server.items[k].id, it.meaning)
   }
   await db.checkins.update(c.localId, { serverId: server.id })
   for (let k = 0; k < c.items.length; k++) {

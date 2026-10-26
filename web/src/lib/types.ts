@@ -106,6 +106,13 @@ export interface ItemResult {
   /** A recording is kept on the server for the teacher to listen again. */
   has_audio: boolean
   result: ItemScore
+  /** The picture step after a word card: which words the child knew the meaning of. Never part of the level. */
+  meaning: MeaningAnswer[] | null
+}
+
+export interface MeaningAnswer {
+  word: string
+  correct: boolean
 }
 
 export interface Evidence {

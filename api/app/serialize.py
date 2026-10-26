@@ -2,9 +2,17 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from .content import Item, instructions, reading_languages
 from .levels.aser_rules import cohort_for_level, effective_level
 from .models import Checkin, Classroom, Diagnosis, ItemResult, Student, Teacher
+
+
+def iso(dt: datetime) -> str:
+    """A timestamp as ISO 8601 with its UTC offset. SQLite hands the stored UTC times back naive, and a browser
+    reads a bare time as local time, so without the offset "today" is wrong for up to 5½ hours in India."""
+    return (dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)).isoformat()
 
 
 def teacher_out(t: Teacher) -> dict:
@@ -50,7 +58,7 @@ def student_out(s: Student, language: str | None = None) -> dict:
         **level_out(s, lang),
         "levels": {code: level_out(s, code) for code in langs},
         "checkins": len(finished),
-        "last_checkin_at": last.started_at.isoformat() if last else None,
+        "last_checkin_at": iso(last.started_at) if last else None,
         "pending_review": review is not None,
         "review_checkin_id": review.id if review else None,  # the check waiting for the teacher's confirmation
         "patterns": (last.diagnosis.error_patterns if last and last.diagnosis else []),
@@ -82,6 +90,7 @@ def item_result_out(ir: ItemResult) -> dict:
         "needs_review": ir.needs_review,
         "has_audio": ir.audio is not None,
         "result": ir.result,
+        "meaning": ir.meaning,
     }
 
 
@@ -89,7 +98,7 @@ def diagnosis_out(d: Diagnosis | None) -> dict | None:
     if d is None:
         return None
     return {"error_patterns": d.error_patterns, "evidence": d.evidence, "summary": d.summary,
-            "confidence": d.confidence, "model": d.model, "created_at": d.created_at.isoformat()}
+            "confidence": d.confidence, "model": d.model, "created_at": iso(d.created_at)}
 
 
 def checkin_out(c: Checkin, next_item: Item | None = None) -> dict:
@@ -105,8 +114,8 @@ def checkin_out(c: Checkin, next_item: Item | None = None) -> dict:
         "level_suggested": c.level_suggested,
         "level_final": c.level_final,
         "teacher_overrode": c.teacher_overrode,
-        "started_at": c.started_at.isoformat(),
-        "scored_at": c.scored_at.isoformat() if c.scored_at else None,
+        "started_at": iso(c.started_at),
+        "scored_at": iso(c.scored_at) if c.scored_at else None,
         "items": [item_result_out(r) for r in c.items],
         # The teacher must confirm the uncertain words of an item before the ladder can move on.
         "awaiting_review": c.status == "in_progress" and any(r.needs_review for r in c.items),

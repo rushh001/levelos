@@ -92,7 +92,7 @@ def _heard(w: dict, primary: str | None) -> str | None:
     return None
 
 
-def item_evidence(ir_result: dict, source: str) -> dict:
+def item_evidence(ir_result: dict, source: str, meaning: list | None = None) -> dict:
     s = ItemScore.from_dict(ir_result)
     item = get_item(s.item_id)
     if s.ai_scored:  # tap-marked offline, then its recording was scored on sync: what was heard is known
@@ -112,7 +112,7 @@ def item_evidence(ir_result: dict, source: str) -> dict:
             "teacher_confirmed": teacher,
             "features": word_features(w["ref"], heard, s.lang),
         })
-    return {
+    out = {
         "item_id": s.item_id,
         "level": s.level,
         "text": item.text,
@@ -128,6 +128,9 @@ def item_evidence(ir_result: dict, source: str) -> dict:
         "wcpm": s.wcpm,
         "error_words": errors,
     }
+    if meaning:  # the picture step after a word card: words known by meaning, not part of the level
+        out["meaning"] = {"asked": len(meaning), "correct": sum(1 for a in meaning if a.get("correct"))}
+    return out
 
 
 def build_input(checkin: Checkin) -> dict:
@@ -140,7 +143,7 @@ def build_input(checkin: Checkin) -> dict:
         "grade": student.grade,
         "aser_level": checkin.level_final or checkin.level_suggested,
         "level_is_final": checkin.level_final is not None,
-        "items": [item_evidence(ir.result, ir.source) for ir in checkin.items],
+        "items": [item_evidence(ir.result, ir.source, ir.meaning) for ir in checkin.items],
     }
 
 

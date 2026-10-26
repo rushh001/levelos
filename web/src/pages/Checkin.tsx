@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Api, ApiError } from '../api'
+import { Celebration } from '../components/Celebration'
+import { Ladder } from '../components/Ladder'
+import { MeaningCheck, meaningWords } from '../components/MeaningCheck'
+import { RecordControls } from '../components/RecordControls'
 import { ReviewPanel } from '../components/ReviewPanel'
 import { SayToChild } from '../components/SayToChild'
+import { SoundToggle } from '../components/SoundToggle'
 import { TapToMark } from '../components/TapToMark'
 import { Button, ErrorBox, Page, ReadingCard, Spinner } from '../components/ui'
 import type { Checkin as CheckinT, ItemPublic, Level, UploadResult } from '../lib/types'
@@ -11,11 +16,6 @@ import { useAsync } from '../lib/useAsync'
 import { useRecorder } from '../lib/useRecorder'
 
 const LEVELS: Level[] = ['beginner', 'letter', 'word', 'paragraph', 'story']
-
-function clock(ms: number) {
-  const s = Math.floor(ms / 1000)
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
 
 type Notice = { kind: 'info' | 'warn' | 'ok'; text: string } | null
 
@@ -30,13 +30,16 @@ export default function Checkin() {
   const [tapMode, setTapMode] = useState(false)
   const [notPlaced, setNotPlaced] = useState(false)
   const [actionError, setActionError] = useState<Error | null>(null)
+  const [celebrate, setCelebrate] = useState<number | null>(null) // the card number being cheered
+  const [meaning, setMeaning] = useState<{ itemResultId: string; words: string[] } | null>(null) // the picture step
 
   const item = checkin?.next_item ?? null
   const position = (checkin?.items.length ?? 0) + 1
 
-  // A finished check-in goes to its result; a completed ladder is finished automatically.
+  // A finished check-in goes to its result; a completed ladder is finished automatically — after the cheer and
+  // the meaning step.
   useEffect(() => {
-    if (!checkin) return
+    if (!checkin || celebrate !== null || meaning) return
     if (checkin.status !== 'in_progress') {
       navigate(`/result/${checkin.id}`, { replace: true })
       return
@@ -45,7 +48,7 @@ export default function Checkin() {
       void finish(checkin)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkin])
+  }, [checkin, celebrate, meaning])
 
   const finish = async (c: CheckinT) => {
     setBusy('finish')
@@ -70,11 +73,35 @@ export default function Checkin() {
       const c = r.item_result.result.counts
       setNotice({
         kind: r.item_result.passed ? 'ok' : 'info',
-        text: `${t(`itemLevel.${it.level}`)}: ${t(r.item_result.passed ? 'checkin.passed' : 'checkin.notPassed', c)}`,
+        text: `${t(`itemLevel.${it.level}`)} · ${t(r.item_result.passed ? 'checkin.passed' : 'checkin.notPassed', c)}`,
       })
       setTapMode(false)
+      setCelebrate(position)
+      // After a word card: the meaning step, when enough of its words have pictures.
+      if (it.level === 'word' && meaningWords(it.units ?? [], r.checkin.language).length) {
+        setMeaning({ itemResultId: r.item_result.id, words: it.units ?? [] })
+      }
     }
     setCheckin(r.checkin)
+  }
+
+  // The step stays open until the server has the answers, so the ladder cannot finish past them.
+  const saveMeaning = async (answers: { word: string; correct: boolean }[]) => {
+    const m = meaning
+    if (!checkin || !m || busy) return
+    if (answers.length === 0) {
+      setMeaning(null)
+      return
+    }
+    setBusy('save')
+    try {
+      setCheckin(await Api.meaning(checkin.id, m.itemResultId, answers))
+    } catch (e) {
+      setActionError(e as Error)
+    } finally {
+      setBusy(null)
+      setMeaning(null)
+    }
   }
 
   const record = async () => {
@@ -130,10 +157,19 @@ export default function Checkin() {
       regional={checkin.main_language}
       wide
     >
+      {celebrate !== null && <Celebration lang={checkin.language} n={celebrate} onDone={() => setCelebrate(null)} />}
+
+      <div className="mb-3 flex items-end gap-2">
+        <div className="min-w-0 flex-1">
+          <Ladder items={checkin.items.map((r) => ({ level: r.item_level, passed: r.passed }))} current={item?.level ?? null} />
+        </div>
+        <SoundToggle className="mb-1" />
+      </div>
+
       {notice && (
         <div
-          className={`mb-3 rounded-xl p-3 text-sm ${
-            { ok: 'bg-green-50 text-green-900', info: 'bg-slate-100 text-slate-800', warn: 'bg-amber-50 text-amber-900' }[notice.kind]
+          className={`mb-3 rounded-2xl px-3 py-2 text-sm pop ${
+            { ok: 'bg-leaf-soft text-leaf-deep', info: 'bg-white text-mute shadow-card', warn: 'bg-sun-soft text-sun-deep' }[notice.kind]
           }`}
         >
           {notice.text}
@@ -144,7 +180,7 @@ export default function Checkin() {
       {busy === 'finish' && <Spinner label={t('checkin.finishing')} />}
 
       {notPlaced && (
-        <section className="space-y-3 rounded-2xl bg-white p-4 shadow-sm">
+        <section className="card space-y-3">
           <p>{t('checkin.notPlaced')}</p>
           <div className="flex flex-wrap gap-2">
             {LEVELS.map((l) => (
@@ -156,7 +192,7 @@ export default function Checkin() {
         </section>
       )}
 
-      {checkin.awaiting_review && (
+      {checkin.awaiting_review && !meaning && (
         <ReviewPanel
           checkinId={checkin.id}
           items={checkin.items.filter((r) => r.needs_review)}
@@ -175,7 +211,11 @@ export default function Checkin() {
         />
       )}
 
-      {item && !checkin.awaiting_review && (
+      {meaning && celebrate === null && (
+        <MeaningCheck words={meaning.words} lang={checkin.language} seed={checkin.items.length} onDone={(a) => void saveMeaning(a)} />
+      )}
+
+      {item && !checkin.awaiting_review && !meaning && (
         <>
           <SayToChild item={item} test={checkin.language} />
 
@@ -185,39 +225,8 @@ export default function Checkin() {
             <TapToMark item={item} onSave={saveMarks} busy={busy === 'save'} onCancel={() => setTapMode(false)} />
           ) : busy === 'upload' ? (
             <Spinner label={t('checkin.checking')} />
-          ) : recorder.state === 'recording' ? (
-            <div className="mt-5 flex flex-col items-center gap-3">
-              <div className="flex items-center gap-2 text-red-700">
-                <span className="h-3 w-3 animate-pulse rounded-full bg-red-600" />
-                <span className="font-mono text-lg">{clock(recorder.elapsed)}</span>
-              </div>
-              <p className="text-center text-sm text-slate-600">{t('checkin.recording')}</p>
-              <button
-                onClick={recorder.stop}
-                className="h-20 w-20 rounded-full bg-red-600 text-lg font-bold text-white shadow-lg active:bg-red-700"
-              >
-                {t('checkin.stop')}
-              </button>
-            </div>
           ) : (
-            <div className="mt-5 flex flex-col items-center gap-3">
-              <p className="text-center text-sm text-slate-600">{t('checkin.showChild')}</p>
-              <button
-                onClick={() => void record()}
-                aria-label={t('checkin.record')}
-                className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-700 text-4xl text-white shadow-lg active:bg-blue-800"
-              >
-                🎤
-              </button>
-              {recorder.error && (
-                <p className="text-center text-sm text-red-700">
-                  {t(recorder.error === 'permission' ? 'checkin.micPermission' : 'checkin.micUnsupported')}
-                </p>
-              )}
-              <Button kind="ghost" onClick={() => setTapMode(true)}>
-                {t('checkin.markByTap')}
-              </Button>
-            </div>
+            <RecordControls recorder={recorder} onRecord={() => void record()} onTap={() => setTapMode(true)} />
           )}
         </>
       )}

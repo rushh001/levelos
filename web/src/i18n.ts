@@ -32,4 +32,11 @@ i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 })
 
+// The document's language follows the interface, so the browser picks the right fonts and hyphenation.
+const setLang = (lng: string) => {
+  document.documentElement.lang = lng
+}
+setLang(i18n.language)
+i18n.on('languageChanged', setLang)
+
 export default i18n

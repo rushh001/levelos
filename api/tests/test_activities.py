@@ -51,7 +51,7 @@ def test_examples_follow_the_language_the_group_reads():
     # interface languages; nothing is left as a {ex1} placeholder.
     a = act.entry("correct-the-incorrect")
     en, hi = act.localize(a, "en"), act.localize(a, "hi")
-    assert all("My dog likes my bell" in en["steps"][0][ui] for ui in ("en", "hi"))
+    assert all("My dog liks my ball" in en["steps"][0][ui] for ui in ("en", "hi"))
     assert all("गाय का रंग सफाद है" in hi["steps"][0][ui] for ui in ("en", "hi"))
     for entry in act.bank()["activities"]:
         for lang in ("en", "hi", "mr", "ta", "kn", "bn"):

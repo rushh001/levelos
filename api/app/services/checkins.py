@@ -109,9 +109,11 @@ def start(db: Session, teacher: Teacher, student_id: str, language: str | None, 
     if ladder_start is not None and (local_id is None or ladder_start not in ITEM_LEVELS):
         raise HTTPException(422, "start_level is only for offline check-ins and must be an item level")
     row = student.level_in(lang)
+    last = (row.confirmed_level or row.provisional_level) if row else None
+    others = [r.confirmed_level or r.provisional_level for r in student.levels if r.language != lang]
     c = Checkin(student_id=student.id, language=lang, local_id=local_id, status="in_progress",
-                start_level=ladder_start or start_level(student.grade, row.confirmed_level if row else None,
-                                                         row.cohort_override if row else None))
+                start_level=ladder_start or start_level(student.grade, last, row.cohort_override if row else None,
+                                                         [lv for lv in others if lv]))
     db.add(c)
     db.commit()
     return c

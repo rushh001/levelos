@@ -1,14 +1,29 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 /** Plays the pre-recorded instruction for this item level (shipped with the app, so it works offline):
  * `/audio/<test>/<level>.mp3`, or `/audio/<test>-<spoken>/` when an English test is explained in a regional
- * language (en-hi, en-kn, …). */
-export function InstructionAudio({ test, spoken, level }: { test: string; spoken: string; level: string }) {
+ * language (en-hi, en-kn, …). `onPlaying` lets the page animate while it plays. */
+export function InstructionAudio({
+  test,
+  spoken,
+  level,
+  onPlaying,
+}: {
+  test: string
+  spoken: string
+  level: string
+  onPlaying?: (playing: boolean) => void
+}) {
   const { t } = useTranslation()
   const audio = useRef<HTMLAudioElement | null>(null)
   const [playing, setPlaying] = useState(false)
   const [missing, setMissing] = useState(false)
+
+  useEffect(() => {
+    onPlaying?.(playing)
+  }, [playing, onPlaying])
+  useEffect(() => () => audio.current?.pause(), [])
 
   if (missing) return null
   const play = () => {
@@ -27,8 +42,11 @@ export function InstructionAudio({ test, spoken, level }: { test: string; spoken
     <button
       onClick={play}
       aria-label={t('checkin.playInstruction')}
-      className={`shrink-0 rounded-full border border-blue-200 bg-white px-3 py-2 text-xl ${playing ? 'animate-pulse' : ''}`}
+      className={`relative shrink-0 rounded-full border border-brand/20 bg-white px-3 py-2 text-xl shadow-card transition active:scale-95 ${
+        playing ? 'text-brand' : ''
+      }`}
     >
+      {playing && <span className="absolute inset-0 rounded-full border-2 border-brand/50 pulse-ring" aria-hidden />}
       🔊
     </button>
   )

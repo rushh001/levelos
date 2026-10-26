@@ -2,6 +2,7 @@ import { db } from './db'
 import type {
   Activity,
   Checkin,
+  MeaningAnswer,
   ClassSummary,
   Dashboard,
   Health,
@@ -138,6 +139,8 @@ export const Api = {
   review: (id: string, marks: { item_result_id: string; i: number; correct: boolean }[]) =>
     post<Checkin>(`/checkins/${id}/review`, { marks }),
   override: (id: string, level: Level | null) => post<Checkin>(`/checkins/${id}/override`, { level }),
+  meaning: (id: string, itemResultId: string, answers: MeaningAnswer[]) =>
+    post<Checkin>(`/checkins/${id}/items/${itemResultId}/meaning`, { answers }),
   abandon: (id: string) => post<Checkin>(`/checkins/${id}/abandon`),
   deleteRecordings: (id: string) => api<Checkin>(`/checkins/${id}/audio`, { method: 'DELETE' }),
 

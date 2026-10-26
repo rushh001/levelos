@@ -21,7 +21,10 @@ Built for the AI for Foundational Learning Hackathon (Challenge 02: Learning-Lev
 - **ASER rules in code decide the level**; two agreeing check-ins confirm it; the teacher can override anything.
 - **Diagnosis by Claude**: the error pattern (matras, conjuncts, blending, letter confusion, sight words, guessing, fluency; for English: letter sounds, vowel sounds, blends) with the exact words as evidence, and a short note for the teacher in English and the class's language.
 - **Class dashboard** in three TaRL groups with each group's main difficulties.
-- **10-minute activity per group**, adapted by Claude from a cited bank of 22 activities (Pratham TaRL, ASER, StoryWeaver; English groups get phonics versions, never barakhadi or matra work) and checked by a second model.
+- **10-minute activity per group**, adapted by Claude from a cited bank of 24 activities (Pratham TaRL, ASER, StoryWeaver; English groups get phonics versions, never barakhadi or matra work) and checked by a second model.
+- **Made for children too**: a parrot mascot that speaks the instruction, the ASER ladder climbing on screen, a live microphone meter, and a burst of stars with "शाबाश!" (in the language of the test) after every card, pass or not — the result itself stays with the teacher. The reading cards stay in plain textbook letters.
+- **Show the class**: eight activities open as full-screen, big-text, tappable versions the teacher holds up to the group, in every language, with pictures, sounds and songs: change one matra or vowel (the changed syllable glows), look-alike letters (say one, a child taps it), build a word from letter and matra cards (with its picture), quick-flash word cards that flip over with their picture, the barakhadi / kagunita / uyirmei or letter-sound chart with a pointer that runs along a row, column, diagonal or zig-zag and a **sing** mode (the alphabet song, or the row as a chant), find the wrong word in a sentence, **match words to pictures**, and **rhyme and read**: an original four-line rhyme per language, read aloud line by line by the language's voice, then "find the word". Chimes and a fanfare are synthesised on the phone (nothing to download) and can be muted.
+- **Meaning, not just decoding**: after a word card, the child is shown a word and three pictures and points to the right one (as ASER's English tool asks the meaning of words read); the teacher taps what the child points to. It is noted for the diagnosis and never changes the level. Pictures are OpenMoji drawings bundled with the app.
 - **Replay**: every card's recording can be played again for 30 days (only by that teacher), with words highlighted as they are read.
 - **Offline**: the app, class data, cards and spoken instructions work without network; the teacher taps the mistakes, the ladder runs on the phone, and everything syncs and is AI-checked when the network returns.
 
@@ -77,7 +80,7 @@ Full table: [document.md §8](document.md#8-guardrails).
 
 On nine real recordings (an adult reading scripted mistakes in Hindi and English on an Android phone; references confirmed by listening back), the live configuration agreed on **117 of 118 words (99.2%)** and gave the expected pass/fail on **9 of 9** cards; the one miss was sent to the teacher as uncertain, and it caught a slip the reader didn't notice. Children's voices are not yet in the set. Details: [eval/README.md](eval/README.md).
 
-150 automated tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
+153 automated tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
 
 ## Run locally
 
@@ -130,9 +133,9 @@ Item banks are original texts written to the ASER 2024 reading-tool specificatio
 - Item and activity banks are AI-drafted and await an educator's review.
 - Single letters are hardest for the recognisers, so letter cards ask the teacher to confirm more often (replay makes it quick).
 - The English test uses the same letter → word → paragraph → story ladder as Hindi, not ASER's own English tool (capital letters, small letters, words, sentences, meaning).
-- Beta languages (Marathi, Tamil, Kannada, Bengali) are not yet validated with children; single letters are unreliable for the recognisers there, so the teacher confirms letter cards by ear.
+- Beta languages (Marathi, Tamil, Kannada, Bengali) are not yet validated with children, and their strings, activity translations, rhymes and picture word lists are AI-drafted, awaiting native-speaking reviewers; single letters are unreliable for the recognisers there, so the teacher confirms letter cards by ear.
 - On free plans the API sleeps when idle (a monitor keeps it awake) and Azure allows one request at a time.
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Bundled third-party work: the word pictures are [OpenMoji](https://openmoji.org) drawings (CC BY-SA 4.0); the display typeface is the Baloo family (SIL Open Font License); the alphabet song's tune is the public-domain "Twinkle, Twinkle, Little Star".

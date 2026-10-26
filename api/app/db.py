@@ -23,7 +23,7 @@ class Base(DeclarativeBase):
 
 
 # Columns added to a table after it first shipped: create_all() makes missing tables but never alters existing ones.
-ADDED_COLUMNS = {("students", "names"): "JSON", ("classrooms", "names"): "JSON"}
+ADDED_COLUMNS = {("students", "names"): "JSON", ("classrooms", "names"): "JSON", ("item_results", "meaning"): "JSON"}
 
 
 def create_schema(bind: Engine = engine) -> None:

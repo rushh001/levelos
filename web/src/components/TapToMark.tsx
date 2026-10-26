@@ -35,15 +35,15 @@ export function TapToMark({
       return next
     })
   return (
-    <section className="mt-4 space-y-3 rounded-2xl bg-white p-4 shadow-sm">
-      <p className="text-sm text-slate-700">{t('checkin.markHelp')}</p>
+    <section className="mt-4 space-y-3 card">
+      <p className="text-sm text-ink">{t('checkin.markHelp')}</p>
       <div className="flex flex-wrap gap-1.5">
         {words.map((w, i) => (
           <button
             key={i}
             onClick={() => toggle(i)}
             className={`rounded-lg border px-2.5 py-1.5 text-lg ${
-              wrong.has(i) ? 'border-red-300 bg-red-100 text-red-800 line-through' : 'border-slate-200 bg-white'
+              wrong.has(i) ? 'border-coral/40 bg-coral-soft text-coral-deep line-through' : 'border-line bg-white'
             }`}
           >
             {w}

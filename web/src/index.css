@@ -17,9 +17,227 @@ body {
   overscroll-behavior-y: none;
 }
 
-/* Child-facing reading text: large, high-contrast, generous line height for Indic scripts. */
+/* Child-facing reading text: large, high-contrast, generous line height for Indic scripts — and always the plain
+   system face, never the display font: a child learning to read must see textbook letter shapes. */
+.reading-text,
+.show-text {
+  font-family: system-ui, 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
+  letter-spacing: 0.01em;
+}
 .reading-text {
   font-size: clamp(2rem, 8vw, 3.5rem);
   line-height: 1.6;
-  letter-spacing: 0.01em;
+}
+/* "Show the class" mode: text the whole group reads from the teacher's phone held up. */
+.show-text {
+  font-size: clamp(3rem, 15vw, 7.5rem);
+  line-height: 1.4;
+}
+.show-text-sm {
+  font-family: system-ui, 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
+  font-size: clamp(1.75rem, 8vw, 4rem);
+  line-height: 1.5;
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl bg-white p-4 shadow-card;
+  }
+  .field {
+    @apply w-full rounded-2xl border border-line bg-white px-4 py-3 text-lg text-ink placeholder:text-mute/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15;
+  }
+  .select {
+    @apply rounded-2xl border border-line bg-white px-3 py-2 text-ink focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15;
+  }
+}
+
+/* ---- motion: short, physical, and off for people who asked their phone for less motion ---- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: translateX(-7px);
+  }
+  75% {
+    transform: translateX(7px);
+  }
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes cheer {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-22px) scale(1.06);
+  }
+  60% {
+    transform: translateY(0) scale(0.98);
+  }
+}
+@keyframes blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(0);
+  }
+  95% {
+    transform: scaleY(1);
+  }
+}
+@keyframes talk {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(16deg);
+  }
+}
+@keyframes star {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.3) rotate(0);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(var(--rot));
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 182, 58, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(245, 182, 58, 0.35);
+  }
+}
+@keyframes flip-in {
+  from {
+    transform: perspective(600px) rotateY(90deg);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(600px) rotateY(0);
+    opacity: 1;
+  }
+}
+.flip-in {
+  animation: flip-in 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.rise {
+  animation: rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.pop {
+  animation: pop 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.shake {
+  animation: shake 0.35s ease-in-out;
+}
+.bob {
+  animation: bob 3.2s ease-in-out infinite;
+}
+.cheer {
+  animation: cheer 0.9s ease-in-out 2;
+}
+.glow {
+  animation: glow 1.2s ease-in-out infinite;
+}
+.pulse-ring {
+  animation: pulse-ring 1.4s ease-out infinite;
+}
+.star {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  animation: star 1.2s ease-out forwards;
+  pointer-events: none;
+}
+.stagger > * {
+  animation: rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.stagger > :nth-child(2) {
+  animation-delay: 0.05s;
+}
+.stagger > :nth-child(3) {
+  animation-delay: 0.1s;
+}
+.stagger > :nth-child(4) {
+  animation-delay: 0.15s;
+}
+.stagger > :nth-child(n + 5) {
+  animation-delay: 0.2s;
+}
+
+/* The mascot's moving parts (SVG). */
+.mascot-eyelid {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleY(0);
+  animation: blink 5s infinite;
+}
+.mascot-beak-lower {
+  transform-box: fill-box;
+  transform-origin: left top;
+}
+.talking .mascot-beak-lower {
+  animation: talk 0.26s ease-in-out infinite;
+}
+.no-blink .mascot-eyelid {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..auth import current_teacher
+from ..content import get_item
 from ..db import get_db
 from ..llm import diagnose as diag
 from ..models import Teacher
@@ -42,6 +43,15 @@ class ReviewIn(BaseModel):
 
 class OverrideIn(BaseModel):
     level: str | None  # None clears the override
+
+
+class MeaningAnswer(BaseModel):
+    word: str = Field(min_length=1, max_length=40)
+    correct: bool
+
+
+class MeaningIn(BaseModel):
+    answers: list[MeaningAnswer] = Field(min_length=1, max_length=10)
 
 
 def _diagnose(db: Session, c, background: BackgroundTasks) -> None:
@@ -97,6 +107,26 @@ def mark_item(checkin_id: str, body: MarksIn, teacher: Teacher = Depends(current
     ir = svc.add_marks(db, c, body.item_id, body.marks, body.duration_ms)
     return {"status": "scored", "reason": None, "item_result": item_result_out(ir),
             "checkin": checkin_out(c, svc.next_item(db, c))}
+
+
+@router.post("/{checkin_id}/items/{item_result_id}/meaning")
+def meaning(checkin_id: str, item_result_id: str, body: MeaningIn, background: BackgroundTasks,
+            teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
+    """The picture step after a word card (as ASER's English tool asks the meaning of words read): which words the
+    child knew the meaning of. Never part of the level; the diagnosis sees it."""
+    c = svc.owned_checkin(db, teacher, checkin_id)
+    ir = next((r for r in c.items if r.id == item_result_id), None)
+    if ir is None:
+        raise HTTPException(404, "item not found")
+    if ir.item_level != "word":
+        raise HTTPException(409, "the meaning step follows a word card only")
+    units = set(get_item(ir.item_id).units or ())
+    if any(a.word not in units for a in body.answers):
+        raise HTTPException(422, "a word that is not on this card")
+    ir.meaning = [a.model_dump() for a in body.answers]
+    db.commit()
+    _diagnose(db, c, background)
+    return checkin_out(c, svc.next_item(db, c))
 
 
 @router.post("/{checkin_id}/items/{item_result_id}/audio")

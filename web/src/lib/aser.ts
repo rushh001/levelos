@@ -61,13 +61,18 @@ export function placedLevel(outcomes: Outcome[]): Level | null {
 }
 
 /** A group the teacher chose by hand wins; then the last confirmed level; then the grade (as the server). */
-export function startLevel(grade: number | null, lastConfirmed: Level | null, group?: string | null): ItemLevel {
+/** The card a known level is re-tested with: Beginner and Letter at letters, the others at their own rung. */
+function rung(level: Level): ItemLevel {
+  return level === 'beginner' || level === 'letter' ? 'letter' : level
+}
+
+/** Same rule as the server's aser_rules.start_level: the teacher's group, else the child's last level in this test
+ * (confirmed or not), else the grade — but never above the child's level in their other reading test. */
+export function startLevel(grade: number | null, lastLevel: Level | null, group?: string | null, otherLevels: Level[] = []): ItemLevel {
   if (group === 'letter' || group === 'word' || group === 'paragraph') return group
-  if (lastConfirmed === 'word' || lastConfirmed === 'paragraph' || lastConfirmed === 'story') return lastConfirmed
-  if (lastConfirmed === 'beginner' || lastConfirmed === 'letter') return 'letter'
-  if (grade === null || grade <= 1) return 'letter'
-  if (grade === 2) return 'word'
-  return 'paragraph'
+  if (lastLevel) return rung(lastLevel)
+  const byGrade: ItemLevel = grade === null || grade <= 1 ? 'letter' : grade === 2 ? 'word' : 'paragraph'
+  return [byGrade, ...otherLevels.map(rung)].reduce((lo, l) => (ITEM_LEVELS.indexOf(l) < ITEM_LEVELS.indexOf(lo) ? l : lo))
 }
 
 export function nextItemLevel(outcomes: Outcome[], start: ItemLevel): ItemLevel | null {

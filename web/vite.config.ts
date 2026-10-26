@@ -1,13 +1,34 @@
-import { defineConfig } from 'vite'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import basicSsl from '@vitejs/plugin-basic-ssl'
+
+/** The activity bank is 200 KB of six-language text the API serves; the app only needs each entry's id, title,
+ * cohorts, script and examples (for the "Show the class" screens), so it ships that slice as a virtual module. */
+function activityBank(): Plugin {
+  const id = 'virtual:activity-bank'
+  const resolved = '\0' + id
+  return {
+    name: 'levelos-activity-bank',
+    resolveId: (source) => (source === id ? resolved : undefined),
+    load(source) {
+      if (source !== resolved) return
+      const path = fileURLToPath(new URL('../content/activities/bank.json', import.meta.url))
+      const bank = JSON.parse(readFileSync(path, 'utf8')) as { activities: Record<string, unknown>[] }
+      const slim = bank.activities.map(({ id, title, cohorts, script, examples }) => ({ id, title, cohorts, script, examples }))
+      return `export default ${JSON.stringify(slim)}`
+    },
+  }
+}
 
 // `npm run dev:https` (mode 'https') serves a self-signed certificate: phones block the microphone on plain
 // http:// over Wi-Fi, so testing on a phone on the LAN needs it.
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    activityBank(),
     mode === 'https' && basicSsl(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -16,11 +37,11 @@ export default defineConfig(({ mode }) => ({
         name: 'LevelOS',
         short_name: 'LevelOS',
         description: 'Voice-first reading-level check for FLN teachers',
-        theme_color: '#1d4ed8',
-        background_color: '#ffffff',
+        theme_color: '#4338ca',
+        background_color: '#f4f6fb',
         display: 'standalone',
         orientation: 'portrait',
-        lang: 'hi',
+        lang: 'en',
         start_url: '/',
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
       },

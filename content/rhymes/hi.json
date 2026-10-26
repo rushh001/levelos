@@ -1,0 +1,17 @@
+{
+  "language": "hi",
+  "title": "मेले का दिन",
+  "lines": [
+    "गाय पिए पानी, नाचे मोर,",
+    "उड़ी पतंग, हाथ में डोर।",
+    "तोता खाए पीला केला,",
+    "आज गाँव में लगा मेला।"
+  ],
+  "words_to_find": [
+    "गाय",
+    "मोर",
+    "तोता",
+    "मेला"
+  ],
+  "english_gloss": "The cow drinks water, the peacock dances, / a kite flies up, the string in hand. / The parrot eats a yellow banana, / today there is a fair in the village."
+}

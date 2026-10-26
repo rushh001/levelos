@@ -23,7 +23,7 @@ function latestDiagnosis(list: Checkin[], language: string) {
 
 function LangTag({ lang }: { lang: string }) {
   const { t } = useTranslation()
-  return <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600">{t(`lang.${lang}`, { defaultValue: lang })}</span>
+  return <span className="rounded-md bg-paper px-1.5 py-0.5 text-[11px] text-mute">{t(`lang.${lang}`, { defaultValue: lang })}</span>
 }
 
 export default function Student() {
@@ -72,17 +72,17 @@ export default function Student() {
 
   return (
     <Page title={nameIn(s, s.first_name, uiLang)} back={`/class/${s.class_id}`} regional={s.assessment_language}>
-      <div className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-4 card">
         <div className="text-5xl">{s.avatar}</div>
         <div className="min-w-0 flex-1 space-y-1.5">
           {s.languages.map((l) => {
             const lv = s.levels[l]
             return (
               <div key={l} className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${l === lang ? '' : 'opacity-60'}`}>
-                <span className="w-16 shrink-0 text-xs font-medium text-slate-600">{t(`lang.${l}`, { defaultValue: l })}</span>
+                <span className="w-16 shrink-0 text-xs font-medium text-mute">{t(`lang.${l}`, { defaultValue: l })}</span>
                 <LevelBadge level={lv?.level ?? null} confirmed={lv?.level ? lv.level_confirmed : undefined} />
                 {lv?.level && (
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-mute">
                     {lv.level_confirmed ? t('student.confirmed') : t('student.provisional')}
                   </span>
                 )}
@@ -90,7 +90,7 @@ export default function Student() {
             )
           })}
           {s.languages.some((l) => s.levels[l]?.level && !s.levels[l].level_confirmed) && (
-            <p className="text-xs text-slate-500">{t('student.provisionalHelp')}</p>
+            <p className="text-xs text-mute">{t('student.provisionalHelp')}</p>
           )}
         </div>
       </div>
@@ -112,18 +112,18 @@ export default function Student() {
       </div>
 
       {last?.diagnosis && (
-        <section className="mt-5 rounded-2xl bg-white p-4 shadow-sm">
+        <section className="mt-5 card">
           <h2 className="flex items-center gap-2 font-semibold">
             {t('result.diagnosis')} <LangTag lang={lang} />
           </h2>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {last.diagnosis.error_patterns.map((p) => (
-              <span key={p} className="rounded-full bg-violet-100 px-2 py-0.5 text-sm text-violet-900">
+              <span key={p} className="rounded-full bg-brand-soft px-2.5 py-0.5 text-sm font-medium text-brand-deep">
                 {t(patternKey(p, lang))}
               </span>
             ))}
           </div>
-          <p className="mt-2 text-slate-800">{withName(pick(last.diagnosis.summary, uiLang) ?? '', s, uiLang)}</p>
+          <p className="mt-2 text-ink">{withName(pick(last.diagnosis.summary, uiLang) ?? '', s, uiLang)}</p>
         </section>
       )}
 
@@ -133,7 +133,7 @@ export default function Student() {
           <select
             value={level?.cohort_override ?? 'auto'}
             onChange={(e) => void moveTo(e.target.value)}
-            className="rounded-lg border bg-white px-3 py-2"
+            className="select"
           >
             <option value="auto">
               {t('student.autoGroup')}
@@ -146,23 +146,31 @@ export default function Student() {
             ))}
           </select>
         </label>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-mute">
           {level?.cohort_override
             ? t('student.groupStart', { level: t(`level.${level.cohort_override}`) })
             : t('student.autoStart')}
         </p>
+        {level?.cohort && (
+          <Link
+            to={`/class/${s.class_id}/activity/${level.cohort}?lang=${lang}&cl=${s.assessment_language}`}
+            className="mt-3 block rounded-2xl bg-white px-4 py-3 text-center font-semibold text-brand shadow-card transition active:scale-[0.98]"
+          >
+            ▶ {t('activity.button')} · {t(`cohort.${level.cohort}`)}
+          </Link>
+        )}
       </section>
 
       {local && local.some((c) => c.status !== 'synced') && (
         <section className="mt-5">
           <h2 className="font-semibold">{t('offlineCheck.onPhone')}</h2>
-          <ul className="mt-2 divide-y rounded-2xl bg-amber-50 shadow-sm">
+          <ul className="mt-2 divide-y rounded-3xl bg-sun-soft shadow-card">
             {local
               .filter((c) => c.status !== 'synced')
               .map((c) => (
                 <li key={c.localId}>
                   <Link to={`/offline/${c.localId}`} className="flex items-center justify-between gap-3 px-4 py-3">
-                    <span className="flex items-center gap-2 text-sm text-slate-600">
+                    <span className="flex items-center gap-2 text-sm text-mute">
                       {formatDate(new Date(c.startedAt).toISOString(), uiLang)} <LangTag lang={c.language} />
                     </span>
                     <span className="flex items-center gap-2 text-xs">
@@ -182,22 +190,22 @@ export default function Student() {
 
       <section className="mt-5">
         <h2 className="font-semibold">{t('student.history')}</h2>
-        {s.checkins_list.length === 0 && <p className="mt-2 text-sm text-slate-500">{t('student.noHistory')}</p>}
-        <ul className="mt-2 divide-y rounded-2xl bg-white shadow-sm">
+        {s.checkins_list.length === 0 && <p className="mt-2 text-sm text-mute">{t('student.noHistory')}</p>}
+        <ul className="mt-2 divide-y rounded-3xl bg-white shadow-card">
           {s.checkins_list.map((c) => (
             <li key={c.id}>
               <Link
                 to={c.status === 'in_progress' ? `/checkin/${c.id}` : `/result/${c.id}`}
                 className="flex items-center justify-between gap-3 px-4 py-3"
               >
-                <span className="flex items-center gap-2 text-sm text-slate-600">
+                <span className="flex items-center gap-2 text-sm text-mute">
                   {formatDate(c.started_at, uiLang)} <LangTag lang={c.language} />
                 </span>
                 <span className="flex items-center gap-2">
-                  {c.status === 'needs_review' && <span className="text-xs text-amber-700">{t('student.awaiting')}</span>}
-                  {c.status === 'in_progress' && <span className="text-xs text-slate-500">{t('student.inProgress')}</span>}
+                  {c.status === 'needs_review' && <span className="text-xs text-sun-deep">{t('student.awaiting')}</span>}
+                  {c.status === 'in_progress' && <span className="text-xs text-mute">{t('student.inProgress')}</span>}
                   {c.level_final && <LevelBadge level={c.level_final} />}
-                  <span className="text-slate-400">›</span>
+                  <span className="text-mute/60">›</span>
                 </span>
               </Link>
             </li>

@@ -9,6 +9,8 @@ export interface OfflineItem {
   durationMs: number | null
   clipId?: number
   audioUploaded?: boolean
+  /** The picture step after a word card, sent with the marks on sync. */
+  meaning?: { word: string; correct: boolean }[]
 }
 
 /** A check-in started on the phone without network. Lives here until the server has it (and its audio). */

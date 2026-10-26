@@ -36,23 +36,23 @@ export function WordChips({
         const unsure = w.uncertain && w.teacher_correct === null
         const heard = heardAs(w)
         const cls = unsure
-          ? 'bg-amber-100 text-amber-900 ring-2 ring-amber-400'
+          ? 'bg-sun-soft text-sun-deep ring-2 ring-sun'
           : correct
-            ? 'bg-white text-slate-800'
-            : 'bg-red-100 text-red-800 line-through decoration-2'
+            ? 'bg-white text-ink'
+            : 'bg-coral-soft text-coral-deep line-through decoration-2'
         return (
           <button
             key={w.i}
             onClick={onTap ? () => onTap(w) : undefined}
             disabled={!onTap}
             title={heard && heard !== w.ref ? t('checkin.heard', { heard }) : undefined}
-            className={`rounded-lg border border-slate-200 px-2 py-1 ${big ? 'text-xl' : 'text-base'} ${cls} ${
-              activeIndex === w.i ? 'outline outline-2 outline-blue-500' : ''
+            className={`rounded-lg border border-line px-2 py-1 ${big ? 'text-xl' : 'text-base'} ${cls} ${
+              activeIndex === w.i ? 'outline outline-2 outline-brand' : ''
             }`}
           >
             {w.ref}
-            {w.label === 'self_correct' && correct && <span className="ml-0.5 text-green-700">↺</span>}
-            {w.teacher_correct !== null && !markedByHand && <span className="ml-0.5 text-xs text-slate-500">✎</span>}
+            {w.label === 'self_correct' && correct && <span className="ml-0.5 text-leaf-deep">↺</span>}
+            {w.teacher_correct !== null && !markedByHand && <span className="ml-0.5 text-xs text-mute">✎</span>}
           </button>
         )
       })}
@@ -63,9 +63,9 @@ export function WordChips({
 export function WordLegend() {
   const { t } = useTranslation()
   return (
-    <div className="flex flex-wrap gap-3 text-xs text-slate-600">
+    <div className="flex flex-wrap gap-3 text-xs text-mute">
       <span>
-        <span className="mr-1 inline-block h-3 w-3 rounded bg-red-200" />
+        <span className="mr-1 inline-block h-3 w-3 rounded bg-coral-soft ring-1 ring-coral/40" />
         {t('result.legendWrong')}
       </span>
       <span>

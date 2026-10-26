@@ -32,29 +32,38 @@ export default function Classes({ list }: { list?: boolean }) {
   return (
     <Page title={t('classes.title')}>
       <ErrorBox error={error} onRetry={reload} />
-      {data?.length === 0 && <p className="text-slate-600">{t('classes.empty')}</p>}
-      <ul className="space-y-3">
+      {data?.length === 0 && <p className="text-mute">{t('classes.empty')}</p>}
+      <ul className="space-y-3 stagger">
         {data?.map((c) => (
           <li key={c.id}>
-            <Link to={`/class/${c.id}`} className="block rounded-2xl bg-white p-4 shadow-sm">
-              <div className="text-lg font-semibold">{nameIn(c, c.name, ui)}</div>
-              <div className="text-sm text-slate-600">{t('classes.students', { count: c.students_count })}</div>
+            <Link to={`/class/${c.id}`} className="card flex items-center gap-3 transition active:scale-[0.98]">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-soft font-display text-lg text-brand-deep">
+                {c.grade}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-display text-lg text-ink">{nameIn(c, c.name, ui)}</span>
+                <span className="block text-sm text-mute">
+                  {t('classes.students', { count: c.students_count })} · {t(`lang.${c.language}`, { defaultValue: c.language })}
+                  {isBeta(c.language) ? ` (${t('classes.beta')})` : ''}
+                </span>
+              </span>
+              <span className="text-mute/60">›</span>
             </Link>
           </li>
         ))}
       </ul>
       {creating ? (
-        <form onSubmit={create} className="mt-6 space-y-3 rounded-2xl bg-white p-4 shadow-sm">
+        <form onSubmit={create} className="mt-6 space-y-3 card">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t('classes.name')}
-            className="w-full rounded-lg border px-3 py-3"
+            className="field"
             required
           />
           <label className="flex items-center justify-between gap-3">
             <span>{t('classes.grade')}</span>
-            <select value={grade} onChange={(e) => setGrade(Number(e.target.value))} className="rounded-lg border px-3 py-2">
+            <select value={grade} onChange={(e) => setGrade(Number(e.target.value))} className="select">
               {[1, 2, 3, 4, 5].map((g) => (
                 <option key={g}>{g}</option>
               ))}
@@ -62,7 +71,7 @@ export default function Classes({ list }: { list?: boolean }) {
           </label>
           <label className="flex items-center justify-between gap-3">
             <span>{t('classes.language')}</span>
-            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="rounded-lg border px-3 py-2">
+            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="select">
               {bankLanguages().map((l) => (
                 <option key={l} value={l}>
                   {t(`lang.${l}`, { defaultValue: l })}
@@ -71,7 +80,7 @@ export default function Classes({ list }: { list?: boolean }) {
               ))}
             </select>
           </label>
-          <p className="text-xs text-slate-500">{t('classes.languageHint')}</p>
+          <p className="text-xs text-mute">{t('classes.languageHint')}</p>
           <div className="flex gap-2">
             <Button type="submit">{t('save')}</Button>
             <Button kind="secondary" onClick={() => setCreating(false)}>

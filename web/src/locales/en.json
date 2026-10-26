@@ -126,7 +126,7 @@
     "inProgress": "Not finished",
     "awaiting": "Needs your confirmation",
     "groupStart": "The reading check starts at this group's level ({{level}}) and moves up or down from there.",
-    "autoStart": "The reading check starts at the last confirmed level, or by grade."
+    "autoStart": "The reading check starts at the child's last level, or by grade."
   },
   "checkin": {
     "item": "Card {{n}}",
@@ -211,6 +211,51 @@
     "rated": "Thanks!",
     "minutes": "{{n}} min",
     "previous": "Earlier activities"
+  },
+  "show": {
+    "button": "Show the class",
+    "close": "Close",
+    "next": "Next",
+    "back": "Back",
+    "again": "Again",
+    "done": "Done",
+    "hint": {
+      "chain": "Tap Next to change one vowel sign or vowel. A child reads the new word and says what changed.",
+      "pairs": "Say the letter aloud; a child taps it.",
+      "build": "Children tap the cards in order to build the word.",
+      "flash": "Each word shows for a moment. ✓ when the group reads it; ↻ to see it again later.",
+      "chart": "Tap a cell, or play a row, column, diagonal or zig-zag from it.",
+      "findwrong": "Children read word by word and tap the wrong word.",
+      "rhyme": "Play the rhyme line by line and point at the words; then say a word and a child taps it.",
+      "match": "Tap a word, then its picture."
+    },
+    "say": "Say: {{letter}}",
+    "pile": "Read",
+    "showWord": "Show",
+    "seconds": "{{n}} s",
+    "row": "Row",
+    "column": "Column",
+    "diagonal": "Diagonal",
+    "zigzag": "Zig-zag",
+    "play": "Play",
+    "stop": "Stop",
+    "swap": "Swap one card",
+    "buildWord": "Build the word",
+    "allDone": "All done!",
+    "find": "Find: {{word}}",
+    "nextSet": "Next set",
+    "sing": "Sing",
+    "library": "More to show the class"
+  },
+  "meaning": {
+    "title": "Meaning",
+    "help": "Say the word; tap the picture the child points to.",
+    "skip": "Skip",
+    "result": "Meaning: {{correct}} of {{asked}} known"
+  },
+  "sound": {
+    "on": "Turn sound on",
+    "off": "Turn sound off"
   },
   "offlineCheck": {
     "banner": "No network: this check is saved on the phone and sent when you are back online.",
