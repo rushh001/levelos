@@ -21,7 +21,6 @@ export interface QueuedCheckin {
   studentName: string
   avatar: string
   language: string
-  mainLanguage?: string // the child's regional test: the app's other language (missing on older records)
   startLevel: ItemLevel
   startedAt: number
   items: OfflineItem[]

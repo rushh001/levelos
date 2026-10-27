@@ -5,7 +5,7 @@ import { Api } from '../api'
 import { Button, COHORT_STYLE, ChildChip, CohortIcon, ErrorBox, Page, ReadingTestSwitch, Spinner } from '../components/ui'
 import { nameIn } from '../lib/names'
 import { patternKey, useReadingLang } from '../lib/readingLang'
-import { regionalFor, useUiLang } from '../lib/uiLang'
+import { useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
 const WARM_EVERY_MS = 10 * 60_000
@@ -39,7 +39,7 @@ export default function ClassDashboard() {
   }, [data])
 
   // The name's second spelling: in the class's language when the app is in English, else in English.
-  const other = ui === 'en' ? regionalFor(data?.class.language) : 'en'
+  const other = ui === 'en' ? (data?.class.language ?? 'hi') : 'en'
   const add = async (e: FormEvent) => {
     e.preventDefault()
     const first = name.trim()
@@ -59,7 +59,7 @@ export default function ClassDashboard() {
     : []
 
   return (
-    <Page title={data ? nameIn(data.class, data.class.name, ui) : undefined} back="/classes" regional={data?.class.language} wide>
+    <Page title={data ? nameIn(data.class, data.class.name, ui) : undefined} back="/classes" wide>
       <ErrorBox error={error} onRetry={reload} />
       {waiting.length > 0 && (
         <div className="mb-4 rounded-2xl bg-sun-soft p-3 text-sm text-sun-deep">
@@ -116,7 +116,7 @@ export default function ClassDashboard() {
                 )}
                 {c.students.length > 0 && (
                   <Link
-                    to={`/class/${id}/activity/${c.cohort}?lang=${data.language}&cl=${data.class.language}`}
+                    to={`/class/${id}/activity/${c.cohort}?lang=${data.language}`}
                     className="mt-3 block rounded-xl bg-white px-3 py-2 text-center text-sm font-semibold text-brand shadow-card"
                   >
                     ▶ {t('activity.button')}

@@ -31,7 +31,6 @@ export async function startOffline(s: StudentDetail, language: string): Promise<
     studentName: nameIn(s, s.first_name, i18n.language),
     avatar: s.avatar,
     language,
-    mainLanguage: s.assessment_language,
     startLevel: startLevel(
       s.grade,
       level?.confirmed_level ?? level?.provisional_level ?? null,

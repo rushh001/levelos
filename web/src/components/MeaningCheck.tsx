@@ -4,12 +4,10 @@ import { picturedWords, Picture } from '../lib/pictures'
 import { shuffled } from '../lib/graphemes'
 import { sound } from '../lib/sound'
 import type { MeaningAnswer } from '../lib/types'
-import { useUiLang } from '../lib/uiLang'
 import { Button } from './ui'
 import { Stars } from './Stars'
 
-/** "Where is …?" in the child's language (no gender to agree with), said by the teacher. The English test is
- * asked in the app's language, as its instructions are. */
+/** "Where is …?" in the language of the test (no gender to agree with), said by the teacher. */
 const ASK: Record<string, (w: string) => string> = {
   hi: (w) => `${w} कहाँ है?`,
   en: (w) => `Where is "${w}"?`,
@@ -43,8 +41,7 @@ export function MeaningCheck({
   onDone: (answers: MeaningAnswer[]) => void
 }) {
   const { t } = useTranslation()
-  const ui = useUiLang()
-  const ask = ASK[lang === 'en' ? ui : lang] ?? ASK.en
+  const ask = ASK[lang] ?? ASK.en
   const rounds = useMemo(() => {
     const own = meaningWords(words, lang)
     return Array.from({ length: Math.min(2, own.length) }, (_, r) => {

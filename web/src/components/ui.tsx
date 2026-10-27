@@ -7,7 +7,7 @@ import { db } from '../db'
 import { useAuth } from '../lib/auth'
 import { nameIn } from '../lib/names'
 import type { Cohort, ItemPublic, Level, StudentSummary } from '../lib/types'
-import { LANG_SHORT, dateLocale, nextUiLang, rememberRegional, setUiLang, useUiLang } from '../lib/uiLang'
+import { dateLocale, useUiLang } from '../lib/uiLang'
 import { Mascot } from './Mascot'
 
 export function useOnline() {
@@ -25,32 +25,27 @@ export function useOnline() {
   return online
 }
 
-/** `tag`: a short line under the title (which reading test this is), so the title itself keeps the room.
- * `regional`: the language of the class or child on the page; the language button pairs it with English. */
+/** `tag`: a short line under the title (which reading test this is), so the title itself keeps the room. The
+ * interface language is the reading test's, chosen with the switch on the class and child pages. */
 export function Page({
   title,
   tag,
   back,
   children,
   wide,
-  regional,
 }: {
   title?: string
   tag?: string
   back?: string | true
   children: ReactNode
   wide?: boolean
-  regional?: string | null
 }) {
   const { t } = useTranslation()
-  const ui = useUiLang()
   const online = useOnline()
   const { teacher, logout } = useAuth()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const pending = useLiveQuery(() => db.checkins.where('status').anyOf('queued', 'failed').count(), [], 0)
-  const next = nextUiLang(ui, regional)
-  useEffect(() => rememberRegional(regional), [regional])
 
   return (
     <div className={`mx-auto flex min-h-full flex-col px-4 pb-10 pt-3 ${wide ? 'max-w-3xl' : 'max-w-md'}`}>
@@ -87,14 +82,6 @@ export function Page({
           <span className={`h-2 w-2 rounded-full ${online ? 'bg-leaf' : 'bg-sun'}`} aria-hidden />
           {online ? <span className="sr-only">{t('online')}</span> : t('offline')}
         </span>
-        <button
-          onClick={() => setUiLang(next)}
-          className="rounded-full border border-line bg-white px-2.5 py-1 font-display text-xs text-brand-deep shadow-card transition active:scale-95"
-          aria-label="language"
-          title={t(`lang.${next}`, { defaultValue: next })}
-        >
-          {LANG_SHORT[next] ?? next}
-        </button>
         {teacher && (
           <button onClick={logout} className="text-xs text-mute underline underline-offset-2">
             {t('logout')}

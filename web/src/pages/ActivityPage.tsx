@@ -5,7 +5,7 @@ import { Api } from '../api'
 import { SCREEN_ICON, ShowClass, hasShowScreen, screenKind } from '../components/show/ShowClass'
 import { Button, COHORT_STYLE, ErrorBox, Page, Spinner } from '../components/ui'
 import { activityExamples, bankActivities, fillExamples } from '../lib/content'
-import { useReadingLang } from '../lib/readingLang'
+import { useReadingLang, useUiFollows } from '../lib/readingLang'
 import type { Activity, Cohort } from '../lib/types'
 import { pick, useUiLang } from '../lib/uiLang'
 
@@ -15,6 +15,7 @@ export default function ActivityPage() {
   const [params] = useSearchParams()
   const [readingLang] = useReadingLang()
   const lang = params.get('lang') || readingLang // the reading test the group was formed in
+  useUiFollows(lang)
   const { t } = useTranslation()
   const ui = useUiLang()
   const [current, setCurrent] = useState<Activity | null>(null)
@@ -64,7 +65,6 @@ export default function ActivityPage() {
       title={t(`cohort.${cohort}`)}
       tag={t('readingTest.tag', { language: t(`lang.${lang}`, { defaultValue: lang }) })}
       back={`/class/${id}`}
-      regional={params.get('cl')}
     >
       <ErrorBox error={error} onRetry={() => void generate()} />
       {busy && <Spinner label={t('activity.generating')} />}

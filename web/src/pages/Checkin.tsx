@@ -12,6 +12,7 @@ import { SoundToggle } from '../components/SoundToggle'
 import { TapToMark } from '../components/TapToMark'
 import { Button, ErrorBox, Page, ReadingCard, Spinner } from '../components/ui'
 import type { Checkin as CheckinT, ItemPublic, Level, UploadResult } from '../lib/types'
+import { useUiFollows } from '../lib/readingLang'
 import { useAsync } from '../lib/useAsync'
 import { useRecorder } from '../lib/useRecorder'
 
@@ -24,6 +25,7 @@ export default function Checkin() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: checkin, setData: setCheckin, error, reload } = useAsync(() => Api.checkin(id), [id])
+  useUiFollows(checkin?.language) // the interface is in the language of the test on screen
   const recorder = useRecorder()
   const [busy, setBusy] = useState<null | 'upload' | 'finish' | 'save'>(null)
   const [notice, setNotice] = useState<Notice>(null)
@@ -154,7 +156,6 @@ export default function Checkin() {
       title={item ? t('checkin.item', { n: position }) : undefined}
       tag={t('readingTest.tag', { language: t(`lang.${checkin.language}`, { defaultValue: checkin.language }) })}
       back={`/student/${checkin.student_id}`}
-      regional={checkin.main_language}
       wide
     >
       {celebrate !== null && <Celebration lang={checkin.language} n={celebrate} onDone={() => setCelebrate(null)} />}

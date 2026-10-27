@@ -6,7 +6,7 @@ import { ReviewPanel } from '../components/ReviewPanel'
 import { WordChips, WordLegend, wordCorrect } from '../components/WordChips'
 import { ErrorBox, LevelBadge, Page, Spinner } from '../components/ui'
 import { nameIn, withName } from '../lib/names'
-import { patternKey } from '../lib/readingLang'
+import { patternKey, useUiFollows } from '../lib/readingLang'
 import type { Checkin, Evidence, ItemResult, Level, Word } from '../lib/types'
 import { pick, useUiLang } from '../lib/uiLang'
 import { useClip, wordAt } from '../lib/useClip'
@@ -19,6 +19,7 @@ export default function Result() {
   const { t } = useTranslation()
   const ui = useUiLang()
   const { data: checkin, setData: setCheckin, error, reload } = useAsync(() => Api.checkin(id), [id])
+  useUiFollows(checkin?.language) // the interface is in the language of the test on screen
   const { data: student, reload: reloadStudent } = useAsync(
     () => (checkin ? Api.student(checkin.student_id) : Promise.resolve(null)),
     [checkin?.student_id],
@@ -72,7 +73,6 @@ export default function Result() {
       title={student ? `${student.avatar} ${nameIn(student, student.first_name, ui)}` : undefined}
       tag={t('readingTest.tag', { language: t(`lang.${checkin.language}`, { defaultValue: checkin.language }) })}
       back={`/student/${checkin.student_id}`}
-      regional={checkin.main_language}
     >
       <ErrorBox error={actionError} />
 

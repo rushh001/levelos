@@ -204,7 +204,7 @@ def test_a_regional_class_reads_its_results_in_its_own_language_and_english(clie
     for lang in ("kn", "en"):
         done = run_in(client, h, st["id"], lang, {"word": {"wrong": 3}, "letter": {"wrong": 0}}, script)
         summary = done["diagnosis"]["summary"]
-        assert done["main_language"] == "kn" and set(summary) == {"en", "kn"}, lang
+        assert done["language"] == lang and set(summary) == {"en", "kn"}, lang
         assert KANNADA.search(summary["kn"]) and not DEVANAGARI.search(summary["kn"]), lang
 
 

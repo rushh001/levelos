@@ -107,7 +107,6 @@ def checkin_out(c: Checkin, next_item: Item | None = None) -> dict:
         "student_id": c.student_id,
         "local_id": c.local_id,
         "language": c.language,
-        "main_language": c.student.main_language,  # the child's regional test: the app's other language
         "status": c.status,
         "source": c.source,
         "start_level": c.start_level,

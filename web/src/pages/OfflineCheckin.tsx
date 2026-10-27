@@ -14,6 +14,7 @@ import { db } from '../db'
 import { itemPassed, outcomeFromMarks, placedLevel } from '../lib/aser'
 import { getItem } from '../lib/content'
 import { abandonOffline, addItem, addMeaning, finishOffline, nextItem, outcomes } from '../lib/offline'
+import { useUiFollows } from '../lib/readingLang'
 import type { Level } from '../lib/types'
 import { type Clip, useRecorder } from '../lib/useRecorder'
 
@@ -25,6 +26,7 @@ export default function OfflineCheckin() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const c = useLiveQuery(() => db.checkins.get(localId), [localId])
+  useUiFollows(c?.language) // the interface is in the language of the test on screen
   const recorder = useRecorder()
   const [clip, setClip] = useState<Clip | null>(null)
   const [marking, setMarking] = useState(false)
@@ -48,7 +50,7 @@ export default function OfflineCheckin() {
 
   if (c.status !== 'in_progress') {
     return (
-      <Page title={`${c.avatar} ${c.studentName}`} back={back} regional={c.mainLanguage ?? c.language}>
+      <Page title={`${c.avatar} ${c.studentName}`} back={back}>
         {celebrate !== null && <Celebration lang={c.language} n={celebrate} onDone={() => setCelebrate(null)} />}
         <section className="card">
           <div className="text-sm text-mute">{t('offlineCheck.provisional')}</div>
@@ -83,7 +85,7 @@ export default function OfflineCheckin() {
 
   if (meaning && celebrate === null) {
     return (
-      <Page title={`${c.avatar} ${c.studentName}`} back={back} regional={c.mainLanguage ?? c.language} wide>
+      <Page title={`${c.avatar} ${c.studentName}`} back={back} wide>
         <MeaningCheck
           words={meaning}
           lang={c.language}
@@ -107,7 +109,7 @@ export default function OfflineCheckin() {
       )
     }
     return (
-      <Page title={`${c.avatar} ${c.studentName}`} back={back} regional={c.mainLanguage ?? c.language}>
+      <Page title={`${c.avatar} ${c.studentName}`} back={back}>
         <section className="card space-y-3">
           <p>{t('checkin.notPlaced')}</p>
           <div className="flex flex-wrap gap-2">
@@ -155,7 +157,6 @@ export default function OfflineCheckin() {
       title={`${t('checkin.item', { n: c.items.length + 1 })} · ${c.studentName}`}
       tag={t('readingTest.tag', { language: t(`lang.${c.language}`, { defaultValue: c.language }) })}
       back={back}
-      regional={c.mainLanguage ?? c.language}
       wide
     >
       {celebrate !== null && <Celebration lang={c.language} n={celebrate} onDone={() => setCelebrate(null)} />}

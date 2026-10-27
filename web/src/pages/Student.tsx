@@ -71,7 +71,7 @@ export default function Student() {
   const unfinished = s.checkins_list.find((c) => c.status === 'in_progress' && c.language === lang)
 
   return (
-    <Page title={nameIn(s, s.first_name, uiLang)} back={`/class/${s.class_id}`} regional={s.assessment_language}>
+    <Page title={nameIn(s, s.first_name, uiLang)} back={`/class/${s.class_id}`}>
       <div className="flex items-center gap-4 card">
         <div className="text-5xl">{s.avatar}</div>
         <div className="min-w-0 flex-1 space-y-1.5">
@@ -153,7 +153,7 @@ export default function Student() {
         </p>
         {level?.cohort && (
           <Link
-            to={`/class/${s.class_id}/activity/${level.cohort}?lang=${lang}&cl=${s.assessment_language}`}
+            to={`/class/${s.class_id}/activity/${level.cohort}?lang=${lang}`}
             className="mt-3 block rounded-2xl bg-white px-4 py-3 text-center font-semibold text-brand shadow-card transition active:scale-[0.98]"
           >
             ▶ {t('activity.button')} · {t(`cohort.${level.cohort}`)}

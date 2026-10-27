@@ -104,6 +104,7 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 - [x] A six-lens review of the day's work (child's view, teacher's flow, React correctness, offline and performance, backend and data, languages and copy): 46 notes, the real ones fixed — the stop button now silences a song, the fanfare no longer plays twice, the parrot sits centred on its step, the teacher's cue (the letter to say, the word to find) hides behind an eye so the class listens instead of reading it, the meaning step never shows a child a wrong mark and asks "कहाँ है?" (no gender to agree with), flash cards show the word alone, the chart gains ण ङ ञ and ড় ঢ় য়, the regional source notes now say what is ours, misleading English pictures removed, iOS audio unlocked on the first tap, offline sync resends missing meaning answers, the activity bank no longer ships whole in the app (760 → 569 KB)
 - [x] Found on the way: timestamps left the server without a UTC offset, so between midnight and 05:30 IST the app took today's activity for yesterday's and made a new one on each visit; fixed with a test
 - [x] 153 API tests
+- [x] Z: one language control — the Reading test switch sets the interface language too (Hindi test → Hindi app, Tamil → Tamil); the header language button removed. Then, at Z's request, the test's spoken instruction, its 🔊 clip and the meaning question follow the same rule (the English test is explained in English, not in the child's language); the `en-<lang>` clips are gone
 
 ---
 

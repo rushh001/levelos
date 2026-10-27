@@ -5,7 +5,7 @@ import { Api } from '../api'
 import { Button, ErrorBox, Page, Spinner } from '../components/ui'
 import { bankLanguages, isBeta } from '../lib/content'
 import { nameIn } from '../lib/names'
-import { regionalFor, useUiLang } from '../lib/uiLang'
+import { useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
 /** The teacher's classes. Opening the app with one class goes straight to it; `list` (back from a class) stays here. */
@@ -16,7 +16,7 @@ export default function Classes({ list }: { list?: boolean }) {
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
   const [grade, setGrade] = useState(2)
-  const [language, setLanguage] = useState(() => regionalFor(ui === 'en' ? null : ui)) // a new class reads in the app's regional language
+  const [language, setLanguage] = useState(() => (ui === 'en' ? 'hi' : ui)) // a new class reads in the interface's language, else Hindi
 
   if (loading && !data) return <Page><Spinner label={t('loading')} /></Page>
   if (data && data.length === 1 && !creating && !list) return <Navigate to={`/class/${data[0].id}`} replace />

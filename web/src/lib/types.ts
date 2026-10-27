@@ -139,7 +139,6 @@ export interface Checkin {
   student_id: string
   local_id: string | null
   language: string
-  main_language: string // the child's regional test: the app's other language
   status: CheckinStatus
   source: 'ai' | 'offline_marks'
   start_level: ItemLevel
