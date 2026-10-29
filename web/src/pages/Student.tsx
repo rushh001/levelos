@@ -13,7 +13,7 @@ import type { Checkin, Cohort } from '../lib/types'
 import { pick, useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
-const COHORTS: Cohort[] = ['letter', 'word', 'paragraph']
+const COHORTS: Cohort[] = ['letter', 'word', 'paragraph', 'story']
 
 function latestDiagnosis(list: Checkin[], language: string) {
   return list.find(

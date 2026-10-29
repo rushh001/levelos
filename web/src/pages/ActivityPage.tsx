@@ -4,7 +4,7 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { Api } from '../api'
 import { SCREEN_ICON, ShowClass, hasShowScreen, screenKind } from '../components/show/ShowClass'
 import { Button, COHORT_STYLE, ErrorBox, Page, Spinner } from '../components/ui'
-import { activityExamples, bankActivities, fillExamples } from '../lib/content'
+import { activityExamples, bankActivities, fillExamples, textFor } from '../lib/content'
 import { useReadingLang, useUiFollows } from '../lib/readingLang'
 import type { Activity, Cohort } from '../lib/types'
 import { pick, useUiLang } from '../lib/uiLang'
@@ -47,12 +47,20 @@ export default function ActivityPage() {
     // Show today's activity if there is one; otherwise prepare one.
     Api.activities(id, cohort, lang)
       .then((list) => {
-        const today = list.find((a) => new Date(a.created_at).toDateString() === new Date().toDateString())
+        // Today's activity, if it fits the group's level: letters or words for a Letter or Word group, a text for
+        // the Paragraph group (one made earlier under the old rules is replaced).
+        const books = !!textFor(lang, 'rhyme')
+        const fits = (a: Activity) => (cohort === 'letter' || cohort === 'word' ? !!a.plan.material : !!a.plan.text)
+        const today = list.find(
+          (a) => new Date(a.created_at).toDateString() === new Date().toDateString() && (fits(a) || !books),
+        )
+        // Earlier ones made under the old rules (a poem for a Letter group, say) are not offered again.
+        const earlier = list.filter((a) => a.id !== today?.id && (fits(a) || !books))
         if (today) {
           setCurrent(today)
-          setPrevious(list.filter((a) => a.id !== today.id))
+          setPrevious(earlier)
         } else {
-          setPrevious(list)
+          setPrevious(earlier)
           void generate()
         }
       })
@@ -127,6 +135,10 @@ export default function ActivityPage() {
   )
 }
 
+/** " (1806)" after the author, unless the author line already names the year ("The Æsop for Children (1919)"). */
+const yearOf = (t: { author: string; year?: number | null }) =>
+  t.year && !t.author.includes(String(t.year)) ? ` (${t.year})` : ''
+
 function ActivityCard({ a, cohort, lang, onRated }: { a: Activity; cohort: Cohort; lang: string; onRated: (a: Activity) => void }) {
   const { t } = useTranslation()
   const ui = useUiLang()
@@ -139,6 +151,65 @@ function ActivityCard({ a, cohort, lang, onRated }: { a: Activity; cohort: Cohor
       <div className="text-xs text-mute">{a.generated_by === 'bank' ? t('activity.fromBank') : t('activity.adapted')}</div>
       <h2 className="text-xl font-bold">{pick(p.title, ui)}</h2>
       {pick(p.why, ui) && <p className="mt-1 text-sm text-ink">{pick(p.why, ui)}</p>}
+
+      {/* A Letter or Word group reads only these letters or words; the rhyme below is for the teacher to say. */}
+      {p.material && p.material.items.length > 0 && (
+        <div className="mt-3 rounded-2xl bg-white p-3">
+          <div className="text-xs font-semibold uppercase text-mute">
+            {p.material.kind === 'letters' ? t('activity.letters') : t('activity.words')}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {p.material.items.map((x) => (
+              <span key={x} className="flex min-w-[3.5rem] flex-col items-center rounded-xl bg-paper px-3 py-1.5">
+                <span className={`reading-text font-display ${p.material?.kind === 'letters' ? 'text-4xl' : 'text-2xl'}`}>{x}</span>
+                {p.material?.anchors?.[x] && <span className="text-xs text-mute">{p.material.anchors[x]}</span>}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* A Letter or Word group never reads the rhyme: it stays folded away, for the teacher to say aloud. */}
+      {p.text?.read_aloud && (
+        <details className="mt-2 text-sm text-mute">
+          <summary className="cursor-pointer select-none font-semibold text-brand underline underline-offset-4">
+            {t('activity.showRhyme', { title: p.text.title })}
+          </summary>
+          <div className="mt-1 rounded-2xl bg-white p-3">
+            <div className="text-xs">{t('activity.readAloud')}</div>
+            <div className="mt-1 space-y-0.5">
+              {p.text.lines.map((l, i) => (
+                <p key={i}>{l}</p>
+              ))}
+            </div>
+          </div>
+        </details>
+      )}
+
+      {p.text && !p.text.read_aloud && (
+        <div className="mt-3 rounded-2xl bg-white p-3">
+          <div className="text-xs font-semibold uppercase text-mute">{t('activity.text')}</div>
+          <div className="font-display text-lg text-ink">{p.text.title}</div>
+          <div className="text-xs text-mute">
+            {t('activity.by', { author: p.text.author })}
+            {yearOf(p.text)}
+          </div>
+          <div className="reading-text mt-2 space-y-0.5 text-lg">
+            {p.text.lines.map((l, i) => (
+              <p key={i}>{l}</p>
+            ))}
+          </div>
+          {p.text.questions.length > 0 && (
+            <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-sm">
+              {p.text.questions.map((q, i) => (
+                <li key={i}>
+                  {q.q} <span className="text-mute">— {q.a}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      )}
 
       {hasShowScreen(a.source_activity_id) && (
         <Button onClick={() => setShowing(true)} className="mt-3 w-full text-lg">
@@ -169,7 +240,15 @@ function ActivityCard({ a, cohort, lang, onRated }: { a: Activity; cohort: Cohor
         </ol>
       </div>
 
-      {p.practice_words.length > 0 && (
+      {/* Paragraph and Story groups take homework on the text home; a list of single words is not for them. */}
+      {pick(p.homework, ui) && (
+        <div className="mt-3 rounded-xl bg-white p-3">
+          <div className="text-xs font-semibold uppercase text-mute">{t('activity.homework')}</div>
+          <p className="mt-1 text-sm text-ink">{pick(p.homework, ui)}</p>
+        </div>
+      )}
+
+      {p.practice_words.length > 0 && !p.material && !p.text && (
         <div className="mt-3">
           <div className="text-xs font-semibold uppercase text-mute">{t('activity.practiceWords')}</div>
           <div className="mt-1 flex flex-wrap gap-1.5">
@@ -189,9 +268,20 @@ function ActivityCard({ a, cohort, lang, onRated }: { a: Activity; cohort: Cohor
         </div>
       )}
 
-      {a.source && (
+      {/* A text activity credits the book its text comes from, then the NCERT curriculum goal it serves. */}
+      {p.text && (
         <p className="mt-3 text-xs text-mute">
-          {t('activity.source')}:{' '}
+          {t('activity.textFrom')}: {p.text.title}, {p.text.author}
+          {yearOf(p.text)} ·{' '}
+          {p.text.licence === 'public domain' ? t('activity.publicDomain') : p.text.licence} ·{' '}
+          <a href={p.text.source.url} target="_blank" rel="noreferrer" className="underline">
+            {p.text.source.name}
+          </a>
+        </p>
+      )}
+      {a.source && (
+        <p className={`${p.text ? 'mt-1' : 'mt-3'} text-xs text-mute`}>
+          {p.text ? t('activity.curriculum') : t('activity.source')}:{' '}
           <a href={a.source.url} target="_blank" rel="noreferrer" className="underline">
             {a.source.name}
           </a>{' '}

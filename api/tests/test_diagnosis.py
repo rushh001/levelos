@@ -118,7 +118,7 @@ def claude_on(monkeypatch):
             on_usage("claude-opus-5-5", SimpleNamespace(input_tokens=2000, output_tokens=1500,
                                                        cache_read_input_tokens=0, cache_creation_input_tokens=0),
                      "end_turn")
-        word_item = payload["items"][0]
+        word_item = next((i for i in payload["items"] if i["error_words"]), payload["items"][0])  # the card with errors
         idx = [w["i"] for w in word_item["error_words"]]
         return ({  # written in the schema Claude must follow
             "error_patterns": ["matra_vowel_sign"],
@@ -148,7 +148,7 @@ def test_claude_replaces_rules_in_the_background(client, script, claude_on):
     _, st = make_student(client, h)
     done = run_checkin(client, h, st["id"], {"word": {"wrong": 2}, "letter": {"wrong": 0}}, script)
     assert len(claude_on) == 1 and claude_on[0]["child_name"] == "Meena"
-    assert "aser_level" in claude_on[0] and claude_on[0]["items"][0]["error_words"]
+    assert "aser_level" in claude_on[0] and claude_on[0]["items"][1]["error_words"]  # the word card, after letters
     got = client.get(f"/api/checkins/{done['id']}", headers=h).json()["diagnosis"]
     assert got["model"] == "claude-opus-5-5" and got["error_patterns"] == ["matra_vowel_sign"]
     assert got["evidence"][0]["words"][0]["ref"]  # filled from the evidence, not from the model
@@ -156,7 +156,7 @@ def test_claude_replaces_rules_in_the_background(client, script, claude_on):
     # Re-fetching or finishing again does not call Claude again; a teacher correction does.
     client.post(f"/api/checkins/{done['id']}/finish", headers=h)
     assert len(claude_on) == 1
-    word_ir = done["items"][0]
+    word_ir = done["items"][1]
     client.post(f"/api/checkins/{done['id']}/review", headers=h,
                 json={"marks": [{"item_result_id": word_ir["id"], "i": 0, "correct": True}]})
     assert len(claude_on) == 2

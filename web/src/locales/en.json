@@ -23,7 +23,24 @@
     "serverError": "The server had a problem. Please try again in a minute.",
     "waking": "Waking up the server — the first login can take up to a minute.",
     "tryDemo": "Try the demo class",
-    "demoHint": "Demo: login demo, PIN 1234"
+    "demoHint": "Demo: login demo, PIN 1234",
+    "newAccount": "New teacher? Create an account",
+    "language": "Language"
+  },
+  "signup": {
+    "title": "Create a teacher account",
+    "name": "Your name",
+    "email": "Email",
+    "pin": "Choose a PIN (4 to 8 digits)",
+    "submit": "Create account",
+    "have": "Already have a login ID? Log in",
+    "invalidEmail": "Please enter a valid email address.",
+    "emailTaken": "An account with this email already exists. Log in with its login ID.",
+    "pinDigits": "The PIN must be 4 to 8 digits.",
+    "done": "Your account is ready",
+    "yourId": "Your login ID",
+    "note": "Write it down. You will log in with this ID and your PIN.",
+    "continue": "Continue"
   },
   "classes": {
     "title": "My classes",
@@ -60,7 +77,9 @@
     "paragraph": "Paragraph group",
     "letterHint": "Beginner + Letter",
     "wordHint": "Word",
-    "paragraphHint": "Paragraph + Story"
+    "paragraphHint": "Paragraph",
+    "story": "Story group",
+    "storyHint": "Story"
   },
   "level": {
     "beginner": "Beginner",
@@ -125,8 +144,8 @@
     "latest": "Latest check",
     "inProgress": "Not finished",
     "awaiting": "Needs your confirmation",
-    "groupStart": "The reading check starts at this group's level ({{level}}) and moves up or down from there.",
-    "autoStart": "The reading check starts at the child's last level, or by grade."
+    "groupStart": "The reading check gives only this group's card ({{level}}); no other level.",
+    "autoStart": "The reading check starts at the child's last level; a child not checked yet starts at letters."
   },
   "checkin": {
     "item": "Card {{n}}",
@@ -160,12 +179,15 @@
     "stopConfirm": "Stop this check? Nothing is saved for this child.",
     "micPermission": "Microphone permission is needed. Allow it in the browser and try again.",
     "micUnsupported": "This browser cannot record audio. Use Chrome on Android.",
-    "notPlaced": "These cards do not show the level yet. Read one more card, or choose the level yourself.",
+    "notPlaced": "These cards do not give a level (skipped cards do not count). Choose the level yourself, or stop the check.",
     "playInstruction": "Play the instruction",
     "listenAll": "Listen to the recording",
-    "listenWord": "Listen to this word"
+    "listenWord": "Listen to this word",
+    "skipCard": "Skip this card",
+    "skipped": "{{level}} skipped — it does not count"
   },
   "result": {
+    "skipped": "Skipped — not counted",
     "level": "Reading level",
     "needsReview": "Waiting for your confirmation",
     "provisionalNote": "First result at this level. It is confirmed when the next check agrees.",
@@ -210,7 +232,17 @@
     "rate": "How useful was this?",
     "rated": "Thanks!",
     "minutes": "{{n}} min",
-    "previous": "Earlier activities"
+    "previous": "Earlier activities",
+    "text": "The text",
+    "by": "by {{author}}",
+    "publicDomain": "public domain (free of copyright)",
+    "textFrom": "Text from",
+    "curriculum": "Curriculum goal",
+    "letters": "Letters the children read",
+    "words": "Words the children read",
+    "readAloud": "The teacher says this rhyme aloud (the children do not read it)",
+    "showRhyme": "Show the rhyme for the teacher ({{title}})",
+    "homework": "Homework"
   },
   "show": {
     "button": "Show the class",
@@ -227,7 +259,11 @@
       "chart": "Tap a cell, or play a row, column, diagonal or zig-zag from it.",
       "findwrong": "Children read word by word and tap the wrong word.",
       "rhyme": "Play the rhyme line by line and point at the words; then say a word and a child taps it.",
-      "match": "Tap a word, then its picture."
+      "match": "Tap a word, then its picture.",
+      "text": "Read the rhyme together, pointing at the words; then say a word and a child taps it.",
+      "story": "Children read a sentence each; then open the questions and let a child point to the line with the answer.",
+      "hunt": "Say the letter shown; children tap every word in the rhyme that starts with it.",
+      "letters": "Say the sound of the hidden letter; a child taps every place it is written."
     },
     "say": "Say: {{letter}}",
     "pile": "Read",
@@ -245,7 +281,10 @@
     "find": "Find: {{word}}",
     "nextSet": "Next set",
     "sing": "Sing",
-    "library": "More to show the class"
+    "library": "More to show the class",
+    "questions": "Questions",
+    "answer": "Show answer",
+    "findLetter": "Words starting with: {{letter}}"
   },
   "meaning": {
     "title": "Meaning",

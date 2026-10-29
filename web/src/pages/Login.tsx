@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { ApiError, OfflineError } from '../api'
+import { LangPicker } from '../components/LangPicker'
 import { Mascot } from '../components/Mascot'
 import { Button, Page } from '../components/ui'
 import { useAuth } from '../lib/auth'
@@ -55,7 +56,8 @@ export default function Login() {
 
   return (
     <Page>
-      <div className="flex items-center gap-4">
+      <LangPicker />
+      <div className="mt-3 flex items-center gap-4">
         <Mascot mood={busy ? 'speaking' : 'idle'} size={96} className="shrink-0" />
         <p className="font-display text-2xl leading-snug text-brand-deep" style={{ textWrap: 'balance' }}>
           {t('tagline')}
@@ -95,6 +97,11 @@ export default function Login() {
         <Button type="submit" disabled={busy} className="w-full">
           {t('login.submit')}
         </Button>
+        <p className="text-center text-sm">
+          <Link to="/signup" className="text-brand underline underline-offset-4">
+            {t('login.newAccount')}
+          </Link>
+        </p>
       </form>
       <div className="mt-6 text-center">
         <Button kind="secondary" onClick={() => void submit('demo', '1234')} disabled={busy}>

@@ -24,6 +24,7 @@ from ..levels.aser_rules import (
     ItemOutcome,
     level_from_outcomes,
     next_item_level,
+    skipped_outcome,
     start_level,
     update_levels,
 )
@@ -52,13 +53,15 @@ def owned_checkin(db: Session, teacher: Teacher, checkin_id: str) -> Checkin:
 # ---------------------------------------------------------------- ladder
 
 
-def scores(checkin: Checkin) -> list[ItemScore]:
-    return [ItemScore.from_dict(r.result) for r in checkin.items]
+def outcomes(checkin: Checkin) -> list[ItemOutcome]:
+    """What each card counts as on the ladder: the scored reading, or a skip (which counts for nothing)."""
+    return [skipped_outcome(r.item_level) if r.source == "skipped"
+            else ItemScore.from_dict(r.result).outcome() for r in checkin.items]
 
 
 def _recent_item_ids(db: Session, checkin: Checkin) -> set[str]:
     """Items from this check-in and the student's previous one in the same language, so the child does not re-read
-    the same text."""
+    the same text (a card that was skipped was never read, so it may come up again)."""
     prev = db.scalars(
         select(Checkin)
         .where(Checkin.student_id == checkin.student_id, Checkin.id != checkin.id, Checkin.status.in_(FINISHED),
@@ -66,9 +69,9 @@ def _recent_item_ids(db: Session, checkin: Checkin) -> set[str]:
         .order_by(Checkin.started_at.desc())
         .limit(1)
     ).first()
-    ids = {r.item_id for r in checkin.items}
+    ids = {r.item_id for r in checkin.items if r.source != "skipped"}
     if prev:
-        ids |= {r.item_id for r in prev.items}
+        ids |= {r.item_id for r in prev.items if r.source != "skipped"}
     return ids
 
 
@@ -82,7 +85,7 @@ def placed_level(outcomes: list[ItemOutcome]) -> str | None:
     """ASER level from the items read, or None if they do not place the child: nothing passed and letters were
     never tried (e.g. a paragraph failed and the session ended) is not 'beginner'."""
     level = level_from_outcomes(outcomes)
-    if level == "beginner" and not any(o.item_level == "letter" for o in outcomes):
+    if level == "beginner" and not any(o.item_level == "letter" and o.skipped is None for o in outcomes):
         return None
     return level
 
@@ -90,14 +93,50 @@ def placed_level(outcomes: list[ItemOutcome]) -> str | None:
 def next_item(db: Session, checkin: Checkin) -> Item | None:
     if checkin.status != "in_progress" or awaiting_review(checkin):
         return None
-    level = next_item_level([s.outcome() for s in scores(checkin)], checkin.start_level)
+    level = next_item_level(outcomes(checkin), checkin.start_level, fixed=bool(checkin.fixed_level))
     return pick_item(checkin.language, level, _recent_item_ids(db, checkin)) if level else None
 
 
+def _start_for(student, lang: str) -> tuple[str, bool]:
+    """Where a new check in `lang` begins, and whether it reads only that level (the teacher chose the group)."""
+    row = student.level_in(lang)
+    last = (row.confirmed_level or row.provisional_level) if row else None
+    group = row.cohort_override if row else None
+    others = [r.confirmed_level or r.provisional_level for r in student.levels if r.language != lang]
+    return start_level(student.grade, last, group, [lv for lv in others if lv]), group is not None
+
+
+def refresh_start(db: Session, checkin: Checkin) -> None:
+    """An unfinished check follows the teacher's current choice when it is opened again ("Not finished"); a phone's
+    offline check keeps its own ladder.
+
+    Nothing read yet (no card, or only skipped ones, which count for nothing): it starts over under the current rule,
+    the skips cleared. Cards already read: if the teacher has since chosen the group, the check gives that group's
+    card next (unless it was already tried) and then ends; the level still comes from every card read."""
+    if checkin.status != "in_progress" or checkin.local_id:
+        return
+    level, fixed = _start_for(checkin.student, checkin.language)
+    read = [r for r in checkin.items if r.source != "skipped"]
+    changed = False
+    if not read:
+        for r in list(checkin.items):  # skips only: nothing to keep
+            db.delete(r)
+            changed = True
+        if (checkin.start_level, bool(checkin.fixed_level)) != (level, fixed):
+            checkin.start_level, checkin.fixed_level = level, fixed
+            changed = True
+    elif fixed and (checkin.start_level, bool(checkin.fixed_level)) != (level, True):
+        checkin.start_level, checkin.fixed_level = level, True
+        changed = True
+    if changed:
+        db.commit()
+        db.expire(checkin, ["items"])
+
+
 def start(db: Session, teacher: Teacher, student_id: str, language: str | None, local_id: str | None,
-          ladder_start: str | None = None) -> Checkin:
-    """`ladder_start` comes from a check-in run offline on the phone: the server keeps the phone's starting rung so
-    the uploaded items line up with the same ladder."""
+          ladder_start: str | None = None, fixed_level: bool = False) -> Checkin:
+    """`ladder_start` (and `fixed_level`) come from a check-in run offline on the phone: the server keeps the phone's
+    starting rung so the uploaded items line up with the same ladder."""
     student = owned_student(db, teacher, student_id)
     if local_id:
         existing = db.scalar(select(Checkin).where(Checkin.local_id == local_id))
@@ -108,12 +147,9 @@ def start(db: Session, teacher: Teacher, student_id: str, language: str | None, 
         raise HTTPException(422, f"no item bank for language {lang!r}")
     if ladder_start is not None and (local_id is None or ladder_start not in ITEM_LEVELS):
         raise HTTPException(422, "start_level is only for offline check-ins and must be an item level")
-    row = student.level_in(lang)
-    last = (row.confirmed_level or row.provisional_level) if row else None
-    others = [r.confirmed_level or r.provisional_level for r in student.levels if r.language != lang]
+    level, fixed = (ladder_start, fixed_level) if ladder_start else _start_for(student, lang)
     c = Checkin(student_id=student.id, language=lang, local_id=local_id, status="in_progress",
-                start_level=ladder_start or start_level(student.grade, last, row.cohort_override if row else None,
-                                                         [lv for lv in others if lv]))
+                start_level=level, fixed_level=fixed)
     db.add(c)
     db.commit()
     return c
@@ -212,6 +248,21 @@ def add_marks(db: Session, checkin: Checkin, item_id: str, marks: list[bool], du
     return ir
 
 
+def skip_item(db: Session, checkin: Checkin, item_id: str) -> ItemResult:
+    """The teacher skips the card instead of making the child read it. It counts for nothing: not a pass, not a
+    fail; no words, no recording, nothing for the diagnosis. The ladder moves to the nearest card not tried yet."""
+    item = _expect_item(db, checkin, item_id)
+    result = {"item_id": item.id, "level": item.level, "lang": item.lang, "status": "skipped", "skipped": True,
+              "words": [], "extras": [], "counts": {"total": 0, "correct": 0, "errors": 0}, "hesitations": None,
+              "wcpm": None, "passed": None, "needs_review": False}
+    ir = ItemResult(checkin_id=checkin.id, position=len(checkin.items), item_id=item.id, item_level=item.level,
+                    source="skipped", result=result, passed=None, needs_review=False)
+    db.add(ir)
+    checkin.items.append(ir)
+    db.commit()
+    return ir
+
+
 async def attach_audio(db: Session, checkin: Checkin, ir: ItemResult, data: bytes, suffix: str) -> ItemScore:
     """Score the recording of an item that was tap-marked offline, after it syncs.
 
@@ -255,7 +306,7 @@ def _settle(db: Session, checkin: Checkin) -> None:
     the items do not place the child (a correction failed an item the ladder had passed) -> reopened
     (in_progress) so the next rung can be read; otherwise scored with the ASER level.
     """
-    checkin.level_suggested = placed_level([s.outcome() for s in scores(checkin)])
+    checkin.level_suggested = placed_level(outcomes(checkin))
     if checkin.teacher_overrode:
         checkin.status = "scored"
     elif any(r.needs_review for r in checkin.items):
@@ -275,7 +326,7 @@ def finish(db: Session, checkin: Checkin) -> Checkin:
         raise HTTPException(409, f"check-in is {checkin.status}")
     if not checkin.items:
         raise HTTPException(409, "no items were read")
-    if not awaiting_review(checkin) and placed_level([s.outcome() for s in scores(checkin)]) is None:
+    if not awaiting_review(checkin) and placed_level(outcomes(checkin)) is None:
         raise HTTPException(409, "these items do not place the child yet: read the next item or set the level")
     _settle(db, checkin)
     db.commit()

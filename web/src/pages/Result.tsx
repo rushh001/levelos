@@ -205,6 +205,17 @@ function ItemCard({ checkinId, item, onTapWord }: { checkinId: string; item: Ite
   const { t } = useTranslation()
   const clip = useClip(checkinId, item.id)
   const s = item.result
+  if (item.source === 'skipped') {
+    // The teacher skipped this card instead of having it read: it counted for nothing.
+    return (
+      <div className="rounded-2xl bg-white p-3 shadow-card">
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-semibold">{t(`itemLevel.${item.item_level}`)}</span>
+          <span className="text-sm text-mute">{t('result.skipped')}</span>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="rounded-2xl bg-white p-3 shadow-card">
       <div className="flex items-center justify-between gap-2">

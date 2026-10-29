@@ -8,6 +8,7 @@ import { MeaningCheck, meaningWords } from '../components/MeaningCheck'
 import { RecordControls } from '../components/RecordControls'
 import { ReviewPanel } from '../components/ReviewPanel'
 import { SayToChild } from '../components/SayToChild'
+import { SkipCard } from '../components/SkipCard'
 import { SoundToggle } from '../components/SoundToggle'
 import { TapToMark } from '../components/TapToMark'
 import { Button, ErrorBox, Page, ReadingCard, Spinner } from '../components/ui'
@@ -134,6 +135,24 @@ export default function Checkin() {
     }
   }
 
+  // The teacher skips the card instead of having it read: it counts for nothing; the ladder moves on (or ends).
+  const skip = async () => {
+    if (!checkin || !item) return
+    setBusy('save')
+    setNotice(null)
+    setActionError(null)
+    try {
+      const r = await Api.skipItem(checkin.id, item.id)
+      setNotice({ kind: 'info', text: t('checkin.skipped', { level: t(`itemLevel.${item.level}`) }) })
+      setTapMode(false)
+      setCheckin(r.checkin)
+    } catch (e) {
+      setActionError(e as Error)
+    } finally {
+      setBusy(null)
+    }
+  }
+
   const stopCheck = async () => {
     if (!checkin || !window.confirm(t('checkin.stopConfirm'))) return
     recorder.cancel()
@@ -162,7 +181,10 @@ export default function Checkin() {
 
       <div className="mb-3 flex items-end gap-2">
         <div className="min-w-0 flex-1">
-          <Ladder items={checkin.items.map((r) => ({ level: r.item_level, passed: r.passed }))} current={item?.level ?? null} />
+          <Ladder
+            items={checkin.items.map((r) => ({ level: r.item_level, passed: r.passed, skipped: r.source === 'skipped' }))}
+            current={item?.level ?? null}
+          />
         </div>
         <SoundToggle className="mb-1" />
       </div>
@@ -229,6 +251,7 @@ export default function Checkin() {
           ) : (
             <RecordControls recorder={recorder} onRecord={() => void record()} onTap={() => setTapMode(true)} />
           )}
+          {!tapMode && busy === null && <SkipCard onSkip={() => void skip()} />}
         </>
       )}
 

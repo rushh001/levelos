@@ -101,6 +101,8 @@ function clipName(mime: string): string {
 export const Api = {
   health: () => api<Health>('/health'),
   login: (login: string, pin: string) => post<{ token: string; teacher: Teacher }>('/auth/login', { login, pin }),
+  signup: (name: string, email: string, pin: string, uiLang: string) =>
+    post<{ token: string; teacher: Teacher; login: string }>('/auth/signup', { name, email, pin, ui_lang: uiLang }),
   me: () => api<Teacher>('/me'),
 
   classes: () => api<ClassSummary[]>('/classes'),
@@ -114,12 +116,13 @@ export const Api = {
   patchStudent: (id: string, body: { cohort_override?: string; clear_cohort_override?: boolean; language?: string }) =>
     patch<StudentSummary>(`/students/${id}`, body),
 
-  startCheckin: (studentId: string, language: string, localId?: string, startLevel?: string) =>
+  startCheckin: (studentId: string, language: string, localId?: string, startLevel?: string, fixedLevel = false) =>
     post<Checkin>('/checkins', {
       student_id: studentId,
       language,
       local_id: localId ?? null,
       start_level: startLevel ?? null,
+      fixed_level: fixedLevel,
     }),
   checkin: (id: string) => api<Checkin>(`/checkins/${id}`),
   uploadItem: (id: string, itemId: string, blob: Blob, mime: string) => {
@@ -130,6 +133,8 @@ export const Api = {
   },
   markItem: (id: string, itemId: string, marks: boolean[], durationMs?: number) =>
     post<UploadResult>(`/checkins/${id}/marks`, { item_id: itemId, marks, duration_ms: durationMs ?? null }),
+  skipItem: (id: string, itemId: string) =>
+    post<UploadResult>(`/checkins/${id}/skip`, { item_id: itemId }),
   attachAudio: (id: string, itemResultId: string, blob: Blob, mime: string) => {
     const form = new FormData()
     form.append('audio', new File([blob], clipName(mime), { type: mime.split(';')[0] }))

@@ -32,13 +32,16 @@ class RatingIn(BaseModel):
 
 def activity_out(g: GeneratedActivity) -> dict:
     a = act.entry(g.source_activity_id)
+    plan = g.plan
+    if plan.get("text") and not plan.get("material") and "homework" not in plan and plan["text"].get("kind") in ("rhyme", "story"):
+        plan = plan | {"homework": act.homework_for(plan["text"])}  # a plan made before homework existed
     return {
         "id": g.id,
         "cohort": g.cohort,
         "language": g.language,
         "source_activity_id": g.source_activity_id,
         "source": act.source_of(a) if a else None,
-        "plan": g.plan,
+        "plan": plan,
         "accepted": g.accepted,
         "generated_by": g.validation.get("generated_by", "bank"),
         "teacher_rating": g.teacher_rating,
@@ -55,7 +58,7 @@ async def generate(class_id: str, body: GenerateIn, teacher: Teacher = Depends(c
     lang = reading_language(cls, body.language)
     ctx = act.cohort_context(db, cls, body.cohort, lang)
     result = await act.generate(
-        ctx, blocked=budget.blocked(db),
+        ctx, recent=act.recent_history(db, cls.id, body.cohort, lang), blocked=budget.blocked(db),
         on_usage=lambda purpose, model, usage, stop: budget.record(db, purpose, model, usage, cls.id, stop))
     g = GeneratedActivity(classroom_id=cls.id, cohort=body.cohort, language=lang,
                           source_activity_id=result["source_activity_id"], plan=result["plan"],

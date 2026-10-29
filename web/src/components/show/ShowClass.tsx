@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { activityExamples, fillExamples } from '../../lib/content'
-import type { Activity, ActivityPlan } from '../../lib/types'
+import { activityExamples, fillExamples, shelfMaterial, textForActivity } from '../../lib/content'
+import type { Activity, ActivityPlan, ActivityText } from '../../lib/types'
 import { pick, useUiLang } from '../../lib/uiLang'
 import { Mascot } from '../Mascot'
 import { SoundToggle } from '../SoundToggle'
@@ -15,13 +15,16 @@ import { FlashScreen } from './FlashScreen'
 import { PairsScreen } from './PairsScreen'
 import { PictureMatchScreen } from './PictureMatchScreen'
 import { RhymeScreen } from './RhymeScreen'
+import { TextScreen } from './TextScreen'
+import { LettersScreen } from './LettersScreen'
 
 /**
  * "Show the class": the activity as a full-screen, big-text, tappable version the teacher holds up to the group.
  * Each screen is driven by the bank entry's examples for the group's language and the plan's practice words, so a
- * Tamil group builds Tamil words and an English group changes English vowels.
+ * Tamil group builds Tamil words and an English group changes English vowels. Text screens show the free-to-use
+ * text the plan carries.
  */
-export type ScreenKind = 'chain' | 'pairs' | 'build' | 'flash' | 'chart' | 'findwrong' | 'match' | 'rhyme'
+export type ScreenKind = 'chain' | 'pairs' | 'build' | 'flash' | 'chart' | 'findwrong' | 'match' | 'rhyme' | 'text' | 'story' | 'hunt' | 'letters'
 
 const SCREENS: Record<string, ScreenKind> = {
   'matra-change-chain': 'chain',
@@ -35,6 +38,19 @@ const SCREENS: Record<string, ScreenKind> = {
   'correct-the-incorrect': 'findwrong',
   'word-picture-match': 'match',
   'rhyme-and-read': 'rhyme',
+  'classic-rhyme-reading': 'text',
+  'read-and-answer': 'story',
+  'word-hunt-in-rhyme': 'hunt',
+  'rhyme-missing-word': 'text',
+  // Letter and Word groups: only letters or single words on screen, never the rhyme
+  'rhyme-letter-cards': 'flash',
+  'rhyme-sound-clap': 'letters',
+  'letter-find-and-write': 'letters',
+  'rhyme-words-break-and-join': 'build',
+  'rhyme-word-cards': 'flash',
+  'word-sort-cards': 'flash',
+  'story-echo-reading': 'story',
+  'story-retell': 'story',
 }
 
 export function hasShowScreen(activityId: string): boolean {
@@ -50,6 +66,10 @@ export const SCREEN_ICON: Record<ScreenKind, string> = {
   findwrong: '🔍',
   match: '🖼️',
   rhyme: '🎵',
+  text: '📜',
+  story: '📖',
+  hunt: '🔎',
+  letters: '✏️',
 }
 
 export function screenKind(activityId: string): ScreenKind | null {
@@ -57,12 +77,14 @@ export function screenKind(activityId: string): ScreenKind | null {
 }
 
 /** What a screen needs of an activity: the bank entry it adapts, its title and the group's practice words. */
-export type Showable = Pick<Activity, 'source_activity_id'> & { plan: Pick<ActivityPlan, 'title' | 'practice_words'> }
+export type Showable = Pick<Activity, 'source_activity_id'> & { plan: Pick<ActivityPlan, 'title' | 'practice_words' | 'text' | 'material'> }
 
 export interface ScreenProps {
   lang: string
   ex: Record<string, string>
   words: string[]
+  /** The free-to-use text a text activity is built on (null on the shelf: the screen uses the bundled one). */
+  text?: ActivityText | null
   /** Stars and a bounce from the parrot: the group got it. */
   celebrate: () => void
 }
@@ -80,7 +102,13 @@ export function ShowClass({ activity, lang, onClose }: { activity: Showable; lan
     setHappy(true)
     window.setTimeout(() => setHappy(false), 1800)
   }, [])
-  const props: ScreenProps = { lang, ex, words: activity.plan.practice_words, celebrate }
+  // A text activity opened from the shelf has no plan of its own: it shows the language's bundled text and its
+  // words, or for a Letter or Word group the letters or words taken from it.
+  const bundled = activity.plan.text ? null : textForActivity(activity.source_activity_id, lang)
+  const text = activity.plan.text ?? bundled
+  const material = activity.plan.material ?? (bundled ? shelfMaterial(activity.source_activity_id, lang) : null)
+  const words = material ? material.items : bundled ? bundled.words_to_find : activity.plan.practice_words
+  const props: ScreenProps = { lang, ex, words, text, celebrate }
   const screen = {
     chain: <ChainScreen {...props} />,
     pairs: <PairsScreen {...props} />,
@@ -90,6 +118,10 @@ export function ShowClass({ activity, lang, onClose }: { activity: Showable; lan
     findwrong: <FindWrongScreen {...props} />,
     match: <PictureMatchScreen {...props} />,
     rhyme: <RhymeScreen {...props} />,
+    text: <TextScreen {...props} mode="read" />,
+    story: <TextScreen {...props} mode="story" />,
+    hunt: <TextScreen {...props} mode="hunt" />,
+    letters: <LettersScreen {...props} />,
   }[kind]
 
   // A portal: the page's enter animation would otherwise make the page, not the screen, the overlay's frame.

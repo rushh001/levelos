@@ -9,6 +9,7 @@ import Checkin from './pages/Checkin'
 import ClassDashboard from './pages/ClassDashboard'
 import Classes from './pages/Classes'
 import Login from './pages/Login'
+import Signup from './pages/Signup'
 import OfflineCheckin from './pages/OfflineCheckin'
 import Result from './pages/Result'
 import Student from './pages/Student'
@@ -44,6 +45,7 @@ export default function App() {
       <SyncRunner />
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/" element={<RequireTeacher><Classes /></RequireTeacher>} />
         <Route path="/classes" element={<RequireTeacher><Classes list /></RequireTeacher>} />
         <Route path="/class/:id" element={<RequireTeacher><ClassDashboard /></RequireTeacher>} />

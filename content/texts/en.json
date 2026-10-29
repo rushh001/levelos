@@ -1,0 +1,148 @@
+{
+  "language": "en",
+  "_comment": "Free-to-use texts a group reads: public domain (author died before 1966, or an anonymous work published more than 60 years ago) or Creative Commons BY / CC0. Every text is credited on the activity. kind: rhyme (a short poem; Word and Paragraph groups) | story (a short prose text with 3–4 questions we wrote ourselves; Paragraph group). lines: one line or sentence each, exactly as in the source. words_to_find: words from the text for the word-hunt step.",
+  "texts": [
+    {
+      "id": "en-rhyme-star",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "The Star",
+      "author": "Jane Taylor",
+      "author_died": 1824,
+      "year": 1806,
+      "licence": "public domain",
+      "source": { "name": "Wikisource — Rhymes for the Nursery (1806)", "url": "https://en.wikisource.org/wiki/The_Star_(Taylor)" },
+      "note": "Known everywhere as \"Twinkle, twinkle, little star\"; in many Indian Class 1–2 English readers.",
+      "lines": [
+        "Twinkle, twinkle, little star,",
+        "How I wonder what you are!",
+        "Up above the world so high,",
+        "Like a diamond in the sky."
+      ],
+      "words_to_find": ["star", "wonder", "world", "diamond", "sky"]
+    },
+    {
+      "id": "en-rhyme-wind",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "Who has seen the wind?",
+      "author": "Christina Rossetti",
+      "author_died": 1894,
+      "year": 1872,
+      "licence": "public domain",
+      "source": { "name": "Project Gutenberg — Sing-Song: A Nursery Rhyme Book (1893 edition)", "url": "https://www.gutenberg.org/ebooks/76703" },
+      "note": "Eight lines; common in Indian Class 3–5 English readers.",
+      "lines": [
+        "Who has seen the wind?",
+        "Neither I nor you:",
+        "But when the leaves hang trembling",
+        "The wind is passing thro’.",
+        "Who has seen the wind?",
+        "Neither you nor I:",
+        "But when the trees bow down their heads",
+        "The wind is passing by."
+      ],
+      "words_to_find": ["wind", "leaves", "trees", "heads"]
+    },
+    {
+      "id": "en-story-crow",
+      "kind": "story",
+      "level": "story",
+      "title": "The Crow and the Pitcher",
+      "author": "Æsop, retold in The Æsop for Children (1919)",
+      "author_died": null,
+      "traditional": true,
+      "year": 1919,
+      "licence": "public domain",
+      "source": { "name": "Project Gutenberg — The Æsop for Children (Rand McNally, 1919)", "url": "https://www.gutenberg.org/ebooks/19994" },
+      "note": "The thirsty crow, as in many Class 1–2 readers; an anonymous retelling published in 1919, so free in India and worldwide.",
+      "lines": [
+        "In a spell of dry weather, when the Birds could find very little to drink, a thirsty Crow found a pitcher with a little water in it.",
+        "But the pitcher was high and had a narrow neck, and no matter how he tried, the Crow could not reach the water.",
+        "The poor thing felt as if he must die of thirst.",
+        "Then an idea came to him.",
+        "Picking up some small pebbles, he dropped them into the pitcher one by one.",
+        "With each pebble the water rose a little higher until at last it was near enough so he could drink.",
+        "In a pinch a good use of our wits may help us out."
+      ],
+      "words_to_find": ["Crow", "pitcher", "water", "pebbles"],
+      "questions": [
+        { "q": "Why could the Birds find very little to drink?", "a": "There was a spell of dry weather." },
+        { "q": "Why could the Crow not reach the water?", "a": "The pitcher was high and had a narrow neck." },
+        { "q": "What did the Crow drop into the pitcher?", "a": "Small pebbles, one by one." },
+        { "q": "What happened to the water?", "a": "It rose a little higher with each pebble, until the Crow could drink." }
+      ]
+    },
+    {
+      "id": "en-rhyme-humpty",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "Humpty Dumpty",
+      "author": "Traditional, from The Real Mother Goose (1916)",
+      "author_died": null,
+      "traditional": true,
+      "year": 1916,
+      "licence": "public domain",
+      "source": { "name": "Project Gutenberg — The Real Mother Goose (1916)", "url": "https://www.gutenberg.org/ebooks/10607" },
+      "note": "A traditional nursery rhyme as printed in The Real Mother Goose (1916); free in India and worldwide.",
+      "lines": [
+        "Humpty Dumpty sat on a wall,",
+        "Humpty Dumpty had a great fall;",
+        "All the King's horses, and all the King's men",
+        "Cannot put Humpty Dumpty together again."
+      ],
+      "words_to_find": ["Humpty", "wall", "fall", "horses", "men"]
+    },
+    {
+      "id": "en-rhyme-rain",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "Rain",
+      "author": "Traditional, from The Real Mother Goose (1916)",
+      "author_died": null,
+      "traditional": true,
+      "year": 1916,
+      "licence": "public domain",
+      "source": { "name": "Project Gutenberg — The Real Mother Goose (1916)", "url": "https://www.gutenberg.org/ebooks/10607" },
+      "note": "Rain, rain, go away: three short lines, good for a first word hunt.",
+      "lines": [
+        "Rain, rain, go away,",
+        "Come again another day;",
+        "Little Johnny wants to play."
+      ],
+      "words_to_find": ["rain", "day", "play", "again"]
+    },
+    {
+      "id": "en-story-fox",
+      "kind": "story",
+      "level": "story",
+      "title": "The Fox and the Grapes",
+      "author": "Æsop, retold in The Æsop for Children (1919)",
+      "author_died": null,
+      "traditional": true,
+      "year": 1919,
+      "licence": "public domain",
+      "source": { "name": "Project Gutenberg — The Æsop for Children (Rand McNally, 1919)", "url": "https://www.gutenberg.org/ebooks/19994" },
+      "note": "Aesop's fox and the sour grapes as retold in 1919 (anonymous), so free in India and worldwide; the moral line is left out.",
+      "lines": [
+        "A Fox one day spied a beautiful bunch of ripe grapes hanging from a vine trained along the branches of a tree.",
+        "The grapes seemed ready to burst with juice, and the Fox's mouth watered as he gazed longingly at them.",
+        "The bunch hung from a high branch, and the Fox had to jump for it.",
+        "The first time he jumped he missed it by a long way.",
+        "So he walked off a short distance and took a running leap at it, only to fall short once more.",
+        "Again and again he tried, but in vain.",
+        "Now he sat down and looked at the grapes in disgust.",
+        "\"What a fool I am,\" he said.",
+        "\"Here I am wearing myself out to get a bunch of sour grapes that are not worth gaping for.\"",
+        "And off he walked very, very scornfully."
+      ],
+      "words_to_find": ["Fox", "grapes", "branch", "jumped"],
+      "questions": [
+        { "q": "What did the Fox see hanging from the vine?", "a": "A bunch of ripe grapes." },
+        { "q": "Why did the Fox have to jump?", "a": "The grapes hung from a high branch." },
+        { "q": "Did the Fox get the grapes?", "a": "No. He tried again and again, but in vain." },
+        { "q": "What did the Fox say about the grapes at the end?", "a": "That they were sour and not worth getting." }
+      ]
+    }
+  ]
+}

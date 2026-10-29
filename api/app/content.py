@@ -104,3 +104,20 @@ def pick_item(lang: str, level: str, avoid: set[str] = frozenset()) -> Item:
 
 def instructions(lang: str) -> dict:
     return bank(lang).get("instructions", {})
+
+
+TEXT_KINDS = ("rhyme", "story")
+
+
+def texts(lang: str) -> list[dict]:
+    """Free-to-use texts a group reads in `lang` (public domain or Creative Commons BY, each credited on the
+    activity): content/texts/<lang>.json, or none."""
+    path = settings.content_dir / "texts" / f"{lang}.json"
+    if not path.exists():
+        return []
+    return json.loads(path.read_text(encoding="utf-8"))["texts"]
+
+
+def text_for(lang: str, kind: str) -> dict | None:
+    """The first text of this kind (rhyme | story) in the language, or None when it has none."""
+    return next((t for t in texts(lang) if t["kind"] == kind), None)

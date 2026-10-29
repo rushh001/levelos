@@ -1,0 +1,74 @@
+{
+  "language": "mr",
+  "_comment": "Free-to-use Marathi texts: public domain in India (author died before 1966). Copied exactly from Marathi Wikisource / Wikibooks pages that carry the प्रताधिकार मुक्त साहित्य notice; only stanza markers (|| धृ ||, || १ ||) were dropped.",
+  "texts": [
+    {
+      "id": "mr-rhyme-anandi",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "आनंदी आनंद गडे",
+      "author": "बालकवी (त्र्यंबक बापुजी ठोंबरे)",
+      "author_died": 1918,
+      "year": null,
+      "licence": "public domain",
+      "source": { "name": "मराठी विकिस्रोत — आनंदी आनंद गडे", "url": "https://mr.wikisource.org/wiki/आनंदी_आनंद_गडे" },
+      "note": "Refrain and first stanza of a standard Balbharati primary poem; the refrain is made for choral reading.",
+      "lines": [
+        "आनंदी आनंद गडे, इकडे तिकडे चोहिकडे",
+        "वरती खाली मोद भरे, वायूसंगे मोद फिरे",
+        "नभांत भरला, दिशांत फिरला, जगांत उरला",
+        "मोद विहरतो चोहिकडे"
+      ],
+      "words_to_find": ["आनंद", "मोद", "नभांत", "चोहिकडे"]
+    },
+    {
+      "id": "mr-rhyme-shravan",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "श्रावणमासी हर्ष मानसी",
+      "author": "बालकवी (त्र्यंबक बापुजी ठोंबरे)",
+      "author_died": 1918,
+      "year": null,
+      "licence": "public domain",
+      "source": { "name": "मराठी विकिस्रोत — श्रावणमासी हर्ष मानसी", "url": "https://mr.wikisource.org/wiki/श्रावणमासी_हर्ष_मानसी" },
+      "note": "First four lines of one of the best-known Marathi school poems.",
+      "lines": [
+        "श्रावणमासी हर्ष मानसी हिरवळ दाटे चोहीकडे",
+        "क्षणात येती सरसर शिरवे क्षणात फिरूनी उन पडे.",
+        "वरती बघता इंद्रधनूचा गोफ दुहेरी विणलासे",
+        "मंगल तोरण काय बांधिले नभोमंडपी कुणी भासे."
+      ],
+      "words_to_find": ["हिरवळ", "क्षणात", "इंद्रधनूचा", "तोरण"]
+    },
+    {
+      "id": "mr-story-shyam",
+      "kind": "story",
+      "level": "story",
+      "title": "श्यामची आई — रात्र पहिली (उतारा)",
+      "author": "साने गुरुजी (पांडुरंग सदाशिव साने)",
+      "author_died": 1950,
+      "year": 1936,
+      "licence": "public domain",
+      "source": { "name": "मराठी विकिबुक्स — श्यामची आई, रात्र पहिली", "url": "https://mr.wikibooks.org/wiki/श्यामची_आई/रात्र_पहिली" },
+      "note": "The opening of the first night, simple repeated sentences; Shyamchi Aai extracts are in Balbharati readers.",
+      "lines": [
+        "माझ्या आईचे माहेर फार श्रीमंत नव्हते, तरी सुखी होते.",
+        "माहेरी खाण्यापिण्याची ददात नव्हती.",
+        "माझ्या आईचे माहेर गावातच होते.",
+        "माझ्या आईचे वडील फार कर्मठ व धर्मनिष्ठ होते.",
+        "माझी आई सर्व भावंडात मोठी होती.",
+        "माझ्या आईवर तिच्या आईबापांचे फार प्रेम होते.",
+        "माझ्या आईला माहेरी कोणी आवडी म्हणत, कोणी बयो म्हणत.",
+        "आवडी! खरेच लहानपणापासून ती सर्वांना आवडत असे.",
+        "बयो ! खरेच ती जगाची बयो होती; आई होती."
+      ],
+      "words_to_find": ["माहेर", "सुखी", "आवडी", "बयो"],
+      "questions": [
+        { "q": "आईचे माहेर कसे होते?", "a": "फार श्रीमंत नव्हते, तरी सुखी होते." },
+        { "q": "आईचे माहेर कुठे होते?", "a": "गावातच होते." },
+        { "q": "आई भावंडांत कितवी होती?", "a": "सर्व भावंडांत मोठी होती." },
+        { "q": "आईला माहेरी कोणत्या नावांनी हाक मारत?", "a": "आवडी आणि बयो." }
+      ]
+    }
+  ]
+}

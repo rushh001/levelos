@@ -1,6 +1,6 @@
 export type Level = 'beginner' | 'letter' | 'word' | 'paragraph' | 'story'
 export type ItemLevel = Exclude<Level, 'beginner'>
-export type Cohort = 'letter' | 'word' | 'paragraph'
+export type Cohort = 'letter' | 'word' | 'paragraph' | 'story'
 /** Text in English and the teacher's language ({en, hi} for a Hindi class, {en, kn} for a Kannada one). */
 export type Bilingual = Partial<Record<string, string>>
 
@@ -8,6 +8,7 @@ export interface Teacher {
   id: string
   login: string
   name: string
+  email?: string | null
   ui_lang: string
 }
 
@@ -78,8 +79,10 @@ export interface ItemScore {
   item_id: string
   level: ItemLevel
   lang: string
-  status: 'scored' | 'rerecord' | 'failed'
+  status: 'scored' | 'rerecord' | 'failed' | 'skipped'
   reason: string | null
+  /** The teacher skipped the card instead of having it read: it counts for nothing. */
+  skipped?: boolean | string
   duration_ms: number
   reading_ms: number | null
   words: Word[]
@@ -100,7 +103,7 @@ export interface ItemResult {
   position: number
   item_id: string
   item_level: ItemLevel
-  source: 'ai' | 'offline_marks'
+  source: 'ai' | 'offline_marks' | 'skipped'
   passed: boolean | null
   needs_review: boolean
   /** A recording is kept on the server for the teacher to listen again. */
@@ -154,7 +157,7 @@ export interface Checkin {
 }
 
 export interface UploadResult {
-  status: 'scored' | 'rerecord' | 'failed'
+  status: 'scored' | 'rerecord' | 'failed' | 'skipped'
   reason: string | null
   item_result: ItemResult | null
   checkin: Checkin
@@ -191,6 +194,30 @@ export interface Health {
   claude_budget?: { available: boolean }
 }
 
+/** A free-to-use text (public domain or Creative Commons BY) an activity is built on: shown to the group, credited. */
+export interface ActivityText {
+  id: string
+  kind: 'rhyme' | 'story'
+  title: string
+  author: string
+  year: number | null
+  licence: string
+  lines: string[]
+  words_to_find: string[]
+  questions: { q: string; a: string }[]
+  source: { name: string; url: string }
+  note: string | null
+  /** A Letter or Word group's text: the teacher says it aloud, the children do not read it. */
+  read_aloud?: boolean
+}
+
+/** What a Letter or Word group reads: letters (each with a word from the rhyme the teacher says) or single words. */
+export interface ActivityMaterial {
+  kind: 'letters' | 'words'
+  items: string[]
+  anchors?: Record<string, string>
+}
+
 export interface ActivityPlan {
   title: Bilingual
   materials: Partial<Record<string, string[]>>
@@ -198,6 +225,10 @@ export interface ActivityPlan {
   practice_words: string[]
   watch_for: Bilingual
   why: Bilingual
+  text?: ActivityText | null
+  material?: ActivityMaterial | null
+  /** A Paragraph or Story group's homework on the text, in each interface language. */
+  homework?: Bilingual | null
 }
 
 export interface Activity {

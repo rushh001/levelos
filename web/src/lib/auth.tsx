@@ -7,6 +7,8 @@ interface AuthState {
   teacher: Teacher | null
   ready: boolean
   login: (login: string, pin: string) => Promise<void>
+  /** Starts the session a sign-up returned. */
+  adopt: (token: string, teacher: Teacher) => void
   logout: () => void
 }
 
@@ -65,14 +67,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener(LOGOUT_EVENT, logout)
   }, [logout])
 
-  const login = useCallback(async (loginId: string, pin: string) => {
-    const r = await Api.login(loginId.trim().toLowerCase(), pin)
-    setToken(r.token)
-    cacheTeacher(r.teacher)
-    setTeacher(r.teacher)
+  const adopt = useCallback((token: string, t: Teacher) => {
+    setToken(token)
+    cacheTeacher(t)
+    setTeacher(t)
   }, [])
 
-  return <AuthContext.Provider value={{ teacher, ready, login, logout }}>{children}</AuthContext.Provider>
+  const login = useCallback(
+    async (loginId: string, pin: string) => {
+      const r = await Api.login(loginId.replace(/\s/g, '').toLowerCase(), pin) // "483 920" works too
+      adopt(r.token, r.teacher)
+    },
+    [adopt],
+  )
+
+  return <AuthContext.Provider value={{ teacher, ready, login, adopt, logout }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth(): AuthState {

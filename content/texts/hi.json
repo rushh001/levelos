@@ -1,0 +1,103 @@
+{
+  "language": "hi",
+  "_comment": "Free-to-use Hindi texts: public domain in India (author died before 1966). Copied exactly from the pages cited (Kavita Kosh, Hindi Wikisource); zero-width joiners dropped, and one transcription slip in the Premchand passage (मॅुह) corrected to मुँह.",
+  "texts": [
+    {
+      "id": "hi-rhyme-nandu",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "नंदू को जुकाम",
+      "author": "रामनरेश त्रिपाठी",
+      "author_died": 1962,
+      "year": null,
+      "licence": "public domain",
+      "source": { "name": "कविता कोश — नंदू को जुकाम / रामनरेश त्रिपाठी", "url": "https://kavitakosh.org/kk/नंदू_को_जुकाम_/_रामनरेश_त्रिपाठी" },
+      "note": "Six short lines, grade 1 level; Tripathi's children's poems appear in many primers.",
+      "lines": [
+        "बहुत जुकाम हुआ नंदू को,",
+        "एक रोज वह इतना छींका।",
+        "इतना छींका, इतना छींका,",
+        "इतना छींका, इतना छींका।",
+        "सब पत्ते गिर गए पेड़ के,",
+        "धोखा हुआ उन्हें आंधी का!"
+      ],
+      "words_to_find": ["जुकाम", "नंदू", "छींका", "पत्ते"]
+    },
+    {
+      "id": "hi-rhyme-badal",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "बादल हैं किसके काका?",
+      "author": "सुभद्राकुमारी चौहान",
+      "author_died": 1948,
+      "year": null,
+      "licence": "public domain",
+      "source": { "name": "कविता कोश — बादल हैं किसके काका? / सुभद्राकुमारी चौहान", "url": "https://kavitakosh.org/kk/बादल_हैं_किसके_काका_?_/_सुभद्राकुमारी_चौहान" },
+      "note": "Twelve short lines about rain, by the poet of \"झाँसी की रानी\".",
+      "lines": [
+        "अभी अभी थी धूप, बरसने",
+        "लगा कहाँ से यह पानी",
+        "किसने फोड़ घड़े बादल के",
+        "की है इतनी शैतानी।",
+        "सूरज ने क्यों बन्द कर लिया",
+        "अपने घर का दरवाज़ा",
+        "उसकी माँ ने भी क्या उसको",
+        "बुला लिया कहकर आजा।",
+        "ज़ोर-ज़ोर से गरज रहे हैं",
+        "बादल हैं किसके काका",
+        "किसको डाँट रहे हैं, किसने",
+        "कहना नहीं सुना माँ का।"
+      ],
+      "words_to_find": ["धूप", "पानी", "बादल", "सूरज"]
+    },
+    {
+      "id": "hi-story-bail",
+      "kind": "story",
+      "level": "story",
+      "title": "दो बैलों की कथा (अंश)",
+      "author": "प्रेमचंद",
+      "author_died": 1936,
+      "year": 1931,
+      "licence": "public domain",
+      "source": { "name": "हिन्दी विकिस्रोत — प्रेमचंद की सर्वश्रेष्ठ कहानियाँ: दो बैलों की कथा", "url": "https://hi.wikisource.org/wiki/प्रेमचंद_की_सर्वश्रेष्ठ_कहानियां/दो_बैलों_की_कथा" },
+      "note": "Five sentences from the story of Heera and Moti: the evening they reach their new home. Grade 3 vocabulary.",
+      "lines": [
+        "सन्ध्या समय दोनों बैल अपने नये स्थान पर पहुँचे।",
+        "दिन-भर के भूखे थे; लेकिन जब नाँद में लगाये गये, तो एक ने भी उसमें मुँह न डाला।",
+        "दिल भारी हो रहा था।",
+        "जिसे उन्होंने अपना घर समझ रखा था, वह आज उनसे छूट गया था।",
+        "यह नया घर, नया गाँव, नये आदमी सब उन्हें बेगाने-से लगते थे।"
+      ],
+      "words_to_find": ["बैल", "भूखे", "घर", "गाँव"],
+      "questions": [
+        { "q": "दोनों बैल अपने नये स्थान पर कब पहुँचे?", "a": "सन्ध्या समय।" },
+        { "q": "नाँद में लगाये जाने पर बैलों ने क्या किया?", "a": "एक ने भी उसमें मुँह न डाला।" },
+        { "q": "बैलों का दिल भारी क्यों था?", "a": "उनका अपना घर उनसे छूट गया था।" },
+        { "q": "नया घर, गाँव और आदमी उन्हें कैसे लगते थे?", "a": "बेगाने-से।" }
+      ]
+    },
+    {
+      "id": "hi-rhyme-savera",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "उठो भई उठो (अंश)",
+      "author": "श्रीधर पाठक",
+      "author_died": 1928,
+      "year": 1906,
+      "licence": "public domain",
+      "source": { "name": "कविता कोश — उठो भई उठो / श्रीधर पाठक", "url": "https://kavitakosh.org/kk/उठो_भई_उठो_/_श्रीधर_पाठक" },
+      "note": "The first eight lines of a classic morning rhyme (1906).",
+      "lines": [
+        "हुआ सवेरा जागो भैया,",
+        "खड़ी पुकारे प्यारी मैया।",
+        "हुआ उजाला छिप गए तारे,",
+        "उठो मेरे नयनों के तारे।",
+        "चिड़िया फुर-फुर फिरती डोलें,",
+        "चोंच खोलकर चों-चों बोलें।",
+        "मीठे बोल सुनावे मैना,",
+        "छोड़ो नींद, खोल दो नैना।"
+      ],
+      "words_to_find": ["सवेरा", "मैया", "उजाला", "चिड़िया", "मैना"]
+    }
+  ]
+}

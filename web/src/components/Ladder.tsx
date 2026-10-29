@@ -6,11 +6,17 @@ const RUNGS: ItemLevel[] = ['letter', 'word', 'paragraph', 'story']
 const HEIGHT = [44, 60, 76, 92]
 
 /** The ASER ladder as the child sees it: four steps climbing to the right, the parrot sitting on the card being
- * read, a star on every step already passed. A step that was not passed just stays quiet, so the child never
- * sees a cross. */
-export function Ladder({ items, current }: { items: { level: ItemLevel; passed: boolean | null }[]; current: ItemLevel | null }) {
+ * read, a star on every step already passed. A step that was not passed, or that the teacher skipped, just stays
+ * quiet, so the child never sees a cross. */
+export function Ladder({
+  items,
+  current,
+}: {
+  items: { level: ItemLevel; passed: boolean | null; skipped?: boolean }[]
+  current: ItemLevel | null
+}) {
   const { t } = useTranslation()
-  const passed = new Set(items.filter((i) => i.passed).map((i) => i.level))
+  const passed = new Set(items.filter((i) => i.passed && !i.skipped).map((i) => i.level))
   return (
     <ol className="mx-auto flex max-w-md items-end justify-center gap-1.5" aria-label="ladder">
       {RUNGS.map((r, i) => {

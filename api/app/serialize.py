@@ -16,7 +16,7 @@ def iso(dt: datetime) -> str:
 
 
 def teacher_out(t: Teacher) -> dict:
-    return {"id": t.id, "login": t.login, "name": t.name, "ui_lang": t.ui_lang}
+    return {"id": t.id, "login": t.login, "name": t.name, "email": t.email, "ui_lang": t.ui_lang}
 
 
 def level_out(s: Student, language: str) -> dict:
@@ -110,6 +110,7 @@ def checkin_out(c: Checkin, next_item: Item | None = None) -> dict:
         "status": c.status,
         "source": c.source,
         "start_level": c.start_level,
+        "fixed_level": bool(c.fixed_level),  # the teacher chose the group: only that level's card
         "level_suggested": c.level_suggested,
         "level_final": c.level_final,
         "teacher_overrode": c.teacher_overrode,

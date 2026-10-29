@@ -8,6 +8,7 @@ from app.levels.aser_rules import (
     item_passed,
     level_from_outcomes,
     next_item_level,
+    skipped_outcome,
     start_level,
     update_levels,
 )
@@ -37,6 +38,26 @@ def test_letters_4_of_5_pass_3_of_5_fail():
 def test_words_4_of_5():
     assert item_passed(words(4))
     assert not item_passed(words(3))
+
+
+def test_a_skipped_card_counts_for_nothing():
+    s = skipped_outcome
+    assert not item_passed(s("word"))
+    # after a skip: the nearest card not tried yet, an easier one first; never back to a skipped card
+    assert next_item_level([s("paragraph")], "paragraph") == "word"
+    assert next_item_level([s("letter")], "letter") == "word"  # nothing easier than letters
+    assert next_item_level([s("letter"), s("word")], "letter") == "paragraph"
+    assert next_item_level([s("paragraph"), s("word"), s("letter"), s("story")], "paragraph") is None
+    # after a card read: up on a pass, down on a fail, but not to a skipped card
+    assert next_item_level([s("paragraph"), words(2)], "paragraph") == "letter"
+    assert next_item_level([s("word"), letters(5)], "word") is None
+    # the level comes only from the cards read; none read, no level
+    assert level_from_outcomes([s("letter"), s("word")]) is None
+    assert level_from_outcomes([s("letter"), words(5)]) == "word"
+    assert level_from_outcomes([s("paragraph"), words(2), letters(5)]) == "letter"
+    assert level_from_outcomes([s("word"), letters(2)]) == "beginner"
+    # skips do not use up the four cards a child may be asked to read
+    assert next_item_level([s("story"), words(5), letters(5), s("paragraph")], "story") is None
 
 
 def test_paragraph_three_mistakes_pass_four_fail():
@@ -86,25 +107,28 @@ def test_beginner_when_nothing_passed():
 # ---- adaptive ladder
 
 
-def test_start_level_by_grade_and_history():
+def test_start_level_by_history_else_letters():
     assert start_level(1, None) == "letter"
-    assert start_level(2, None) == "word"
-    assert start_level(3, None) == "paragraph"
+    assert start_level(2, None) == "letter"  # not checked yet: letters, whatever the grade
+    assert start_level(3, None) == "letter"
     assert start_level(3, "beginner") == "letter"
-    assert start_level(1, "word") == "word"
+    assert start_level(1, "word") == "word"  # re-tested at the last level's rung
+    assert start_level(3, None, None, ["word"]) == "letter"
 
 
-def test_group_chosen_by_teacher_sets_the_start():
-    # Grade 3 would start at the paragraph; a child the teacher placed in the Letter group starts at letters.
+def test_group_chosen_by_teacher_reads_only_that_card():
     assert start_level(3, None, "letter") == "letter"
     assert start_level(1, None, "paragraph") == "paragraph"
     assert start_level(2, "story", "word") == "word"  # the teacher's group wins over the last level
-    assert start_level(3, None, None) == "paragraph"  # "group by level": unchanged
-    # A first test in a new language starts no higher than the child's level in their other test.
-    assert start_level(2, None, None, ["letter"]) == "letter"
-    assert start_level(3, None, None, ["word"]) == "word"
-    assert start_level(1, None, None, ["story"]) == "letter"  # the grade rung was lower already
-    assert start_level(2, "paragraph", None, ["letter"]) == "paragraph"  # this test's own level wins
+    assert start_level(2, "paragraph", None, ["letter"]) == "paragraph"  # this test's own level otherwise
+    # with the group chosen, the check gives that level's card and ends, pass or fail
+    assert next_item_level([], "word", fixed=True) == "word"
+    assert next_item_level([words(5)], "word", fixed=True) is None
+    assert next_item_level([words(1)], "word", fixed=True) is None
+    assert next_item_level([skipped_outcome("word")], "word", fixed=True) is None
+    # a group chosen while a check was under way: the group's card comes next, then the check ends
+    assert next_item_level([letters(5)], "word", fixed=True) == "word"
+    assert next_item_level([letters(5), words(5)], "word", fixed=True) is None
 
 
 def test_ladder_moves_up_then_brackets():
@@ -175,7 +199,7 @@ def test_cohorts():
     assert cohort_for_level("letter") == "letter"
     assert cohort_for_level("word") == "word"
     assert cohort_for_level("paragraph") == "paragraph"
-    assert cohort_for_level("story") == "paragraph"
+    assert cohort_for_level("story") == "story"  # story readers have their own group
     assert cohort_for_level(None) is None
 
 

@@ -25,6 +25,7 @@ class Teacher(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     login: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(120))
+    email: Mapped[str | None] = mapped_column(String(254), nullable=True)  # set at sign-up; one account per email
     pin_hash: Mapped[str] = mapped_column(String(128))
     ui_lang: Mapped[str] = mapped_column(String(8), default="hi")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
@@ -99,6 +100,8 @@ class Checkin(Base):
     local_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)  # idempotency key (PWA queue)
     language: Mapped[str] = mapped_column(String(8))
     start_level: Mapped[str] = mapped_column(String(16))  # where the adaptive ladder began
+    # The teacher chose the child's group: the check reads only that level's card (start_level), no other level.
+    fixed_level: Mapped[bool] = mapped_column(Boolean, default=False)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     scored_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # in_progress | needs_review (uncertain words could change the result) | scored | abandoned

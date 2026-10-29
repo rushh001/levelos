@@ -210,9 +210,10 @@ export const COHORT_STYLE: Record<Cohort, string> = {
   letter: 'border-amber-200 bg-amber-50',
   word: 'border-sky-200 bg-sky-50',
   paragraph: 'border-emerald-200 bg-emerald-50',
+  story: 'border-violet-200 bg-violet-50',
 }
 
-/** One glyph per group, in the script the group reads: a letter, a short word, a paragraph of lines. */
+/** One glyph per group, in the script the group reads: a letter, a short word, a paragraph of lines, an open book. */
 export function CohortIcon({ cohort, lang }: { cohort: Cohort; lang: string }) {
   const glyph: Record<string, [string, string]> = {
     hi: ['अ', 'घर'],
@@ -223,13 +224,23 @@ export function CohortIcon({ cohort, lang }: { cohort: Cohort; lang: string }) {
     bn: ['অ', 'ঘর'],
   }
   const [letter, word] = glyph[lang] ?? glyph.en
-  const tone = { letter: 'bg-amber-200 text-amber-900', word: 'bg-sky-200 text-sky-900', paragraph: 'bg-emerald-200 text-emerald-900' }[cohort]
+  const tone = {
+    letter: 'bg-amber-200 text-amber-900',
+    word: 'bg-sky-200 text-sky-900',
+    paragraph: 'bg-emerald-200 text-emerald-900',
+    story: 'bg-violet-200 text-violet-900',
+  }[cohort]
   return (
     <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-semibold ${tone}`} aria-hidden>
       {cohort === 'letter' ? (
         <span className="text-xl">{letter}</span>
       ) : cohort === 'word' ? (
         <span className="text-sm">{word}</span>
+      ) : cohort === 'story' ? (
+        <svg viewBox="0 0 20 20" width="20" height="20">
+          <path d="M10 5c-2-1.5-4.5-1.8-7-1.3v11.6c2.5-.5 5-.2 7 1.3 2-1.5 4.5-1.8 7-1.3V3.7C14.5 3.2 12 3.5 10 5z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M10 5v11.3" stroke="currentColor" strokeWidth="1.6" />
+        </svg>
       ) : (
         <svg viewBox="0 0 20 20" width="18" height="18">
           {[4, 8, 12, 16].map((y, i) => (

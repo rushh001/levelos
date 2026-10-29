@@ -17,7 +17,7 @@ function activityBank(): Plugin {
       if (source !== resolved) return
       const path = fileURLToPath(new URL('../content/activities/bank.json', import.meta.url))
       const bank = JSON.parse(readFileSync(path, 'utf8')) as { activities: Record<string, unknown>[] }
-      const slim = bank.activities.map(({ id, title, cohorts, script, examples }) => ({ id, title, cohorts, script, examples }))
+      const slim = bank.activities.map(({ id, title, cohorts, script, examples, uses_text, reads }) => ({ id, title, cohorts, script, examples, uses_text, reads }))
       return `export default ${JSON.stringify(slim)}`
     },
   }

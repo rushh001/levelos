@@ -6,9 +6,9 @@ from app.content import reading_languages, teacher_language
 from app.llm import activities as act
 from app.models import Checkin, Classroom, Student, StudentLevel, Teacher
 from app.services.checkins import migrate_levels
-from tests.test_api import client, login, make_student, script, upload  # noqa: F401  (fixtures)
+from tests.test_api import client, login, make_student, script, start_at, upload  # noqa: F401  (fixtures)
 
-WORD_LEVEL = {"word": {"wrong": 0}, "paragraph": {"wrong": 6}}  # grade 2 starts at words: word passed, paragraph not
+WORD_LEVEL = {"word": {"wrong": 0}, "paragraph": {"wrong": 6}}  # letters and words passed, paragraph not
 LETTER_LEVEL = {"word": {"wrong": 4}, "letter": {"wrong": 0}}  # words failed, letters passed
 
 
@@ -35,7 +35,7 @@ def test_english_check_reads_english_cards_and_moves_only_the_english_level(clie
     assert (hi["language"], hi["level_final"]) == ("hi", "word")
     en = run_in(client, h, st["id"], "en", LETTER_LEVEL, script)
     assert en["language"] == "en" and all(i["item_id"].startswith("en-") for i in en["items"])
-    assert [i["item_level"] for i in en["items"]] == ["word", "letter"] and en["level_final"] == "letter"
+    assert [i["item_level"] for i in en["items"]] == ["letter", "word"] and en["level_final"] == "letter"
 
     s = client.get(f"/api/students/{st['id']}", headers=h).json()  # default: the child's main language
     assert (s["language"], s["languages"], s["level"]) == ("hi", ["hi", "en"], "word")
@@ -65,9 +65,9 @@ def test_group_set_by_hand_applies_to_one_language(client, script):
 
     client.patch(f"/api/students/{st['id']}", json={"cohort_override": "letter", "language": "en"}, headers=h)
     en = start("en")
-    assert en["start_level"] == "letter" and en["next_item"]["id"].startswith("en-letter")
+    assert en["start_level"] == "letter" and en["fixed_level"] and en["next_item"]["id"].startswith("en-letter")
     client.post(f"/api/checkins/{en['id']}/abandon", headers=h)
-    assert start("hi")["start_level"] == "paragraph"  # the Hindi group is untouched
+    assert not start("hi")["fixed_level"]  # the Hindi group is untouched: group by level
     s = client.get(f"/api/students/{st['id']}", headers=h).json()
     assert (s["levels"]["en"]["cohort_override"], s["levels"]["hi"]["cohort_override"]) == ("letter", None)
 
@@ -96,8 +96,8 @@ def test_dashboard_groups_each_language_separately(client, script):
         d = client.get(f"/api/classes/{cls['id']}/dashboard{query}", headers=h).json()
         return d["language"], {c["cohort"]: [s["first_name"] for s in c["students"]] for c in d["cohorts"]}
 
-    assert groups() == ("hi", {"letter": [], "word": ["Meena"], "paragraph": []})
-    assert groups("?language=en") == ("en", {"letter": ["Meena"], "word": [], "paragraph": []})
+    assert groups() == ("hi", {"letter": [], "word": ["Meena"], "paragraph": [], "story": []})
+    assert groups("?language=en") == ("en", {"letter": ["Meena"], "word": [], "paragraph": [], "story": []})
     assert groups("?language=ta")[0] == "hi"  # not one of this class's reading tests: the class language
     assert client.get(f"/api/classes/{cls['id']}", headers=h).json()["languages"] == ["hi", "en"]
 
@@ -117,9 +117,9 @@ def test_english_activities_never_use_hindi_script_methods():
         hi = act.candidates(cohort, patterns, k=50, language="hi")
         assert en and all(a.get("script") != "indic" for a in en), cohort
         assert hi and all(a.get("script") != "latin" for a in hi), cohort
-    # A word group mixing up vowels: English phonics methods first (not the general ones with Hindi examples).
+    # A word group mixing up vowels: the book activity that trains vowel sounds first, on an English rhyme.
     top = act.candidates("word", {"matra_vowel_sign": 3}, language="en")
-    assert all(a.get("script") == "latin" for a in top) and "vowel-change-chain" in [a["id"] for a in top]
+    assert top[0]["id"] == "rhyme-words-break-and-join" and all(a["text"]["id"].startswith("en-") for a in top)
 
 
 def test_activity_is_made_for_the_language_of_the_group(client, script):
@@ -146,8 +146,8 @@ def test_beta_languages_run_the_same_reading_check(client, script):
         cls, st = make_student(client, h, grade=2, lang=lang)
         assert cls["languages"] == [lang, "en"]  # their own language and English, as in ASER
         c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
-        assert (c["language"], c["start_level"]) == (lang, "word")
-        assert c["next_item"]["id"].startswith(f"{lang}-word") and c["next_item"]["instructions"][lang]
+        assert (c["language"], c["start_level"]) == (lang, "letter")
+        assert c["next_item"]["id"].startswith(f"{lang}-letter") and c["next_item"]["instructions"][lang]
         client.post(f"/api/checkins/{c['id']}/abandon", headers=h)
 
 
@@ -273,7 +273,7 @@ def test_the_meaning_step_is_kept_and_shown_to_the_diagnosis(client, db, script)
 
     h = login(client)
     _, st = make_student(client, h, grade=2)
-    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    c = start_at(client, h, st["id"], "word")
     c = upload(client, h, c)["checkin"]  # the word card
     ir = c["items"][0]
     answers = [{"word": "गाय", "correct": True}, {"word": "पानी", "correct": False}]
@@ -326,7 +326,7 @@ def test_dashboard_points_at_the_check_waiting_for_confirmation(client, script):
     cls, st = make_student(client, h, grade=2)
     script.clear()
     script.update({"word": {"uncertain": (0, 1)}})  # two unsure words could flip the card
-    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    c = start_at(client, h, st["id"], "word")
     c = upload(client, h, c)["checkin"]
     c = client.post(f"/api/checkins/{c['id']}/finish", headers=h).json()
     assert c["status"] == "needs_review"
@@ -347,10 +347,17 @@ def test_create_schema_adds_columns_to_tables_an_older_version_made(tmp_path):
         conn.execute(text("CREATE TABLE students (id VARCHAR(32) PRIMARY KEY, first_name VARCHAR(80))"))
         conn.execute(text("CREATE TABLE item_results (id VARCHAR(32) PRIMARY KEY, checkin_id VARCHAR(32), "
                           "position INTEGER, item_id VARCHAR(64), item_level VARCHAR(16))"))
+        conn.execute(text("CREATE TABLE checkins (id VARCHAR(32) PRIMARY KEY, student_id VARCHAR(32), "
+                          "language VARCHAR(8), start_level VARCHAR(16), status VARCHAR(16))"))
+        conn.execute(text("INSERT INTO checkins VALUES ('c1', 's1', 'hi', 'word', 'in_progress')"))
+        conn.execute(text("CREATE TABLE teachers (id VARCHAR(32) PRIMARY KEY, login VARCHAR(64), name VARCHAR(120))"))
     create_schema(old)
     create_schema(old)  # the next start finds nothing to add
-    for table, column in (("classrooms", "names"), ("students", "names"), ("item_results", "meaning")):
+    for table, column in (("classrooms", "names"), ("students", "names"), ("item_results", "meaning"),
+                          ("checkins", "fixed_level"), ("teachers", "email")):
         assert column in {c["name"] for c in inspect(old).get_columns(table)}, (table, column)
+    with old.connect() as conn:  # a check made before groups were fixed by hand: not fixed
+        assert not conn.execute(text("SELECT fixed_level FROM checkins WHERE id = 'c1'")).scalar()
     old.dispose()
 
 

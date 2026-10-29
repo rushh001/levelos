@@ -21,7 +21,7 @@ from ..content import languages, teacher_language
 from ..db import SessionLocal
 from ..models import Checkin, Classroom, Diagnosis, Student
 from . import budget, rules
-from .evidence import build_input, input_hash
+from .evidence import build_input, input_hash, read_items
 from .patterns import ITEM_LEVEL_PATTERNS, PATTERNS
 from .prompts import DIAGNOSIS_SYSTEM, PROMPT_VERSION
 
@@ -190,7 +190,7 @@ def _save(db: Session, checkin: Checkin, result: dict, model: str, raw: dict) ->
 def refresh_rules(db: Session, checkin: Checkin) -> str | None:
     """Store the rule-based diagnosis now. Returns the new evidence hash if the evidence changed (so Claude
     should run again), else None."""
-    if not checkin.items:
+    if not read_items(checkin):
         return None
     inp = _payload(checkin)
     h = input_hash(inp)
@@ -211,7 +211,7 @@ def relocalize(db: Session) -> list[tuple[str, str]]:
     for d in db.scalars(select(Diagnosis).join(Checkin).join(Student).join(Classroom).where(
             func.coalesce(Student.home_lang, Classroom.language).in_(regional))).all():
         c = d.checkin
-        if not c.items or teacher_language(c.student.main_language) in (d.summary or {}):
+        if not read_items(c) or teacher_language(c.student.main_language) in (d.summary or {}):
             continue
         inp = _payload(c)
         h = input_hash(inp)
@@ -235,7 +235,7 @@ async def run_claude(checkin_id: str, expected_hash: str | None = None) -> None:
     db = SessionLocal()
     try:
         checkin = db.get(Checkin, checkin_id)
-        if checkin is None or not checkin.items:
+        if checkin is None or not read_items(checkin):
             return
         inp = _payload(checkin)
         h = input_hash(inp)

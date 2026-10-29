@@ -10,7 +10,7 @@
 import { Api, ApiError, OfflineError } from '../api'
 import { db, type QueuedCheckin } from '../db'
 import i18n from '../i18n'
-import { nextItemLevel, outcomeFromMarks, placedLevel, startLevel } from './aser'
+import { nextItemLevel, outcomeFromMarks, placedLevel, skippedOutcome, startLevel } from './aser'
 import { pickItem } from './content'
 import { nameIn } from './names'
 import type { ItemLevel, ItemPublic, Level, StudentDetail } from './types'
@@ -40,6 +40,7 @@ export async function startOffline(s: StudentDetail, language: string): Promise<
         .map(([, lv]) => lv.confirmed_level ?? lv.provisional_level)
         .filter((lv): lv is NonNullable<typeof lv> => lv !== null),
     ),
+    fixedLevel: !!level?.cohort_override,
     startedAt: Date.now(),
     items: [],
     status: 'in_progress',
@@ -48,12 +49,14 @@ export async function startOffline(s: StudentDetail, language: string): Promise<
 }
 
 export function outcomes(c: QueuedCheckin) {
-  return c.items.map((it) => outcomeFromMarks(it.level, it.marks, it.durationMs, c.language))
+  return c.items.map((it) =>
+    it.skipped ? skippedOutcome(it.level) : outcomeFromMarks(it.level, it.marks, it.durationMs, c.language),
+  )
 }
 
 export function nextItem(c: QueuedCheckin): ItemPublic | null {
   if (c.status !== 'in_progress') return null
-  const level = nextItemLevel(outcomes(c), c.startLevel)
+  const level = nextItemLevel(outcomes(c), c.startLevel, !!c.fixedLevel)
   return level ? pickItem(c.language, level, c.items.map((i) => i.itemId)) : null
 }
 
@@ -71,6 +74,16 @@ export async function addItem(
     .equals(localId)
     .modify((c) => {
       c.items.push({ itemId: item.id, level: item.level, marks, durationMs: clip?.durationMs ?? null, clipId })
+    })
+}
+
+/** The teacher skips the card instead of having it read: it counts for nothing; the ladder moves to a card not tried. */
+export async function addSkip(localId: string, item: { id: string; level: ItemLevel }) {
+  await db.checkins
+    .where('localId')
+    .equals(localId)
+    .modify((c) => {
+      c.items.push({ itemId: item.id, level: item.level, marks: [], durationMs: null, skipped: true })
     })
 }
 
@@ -106,11 +119,15 @@ export async function abandonOffline(localId: string) {
 let running = false
 
 async function syncOne(c: QueuedCheckin) {
-  let server = await Api.startCheckin(c.studentId, c.language, c.localId, c.startLevel)
+  let server = await Api.startCheckin(c.studentId, c.language, c.localId, c.startLevel, !!c.fixedLevel)
   if (server.status === 'in_progress') {
     for (let k = server.items.length; k < c.items.length; k++) {
       const it = c.items[k]
-      server = (await Api.markItem(server.id, it.itemId, it.marks, it.durationMs ?? undefined)).checkin
+      server = (
+        it.skipped
+          ? await Api.skipItem(server.id, it.itemId)
+          : await Api.markItem(server.id, it.itemId, it.marks, it.durationMs ?? undefined)
+      ).checkin
     }
     server = c.teacherLevel ? await Api.override(server.id, c.teacherLevel) : await Api.finish(server.id)
   }

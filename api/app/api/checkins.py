@@ -23,12 +23,18 @@ class StartIn(BaseModel):
     language: str | None = None
     local_id: str | None = Field(default=None, max_length=64)
     start_level: str | None = None  # offline check-ins only: the rung the phone's ladder started on
+    fixed_level: bool = False  # offline check-ins only: the phone's check read only that level (a group was chosen)
 
 
 class MarksIn(BaseModel):
     item_id: str
     marks: list[bool] = Field(min_length=1, max_length=200)
     duration_ms: int | None = Field(default=None, ge=0)
+
+
+class SkipIn(BaseModel):
+    item_id: str
+    reason: str | None = None  # ignored: a skipped card counts for nothing, whatever the reason (older apps send one)
 
 
 class WordMark(BaseModel):
@@ -72,13 +78,14 @@ def _suffix(upload: UploadFile) -> str:
 
 @router.post("", status_code=201)
 def start(body: StartIn, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
-    c = svc.start(db, teacher, body.student_id, body.language, body.local_id, body.start_level)
+    c = svc.start(db, teacher, body.student_id, body.language, body.local_id, body.start_level, body.fixed_level)
     return checkin_out(c, svc.next_item(db, c))
 
 
 @router.get("/{checkin_id}")
 def get(checkin_id: str, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
     c = svc.owned_checkin(db, teacher, checkin_id)
+    svc.refresh_start(db, c)
     return checkin_out(c, svc.next_item(db, c))
 
 
@@ -109,6 +116,17 @@ def mark_item(checkin_id: str, body: MarksIn, teacher: Teacher = Depends(current
             "checkin": checkin_out(c, svc.next_item(db, c))}
 
 
+@router.post("/{checkin_id}/skip")
+def skip_item(checkin_id: str, body: SkipIn, teacher: Teacher = Depends(current_teacher),
+              db: Session = Depends(get_db)) -> dict:
+    """The teacher skips the card shown instead of making the child read it. It counts for nothing: the level is
+    worked out only from the cards the child read, and the ladder moves to the nearest card not tried yet."""
+    c = svc.owned_checkin(db, teacher, checkin_id)
+    ir = svc.skip_item(db, c, body.item_id)
+    return {"status": "skipped", "reason": None, "item_result": item_result_out(ir),
+            "checkin": checkin_out(c, svc.next_item(db, c))}
+
+
 @router.post("/{checkin_id}/items/{item_result_id}/meaning")
 def meaning(checkin_id: str, item_result_id: str, body: MeaningIn, background: BackgroundTasks,
             teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
@@ -118,8 +136,8 @@ def meaning(checkin_id: str, item_result_id: str, body: MeaningIn, background: B
     ir = next((r for r in c.items if r.id == item_result_id), None)
     if ir is None:
         raise HTTPException(404, "item not found")
-    if ir.item_level != "word":
-        raise HTTPException(409, "the meaning step follows a word card only")
+    if ir.item_level != "word" or ir.source == "skipped":
+        raise HTTPException(409, "the meaning step follows a word card the child read")
     units = set(get_item(ir.item_id).units or ())
     if any(a.word not in units for a in body.answers):
         raise HTTPException(422, "a word that is not on this card")

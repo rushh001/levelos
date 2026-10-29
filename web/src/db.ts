@@ -7,6 +7,9 @@ export interface OfflineItem {
   level: ItemLevel
   marks: boolean[]
   durationMs: number | null
+  /** The teacher skipped this card instead of having it read (no marks): it counts for nothing. Older versions
+   * stored a reason here; any value means skipped. */
+  skipped?: boolean
   clipId?: number
   audioUploaded?: boolean
   /** The picture step after a word card, sent with the marks on sync. */
@@ -22,6 +25,8 @@ export interface QueuedCheckin {
   avatar: string
   language: string
   startLevel: ItemLevel
+  /** The teacher chose the group: the check reads only that level's card. */
+  fixedLevel?: boolean
   startedAt: number
   items: OfflineItem[]
   status: 'in_progress' | 'queued' | 'failed' | 'synced'

@@ -7,13 +7,14 @@ import { Ladder } from '../components/Ladder'
 import { MeaningCheck, meaningWords } from '../components/MeaningCheck'
 import { RecordControls } from '../components/RecordControls'
 import { SayToChild } from '../components/SayToChild'
+import { SkipCard } from '../components/SkipCard'
 import { SoundToggle } from '../components/SoundToggle'
 import { TapToMark } from '../components/TapToMark'
 import { Button, LevelBadge, Page, ReadingCard, Spinner } from '../components/ui'
 import { db } from '../db'
 import { itemPassed, outcomeFromMarks, placedLevel } from '../lib/aser'
 import { getItem } from '../lib/content'
-import { abandonOffline, addItem, addMeaning, finishOffline, nextItem, outcomes } from '../lib/offline'
+import { abandonOffline, addItem, addMeaning, addSkip, finishOffline, nextItem, outcomes } from '../lib/offline'
 import { useUiFollows } from '../lib/readingLang'
 import type { Level } from '../lib/types'
 import { type Clip, useRecorder } from '../lib/useRecorder'
@@ -63,12 +64,12 @@ export default function OfflineCheckin() {
         </section>
         <ul className="mt-4 space-y-2 stagger">
           {c.items.map((it, k) => {
-            const o = outcomeFromMarks(it.level, it.marks, it.durationMs, c.language)
+            const o = it.skipped ? null : outcomeFromMarks(it.level, it.marks, it.durationMs, c.language)
             return (
               <li key={k} className="flex justify-between rounded-2xl bg-white px-4 py-2 text-sm shadow-card">
                 <span>{t(`itemLevel.${it.level}`)} {it.clipId ? '🎤' : ''}</span>
-                <span>
-                  {o.correct}/{o.total}
+                <span className={o ? '' : 'text-mute'}>
+                  {o ? `${o.correct}/${o.total}` : t('result.skipped')}
                 </span>
               </li>
             )
@@ -135,6 +136,14 @@ export default function OfflineCheckin() {
     setCelebrate(n)
     setMeaning(ask)
   }
+  // The teacher skips the card instead of having it read: it counts for nothing; the ladder moves on (or ends).
+  const skip = async () => {
+    setBusy(true)
+    await addSkip(c.localId, item)
+    setClip(null)
+    setMarking(false)
+    setBusy(false)
+  }
   const record = async () => {
     const got = await recorder.start()
     if (got) {
@@ -162,14 +171,16 @@ export default function OfflineCheckin() {
       {celebrate !== null && <Celebration lang={c.language} n={celebrate} onDone={() => setCelebrate(null)} />}
       <div className="mb-3 flex items-end gap-2">
         <div className="min-w-0 flex-1">
-          <Ladder items={outcomes(c).map((o) => ({ level: o.level, passed: itemPassed(o) }))} current={item.level} />
+          <Ladder items={outcomes(c).map((o) => ({ level: o.level, passed: itemPassed(o), skipped: !!o.skipped }))} current={item.level} />
         </div>
         <SoundToggle className="mb-1" />
       </div>
       <div className="mb-3 rounded-2xl bg-sun-soft px-3 py-2 text-sm text-sun-deep">{t('offlineCheck.banner')}</div>
       {last && lastItem && (
         <div className="mb-3 rounded-2xl bg-white px-3 py-2 text-sm text-mute shadow-card pop">
-          {t(`itemLevel.${last.level}`)} · {last.marks.filter(Boolean).length}/{last.marks.length}
+          {last.skipped
+            ? t('checkin.skipped', { level: t(`itemLevel.${last.level}`) })
+            : `${t(`itemLevel.${last.level}`)} · ${last.marks.filter(Boolean).length}/${last.marks.length}`}
         </div>
       )}
       <SayToChild item={item} test={c.language} />
@@ -198,6 +209,7 @@ export default function OfflineCheckin() {
           tapLabel={t('offlineCheck.skipRecording')}
         />
       )}
+      {!marking && !busy && <SkipCard onSkip={() => void skip()} />}
 
       <div className="mt-8 text-center">
         <Button kind="danger" onClick={() => void stop()}>

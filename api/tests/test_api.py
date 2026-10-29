@@ -64,6 +64,13 @@ def upload(client, h, checkin, item_id=None):
     return r.json()
 
 
+def start_at(client, h, student_id, level):
+    """A check that begins at `level` (as a phone's offline check may), for tests of the ladder above letters: a child
+    not checked yet otherwise starts at letters."""
+    return client.post("/api/checkins", json={"student_id": student_id, "local_id": f"start-{level}-{student_id}",
+                                              "start_level": level}, headers=h).json()
+
+
 def run_checkin(client, h, student_id, plan, script):
     script.clear()
     script.update(plan)
@@ -97,16 +104,17 @@ def test_teachers_only_see_their_own_classes(client):
 
 def test_ladder_brackets_the_level_and_two_checkins_confirm(client, script):
     h = login(client)
-    _, st = make_student(client, h, grade=2)  # grade 2 starts at words
+    _, st = make_student(client, h, grade=2)  # not checked yet: starts at letters, whatever the grade
 
     first = run_checkin(client, h, st["id"], {"word": {"wrong": 0}, "paragraph": {"wrong": 6}}, script)
-    assert [i["item_level"] for i in first["items"]] == ["word", "paragraph"]
+    assert [i["item_level"] for i in first["items"]] == ["letter", "word", "paragraph"]
     assert first["status"] == "scored" and first["level_final"] == "word"
     s = client.get(f"/api/students/{st['id']}", headers=h).json()
     assert (s["provisional_level"], s["confirmed_level"], s["level_confirmed"]) == ("word", None, False)
 
     second = run_checkin(client, h, st["id"], {"word": {"wrong": 1}, "paragraph": {"wrong": 5}}, script)
-    assert second["items"][0]["item_id"] != first["items"][0]["item_id"]  # a different word card
+    assert second["items"][0]["item_level"] == "word"  # re-tested at the last level's rung
+    assert second["items"][0]["item_id"] != first["items"][1]["item_id"]  # a different word card
     s = client.get(f"/api/students/{st['id']}", headers=h).json()
     assert (s["provisional_level"], s["confirmed_level"]) == ("word", "word")
     assert s["cohort"] == "word"
@@ -114,31 +122,48 @@ def test_ladder_brackets_the_level_and_two_checkins_confirm(client, script):
 
 def test_check_starts_at_the_group_the_teacher_set(client, script):
     h = login(client)
-    _, st = make_student(client, h, grade=3)  # Grade 3: would start at the paragraph
+    _, st = make_student(client, h, grade=3)
     first = lambda: client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()  # noqa: E731
     for group, level in (("letter", "letter"), ("word", "word"), ("paragraph", "paragraph")):
         client.patch(f"/api/students/{st['id']}", json={"cohort_override": group}, headers=h)
         c = first()
-        assert c["start_level"] == level and c["next_item"]["level"] == level, group
+        assert c["start_level"] == level and c["next_item"]["level"] == level and c["fixed_level"], group
         client.post(f"/api/checkins/{c['id']}/abandon", headers=h)
     client.patch(f"/api/students/{st['id']}", json={"clear_cohort_override": True}, headers=h)
-    assert first()["next_item"]["level"] == "paragraph"  # "group by level" again: by grade
+    c = first()  # "group by level" again: not checked yet, so letters (not the grade-3 paragraph)
+    assert c["next_item"]["level"] == "letter" and not c["fixed_level"]
 
 
-def test_letter_group_moves_up_only_when_letters_are_passed(client, script):
+def test_a_group_chosen_by_hand_reads_only_its_own_card(client, script):
     h = login(client)
     _, st = make_student(client, h, grade=3)
     client.patch(f"/api/students/{st['id']}", json={"cohort_override": "letter"}, headers=h)
     failed = run_checkin(client, h, st["id"], {"letter": {"wrong": 3}}, script)
-    assert [i["item_level"] for i in failed["items"]] == ["letter"]  # never shown a paragraph
-    passed = run_checkin(client, h, st["id"], {"letter": {"wrong": 0}, "word": {"wrong": 3}}, script)
-    assert [i["item_level"] for i in passed["items"]] == ["letter", "word"]  # moves up one rung, stops at the fail
+    assert [i["item_level"] for i in failed["items"]] == ["letter"] and failed["level_final"] == "beginner"
+    passed = run_checkin(client, h, st["id"], {"letter": {"wrong": 0}, "word": {"wrong": 0}}, script)
+    assert [i["item_level"] for i in passed["items"]] == ["letter"]  # no word card after the pass
+    assert passed["level_final"] == "letter"
+    client.patch(f"/api/students/{st['id']}", json={"cohort_override": "word"}, headers=h)
+    words = run_checkin(client, h, st["id"], {"word": {"wrong": 0}, "paragraph": {"wrong": 0}}, script)
+    assert [i["item_level"] for i in words["items"]] == ["word"] and words["level_final"] == "word"
+
+
+def test_an_unfinished_check_with_nothing_read_follows_the_current_group(client, script):
+    h = login(client)
+    _, st = make_student(client, h, grade=3)
+    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    assert c["next_item"]["level"] == "letter"  # not checked yet: letters, whatever the grade
+    client.patch(f"/api/students/{st['id']}", json={"cohort_override": "word"}, headers=h)
+    again = client.get(f"/api/checkins/{c['id']}", headers=h).json()  # "Not finished": opened again
+    assert again["start_level"] == "word" and again["fixed_level"] and again["next_item"]["level"] == "word"
+    again = upload(client, h, again)["checkin"]
+    assert again["next_item"] is None  # only the group's card
 
 
 def test_rerecord_keeps_the_same_item(client, script):
     h = login(client)
     _, st = make_student(client, h)
-    script["word"] = {"status": "rerecord", "reason": "silent"}
+    script["letter"] = {"status": "rerecord", "reason": "silent"}
     c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
     r = upload(client, h, c)
     assert (r["status"], r["reason"], r["item_result"]) == ("rerecord", "silent", None)
@@ -170,9 +195,9 @@ FLIPPABLE = {"wrong": 3, "uncertain": (5,)}  # 3 errors + 1 uncertain word: pass
 
 def test_uncertain_item_pauses_the_ladder_until_confirmed(client, script):
     h = login(client)
-    _, st = make_student(client, h, grade=3)  # starts at paragraph
+    _, st = make_student(client, h, grade=3)
     script.update({"paragraph": FLIPPABLE, "word": {"wrong": 0}})
-    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    c = start_at(client, h, st["id"], "paragraph")
     c = upload(client, h, c)["checkin"]
     assert c["awaiting_review"] and c["next_item"] is None
     r = client.post(f"/api/checkins/{c['id']}/items", data={"item_id": "hi-word-a"},
@@ -193,7 +218,7 @@ def test_finishing_before_review_then_correction_reopens_the_ladder(client, scri
     h = login(client)
     _, st = make_student(client, h, grade=3)
     script.update({"paragraph": FLIPPABLE, "word": {"wrong": 0}})
-    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    c = start_at(client, h, st["id"], "paragraph")
     c = upload(client, h, c)["checkin"]
     done = client.post(f"/api/checkins/{c['id']}/finish", headers=h).json()
     assert done["status"] == "needs_review" and done["level_final"] is None
@@ -213,7 +238,7 @@ def test_override_on_an_unfinished_checkin(client, script):
     h = login(client)
     _, st = make_student(client, h, grade=3)
     script.update({"paragraph": {"wrong": 8}})
-    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    c = start_at(client, h, st["id"], "paragraph")
     c = upload(client, h, c)["checkin"]  # child failed the paragraph and then left
     assert client.post(f"/api/checkins/{c['id']}/finish", headers=h).status_code == 409
     done = client.post(f"/api/checkins/{c['id']}/override", json={"level": "word"}, headers=h).json()
@@ -242,7 +267,7 @@ def test_late_correction_replays_levels(client, script):
     run_checkin(client, h, st["id"], {"word": {"wrong": 0}, "paragraph": {"wrong": 6}}, script)
     assert client.get(f"/api/students/{st['id']}", headers=h).json()["confirmed_level"] == "word"
     # Teacher corrects check-in one: two of the five words were actually wrong -> word failed there.
-    word_ir = one["items"][0]
+    word_ir = one["items"][1]  # after the letter card
     client.post(f"/api/checkins/{one['id']}/review", headers=h, json={"marks": [
         {"item_result_id": word_ir["id"], "i": 0, "correct": False},
         {"item_result_id": word_ir["id"], "i": 1, "correct": False}]})
@@ -262,16 +287,17 @@ def test_tap_to_mark(client):
     assert client.post(url, json={"item_id": item_id, "marks": [True] * 3}, headers=h).status_code == 422
     r = client.post(url, json={"item_id": item_id, "marks": [True, True, True, False, True]}, headers=h).json()
     assert r["item_result"]["passed"] and r["item_result"]["source"] == "offline_marks"
-    assert r["checkin"]["next_item"]["level"] == "paragraph"
+    assert r["checkin"]["next_item"]["level"] == "word"  # letters passed: up to words
     done = client.post(f"/api/checkins/{c['id']}/finish", headers=h).json()
-    assert done["source"] == "offline_marks" and done["level_final"] == "word"
+    assert done["source"] == "offline_marks" and done["level_final"] == "letter"
 
 
 def test_offline_sync_marks_then_audio(client, monkeypatch):
     """The phone ran the ladder offline on tap-marks; on sync the recordings are AI-scored afterwards."""
     h = login(client)
     _, st = make_student(client, h)
-    c = client.post("/api/checkins", json={"student_id": st["id"], "local_id": "phone-7"}, headers=h).json()
+    c = client.post("/api/checkins", json={"student_id": st["id"], "local_id": "phone-7", "start_level": "word"},
+                    headers=h).json()
     r = client.post(f"/api/checkins/{c['id']}/marks", headers=h,
                     json={"item_id": "hi-word-b", "marks": [True, True, True, True, False]}).json()
     word_ir = r["item_result"]
@@ -313,9 +339,90 @@ def test_dashboard_groups_by_cohort(client, script):
     run_checkin(client, h, st["id"], {"word": {"wrong": 0}, "paragraph": {"wrong": 6}}, script)
     d = client.get(f"/api/classes/{cls['id']}/dashboard", headers=h).json()
     by = {c["cohort"]: [s["first_name"] for s in c["students"]] for c in d["cohorts"]}
-    assert by == {"letter": [], "word": ["Meena"], "paragraph": []}
+    assert by == {"letter": [], "word": ["Meena"], "paragraph": [], "story": []}
     assert [s["first_name"] for s in d["not_assessed"]] == ["Ravi"]
     client.patch(f"/api/students/{st['id']}", json={"cohort_override": "letter"}, headers=h)
     d = client.get(f"/api/classes/{cls['id']}/dashboard", headers=h).json()
     assert [s["first_name"] for s in d["cohorts"][0]["students"]] == ["Meena"]
     assert other["level"] is None
+
+
+def test_an_unfinished_check_with_only_skips_starts_over_in_the_chosen_group(client, script):
+    # The teacher's case: a check begun under "group by level", letters and words skipped, the ladder at the
+    # paragraph; then the Word group is chosen and "Not finished" is opened: it must show the word card.
+    h = login(client)
+    _, st = make_student(client, h, grade=2)
+    c = client.post("/api/checkins", json={"student_id": st["id"], "language": "en"}, headers=h).json()
+    for _ in range(2):
+        c = client.post(f"/api/checkins/{c['id']}/skip", json={"item_id": c["next_item"]["id"]}, headers=h).json()["checkin"]
+    assert c["next_item"]["level"] == "paragraph"
+    client.patch(f"/api/students/{st['id']}", json={"cohort_override": "word", "language": "en"}, headers=h)
+    again = client.get(f"/api/checkins/{c['id']}", headers=h).json()
+    assert again["items"] == [] and again["fixed_level"] and again["next_item"]["level"] == "word"
+    script.update({"word": {"wrong": 0}})
+    again = upload(client, h, again)["checkin"]
+    assert again["next_item"] is None
+    done = client.post(f"/api/checkins/{c['id']}/finish", headers=h).json()
+    assert [i["item_level"] for i in done["items"]] == ["word"] and done["level_final"] == "word"
+
+
+def test_a_group_chosen_during_a_check_gives_its_card_next(client, script):
+    h = login(client)
+    _, st = make_student(client, h, grade=2)
+    script.update({"letter": {"wrong": 0}, "word": {"wrong": 4}})
+    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    c = upload(client, h, c)["checkin"]  # letters read and passed under "group by level"
+    client.patch(f"/api/students/{st['id']}", json={"cohort_override": "paragraph"}, headers=h)
+    again = client.get(f"/api/checkins/{c['id']}", headers=h).json()
+    assert again["fixed_level"] and again["next_item"]["level"] == "paragraph"  # the group's card, not words
+    script.update({"paragraph": {"wrong": 0}})
+    again = upload(client, h, again)["checkin"]
+    assert again["next_item"] is None
+    done = client.post(f"/api/checkins/{c['id']}/finish", headers=h).json()
+    assert [i["item_level"] for i in done["items"]] == ["letter", "paragraph"] and done["level_final"] == "paragraph"
+
+
+def test_story_group(client, script):
+    # Story readers have their own group; chosen by hand, the check gives only the story card.
+    h = login(client)
+    cls, st = make_student(client, h, grade=3)
+    client.patch(f"/api/students/{st['id']}", json={"cohort_override": "story"}, headers=h)
+    c = client.post("/api/checkins", json={"student_id": st["id"]}, headers=h).json()
+    assert c["start_level"] == "story" and c["fixed_level"] and c["next_item"]["level"] == "story"
+    script.update({"story": {"wrong": 0}})
+    c = upload(client, h, c)["checkin"]
+    assert c["next_item"] is None
+    done = client.post(f"/api/checkins/{c['id']}/finish", headers=h).json()
+    assert [i["item_level"] for i in done["items"]] == ["story"] and done["level_final"] == "story"
+    d = client.get(f"/api/classes/{cls['id']}/dashboard", headers=h).json()
+    assert [c["cohort"] for c in d["cohorts"]] == ["letter", "word", "paragraph", "story"]
+    assert [s["first_name"] for s in d["cohorts"][3]["students"]] == ["Meena"]
+    a = client.post(f"/api/classes/{cls['id']}/activities", json={"cohort": "story"}, headers=h).json()
+    assert a["cohort"] == "story" and a["plan"]["text"] and not a["plan"].get("material")
+
+
+def test_signup_gives_a_unique_six_digit_login_id(client):
+    body = {"name": "  Asha   Verma ", "email": "Asha@School.in", "pin": "4321", "ui_lang": "hi"}
+    r = client.post("/api/auth/signup", json=body)
+    assert r.status_code == 201, r.text
+    out = r.json()
+    login_id = out["login"]
+    assert len(login_id) == 6 and login_id.isdigit() and out["teacher"]["login"] == login_id
+    assert (out["teacher"]["name"], out["teacher"]["email"], out["teacher"]["ui_lang"]) == ("Asha Verma", "asha@school.in", "hi")
+    assert client.get("/api/me", headers={"Authorization": f"Bearer {out['token']}"}).json()["login"] == login_id
+    # log in with the ID (typed with a space, too) and the PIN
+    assert client.post("/api/auth/login", json={"login": login_id[:3] + " " + login_id[3:], "pin": "4321"}).status_code == 200
+    assert client.post("/api/auth/login", json={"login": login_id, "pin": "9999"}).status_code == 401
+    # one account per email, whatever the case
+    assert client.post("/api/auth/signup", json=body | {"email": "asha@SCHOOL.in"}).status_code == 409
+    # a second teacher gets a different ID; an unknown interface language falls back to English
+    other = client.post("/api/auth/signup", json={"name": "Ravi", "email": "ravi@school.in", "pin": "123456", "ui_lang": "xx"}).json()
+    assert other["login"] != login_id and other["teacher"]["ui_lang"] == "en"
+    # a new teacher starts with no classes
+    assert client.get("/api/classes", headers={"Authorization": f"Bearer {other['token']}"}).json() == []
+
+
+def test_signup_checks_its_fields(client):
+    ok = {"name": "Meena", "email": "meena@school.in", "pin": "1234"}
+    for bad in ({"email": "not-an-email"}, {"pin": "12ab"}, {"pin": "123"}, {"pin": "123456789"}, {"name": "   "}):
+        assert client.post("/api/auth/signup", json=ok | bad).status_code == 422, bad

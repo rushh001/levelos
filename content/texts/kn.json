@@ -1,0 +1,99 @@
+{
+  "language": "kn",
+  "_comment": "Free-to-use Kannada texts: public domain in India (author died before 1966) or Creative Commons BY-SA (written on Kannada Wikisource). Copied exactly from the pages cited; in the Aesop retelling four spelling slips were corrected (ಕುರುಮರಿ → ಕುರಿಮರಿ, ಯೊಚಿಸಿ → ಯೋಚಿಸಿ, ಯೊಚನೆ → ಯೋಚನೆ, ಬುದ್ದಿ → ಬುದ್ಧಿ), as CC BY-SA allows; awaiting a native speaker's review like the rest of the Kannada beta.",
+  "texts": [
+    {
+      "id": "kn-rhyme-nagarahave",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "ಹಾವಿನ ಹಾಡು (ನಾಗರಹಾವೆ ಹಾವೊಳು ಹೂವೆ)",
+      "author": "ಪಂಜೆ ಮಂಗೇಶರಾವ್",
+      "author_died": 1937,
+      "year": null,
+      "licence": "public domain",
+      "source": { "name": "ಕನ್ನಡ ವಿಕಿಸೋರ್ಸ್ — ನಾಗರಹಾವೆ ಹಾವೊಳು ಹೂವೆ!", "url": "https://kn.wikisource.org/wiki/ನಾಗರಹಾವೆ_ಹಾವೊಳು_ಹೂವೆ!" },
+      "note": "The first stanza of Panje's much-loved children's song, long a Karnataka primary-reader poem.",
+      "lines": [
+        "ನಾಗರಹಾವೆ! ಹಾವೊಳು ಹೂವೆ !",
+        "ಬಾಗಿಲ ಬಿಲದಲಿ ನಿನ್ನಯ ಠಾವೆ ?",
+        "ಕೈಗಳ ಮುಗಿವೆ, ಹಾಲನ್ನೀವೆ",
+        "ಬಾ ಬಾ ಬಾ ಬಾ ಬಾ ಬಾ ಬಾ ಬಾ"
+      ],
+      "words_to_find": ["ನಾಗರಹಾವೆ", "ಬಾಗಿಲ", "ಕೈಗಳ", "ಬಾ"]
+    },
+    {
+      "id": "kn-story-tola",
+      "kind": "story",
+      "level": "story",
+      "title": "ತೋಳ ಮತ್ತು ಸಿಂಹ",
+      "author": "ಈಸೋಪನ ಕತೆ, ಕನ್ನಡ ವಿಕಿಸೋರ್ಸ್‌ನಲ್ಲಿ ಮರುಕಥನ (Balaglobal, 2008)",
+      "author_died": null,
+      "year": 2008,
+      "licence": "CC BY-SA 4.0",
+      "source": { "name": "ಕನ್ನಡ ವಿಕಿಸೋರ್ಸ್ — ತೋಳ ಮತ್ತು ಸಿಂಹ (CC BY-SA 4.0)", "url": "https://kn.wikisource.org/wiki/ತೋಳ_ಮತ್ತು_ಸಿಂಹ" },
+      "note": "Aesop's wolf and lion retold in Kannada on Wikisource; long sentences, grade 2–3.",
+      "lines": [
+        "ಕುರಿಮರಿಯೊಂದನ್ನು ಕದ್ದ ತೋಳ, ಅದನ್ನು ಜೋಪಾನವಾಗಿ ತನ್ನ ಮನೆಗೆ ಕೊಂಡೊಯ್ದು ವಾರಗಟ್ಟಲೆ ತಿನ್ನಬಹುದೆಂದು ಯೋಚಿಸಿ, ಕುರಿಮರಿಯನ್ನು ಎಳೆದೊಯ್ಯುತಿದ್ದಾಗ ಮಾರ್ಗ ಮಧ್ಯದಲ್ಲಿ ಸಿಂಹವೊಂದು ಎದುರಾಗಿ ತೋಳನ ಯೋಚನೆಗಳನ್ನೆಲ್ಲ ತಲಕೆಳಕಾಗಿಸಿತ್ತು.",
+        "ಹಸಿದಿದ್ದ ಸಿಂಹ ಕಾರಣವನ್ನೇನೂ ಕೊಡದೆ ಕುರಿಮರಿಯನ್ನು ತೋಳನಿಂದ ಕಸಿದುಕೊಂಡು ತಿನ್ನಲಾರಂಭಿಸಿತು.",
+        "ಹೆದರಿದ ತೋಳ ಸಿಂಹದಿಂದ ಸುಮಾರು ದೂರಸರಿದು, ಮುನಿಸಿಕೊಂಡ ದನಿಯಲ್ಲಿ, “ನನ್ನ ಆಸ್ತಿಯನ್ನು ಕಸಿದುಕೊಳ್ಳುವುದಕ್ಕೆ ನಿನಗೇನು ಹಕ್ಕಿರಲಿಲ್ಲ” ಎಂದಿತು.",
+        "ಇದನ್ನು ಕೇಳಿದ ಸಿಂಹ ತೋಳನೆಡೆಗೆ ದುರುಗುಟ್ಟಿ ನೋಡಿತು, ಸರಿಯಾಗಿ ಬುದ್ಧಿ ಕಲಿಸೋಣವೆಂದರೆ ತೋಳ ತುಂಬಾ ದೂರದಲ್ಲಿ ನಿಂತಿದ್ದರಿಂದ, ತೊಂದರೆತೆಗೆದುಕೊಳ್ಳದೆ ಅನಾಯಾಸವಾಗಿ ಹೇಳಿತು, “ಇದು ನಿನ್ನ ಆಸ್ತಿಯೆ? ನೀನೇನು ಇದನ್ನು ಕೊಂಡುಕೊಂಡೆಯಾ? ಅಥವಾ ರೈತ ನಿನಗೆ ಉಡುಗೊರೆಯಾಗಿ ನೀಡಿದನೇ? ಹೇಳಪ್ಪ ಹೇಳು ನಿನಗೆ ಈ ಆಸ್ತಿ ಹೇಗೆ ಸಿಕ್ಕಿತು ಎಂದು ಹೇಳು”.",
+        "ತೋಳ ಮರುಮಾತಿಲ್ಲದೆ ತನ್ನ ಹಾದಿ ತಾನು ಹಿಡಿಯಿತು.",
+        "ನೀತಿ: ಮೋಸದಿಂದ ಸಿಕ್ಕಿದ್ದು ಮೋಸದಿಂದಲೇ ಹೋಯಿತು."
+      ],
+      "words_to_find": ["ತೋಳ", "ಸಿಂಹ", "ಕುರಿಮರಿಯನ್ನು", "ಆಸ್ತಿ"],
+      "questions": [
+        { "q": "ತೋಳ ಕುರಿಮರಿಯನ್ನು ಏಕೆ ಕದ್ದಿತು?", "a": "ಮನೆಗೆ ಕೊಂಡೊಯ್ದು ವಾರಗಟ್ಟಲೆ ತಿನ್ನಲು." },
+        { "q": "ದಾರಿಯಲ್ಲಿ ತೋಳನಿಗೆ ಯಾರು ಎದುರಾದರು?", "a": "ಹಸಿದಿದ್ದ ಸಿಂಹ." },
+        { "q": "ಸಿಂಹ ತೋಳನನ್ನು ಏನು ಕೇಳಿತು?", "a": "ಈ ಆಸ್ತಿ ನಿನಗೆ ಹೇಗೆ ಸಿಕ್ಕಿತು ಎಂದು." },
+        { "q": "ಕತೆಯ ನೀತಿ ಏನು?", "a": "ಮೋಸದಿಂದ ಸಿಕ್ಕಿದ್ದು ಮೋಸದಿಂದಲೇ ಹೋಯಿತು." }
+      ]
+    },
+    {
+      "id": "kn-rhyme-maleraya",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "ಹುಯ್ಯೋ ಹುಯ್ಯೋ ಮಳೆರಾಯ",
+      "author": "ಜನಪದ ಶಿಶುಪ್ರಾಸ (traditional), ಕನ್ನಡ ವಿಕಿಸೋರ್ಸ್",
+      "author_died": null,
+      "traditional": true,
+      "year": null,
+      "licence": "CC BY-SA 4.0",
+      "source": { "name": "ಕನ್ನಡ ವಿಕಿಸೋರ್ಸ್ — ಶಿಶು ಪ್ರಾಸಗಳು (CC BY-SA 4.0)", "url": "https://kn.wikisource.org/wiki/ಶಿಶು_ಪ್ರಾಸಗಳು" },
+      "note": "A four-line folk rain song.",
+      "lines": [
+        "ಹುಯ್ಯೋ ಹುಯ್ಯೋ ಮಳೆರಾಯ",
+        "ಹೂವಿನ ತೋಟಕೆ ನೀರಿಲ್ಲ",
+        "ಬಾರೋ ಬಾರೋ ಮಳೆರಾಯ",
+        "ಬಾಳೇತೋಟಕೆ ನೀರಿಲ್ಲ"
+      ],
+      "words_to_find": ["ಮಳೆರಾಯ", "ಹೂವಿನ", "ನೀರಿಲ್ಲ", "ಬಾರೋ"]
+    },
+    {
+      "id": "kn-rhyme-aane",
+      "kind": "rhyme",
+      "level": "paragraph",
+      "title": "ಆನೆ ಬಂತೊಂದಾನೆ",
+      "author": "ಜನಪದ ಶಿಶುಪ್ರಾಸ (traditional), ಕನ್ನಡ ವಿಕಿಸೋರ್ಸ್",
+      "author_died": null,
+      "traditional": true,
+      "year": null,
+      "licence": "CC BY-SA 4.0",
+      "source": { "name": "ಕನ್ನಡ ವಿಕಿಸೋರ್ಸ್ — ಶಾಲಾ ಶಿಶುಪ್ರಾಸಗಳು (CC BY-SA 4.0)", "url": "https://kn.wikisource.org/wiki/ಶಾಲಾ_ಶಿಶುಪ್ರಾಸಗಳು" },
+      "note": "The folk elephant rhyme, eleven short lines in spoken Kannada.",
+      "lines": [
+        "ಆನೆ ಬಂತೊಂದಾನೆ",
+        "ಯಾವ ಪುರದಾನೆ ?",
+        "ದಿಡ್ಡಪುರದಾನೆ",
+        "ಇಲ್ಲಿಗ್ಯಾಕ್ ಬಂತು ?",
+        "ಮಕ್ಕಳ್ ನೋಡಾಕ್ ಬಂತು",
+        "ಹಾದಿಲೊಂದು ಕಾಸು",
+        "ಬೀದಿಲೊಂದು ಕಾಸು",
+        "ಕಾಸ್ನೆಲ್ಲಾ ಸೇರ್ಸಿ",
+        "ಸೇರು ಪುರಿ ತರ್ಸಿ",
+        "ಮಕ್ಕಳ್ಗೆಲ್ಲಾ ಹಂಚ್ಸೀ",
+        "ತಾನ್ ಸ್ವಲ್ಪ ತಿಂದು ಓಡೋಯ್ತ್"
+      ],
+      "words_to_find": ["ಆನೆ", "ಕಾಸು", "ಪುರಿ", "ಮಕ್ಕಳ್"]
+    }
+  ]
+}

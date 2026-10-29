@@ -143,8 +143,15 @@ def build_input(checkin: Checkin) -> dict:
         "grade": student.grade,
         "aser_level": checkin.level_final or checkin.level_suggested,
         "level_is_final": checkin.level_final is not None,
-        "items": [item_evidence(ir.result, ir.source, ir.meaning) for ir in checkin.items],
+        "items": [item_evidence(ir.result, ir.source, ir.meaning) for ir in checkin.items if ir.source != "skipped"],
+        # Cards the teacher skipped instead of making the child read them: not read, so not evidence.
+        "skipped": [ir.item_level for ir in checkin.items if ir.source == "skipped"],
     }
+
+
+def read_items(checkin: Checkin) -> list:
+    """The cards the child actually read (skipped cards carry nothing to diagnose)."""
+    return [ir for ir in checkin.items if ir.source != "skipped"]
 
 
 def input_hash(inp: dict) -> str:

@@ -7,6 +7,7 @@ import re
 import pytest
 
 from app.config import settings
+from app.content import text_for
 from app.levels.aser_rules import COHORTS
 from app.llm import activities as act
 from app.llm.patterns import PATTERNS
@@ -57,6 +58,8 @@ def test_examples_follow_the_language_the_group_reads():
         for lang in ("en", "hi", "mr", "ta", "kn", "bn"):
             if entry.get("script", "latin" if lang == "en" else "indic") != ("latin" if lang == "en" else "indic"):
                 continue  # not offered in this language's script
+            if entry.get("uses_text") and not text_for(lang, entry["uses_text"]):
+                continue  # a text activity is only offered where the language has such a text
             shown = json.dumps(act.localize(entry, lang), ensure_ascii=False)
             assert not re.search(r"\{[a-z]+\d?\}", shown), (entry["id"], lang)
         assert act.source_of(entry)["note_hi"], entry["id"]
@@ -74,19 +77,22 @@ def test_a_tamil_group_sees_tamil_letters_and_the_charts_own_name():
 
 def test_candidates_follow_the_groups_difficulties():
     top = act.candidates("word", {"matra_vowel_sign": 5})
-    assert len(top) == 3 and all("word" in a["cohorts"] for a in top)
-    assert all("matra_vowel_sign" in a["patterns"] for a in top)
+    assert len(top) == 3 and all("word" in a["cohorts"] and a.get("text") for a in top)
+    assert top[0]["id"] == "rhyme-words-break-and-join"  # the book activity that trains vowel signs
     assert act.candidates("paragraph", {"fluency_only": 3})[0]["patterns"][0] == "fluency_only"
 
 
 # ---- generation pipeline
 
 
-def good_plan(source_id, minutes=(3, 4, 3)):
+HI_RHYME_WORDS = ["जुकाम", "नंदू", "छींका", "पत्ते"]  # from the Hindi group's rhyme (नंदू को जुकाम)
+
+
+def good_plan(source_id, minutes=(3, 4, 3), words=HI_RHYME_WORDS):
     return {"source_activity_id": source_id, "title_en": "Change one matra", "title_local": "एक मात्रा बदलो",
             "materials_en": ["Board"], "materials_local": ["बोर्ड"],
             "steps": [{"minutes": m, "en": f"Step {i}", "local": f"चरण {i}"} for i, m in enumerate(minutes)],
-            "practice_words": ["पानी", "पनी"], "watch_for_en": "Matra position", "watch_for_local": "मात्रा की जगह",
+            "practice_words": list(words), "watch_for_en": "Matra position", "watch_for_local": "मात्रा की जगह",
             "why_en": "The group drops matras.", "why_local": "समूह मात्राएँ छोड़ता है।"}
 
 
@@ -109,13 +115,18 @@ def fake_models(monkeypatch):
     return state
 
 
-OK = {"faithful_to_source": True, "age_appropriate": True, "safe": True, "fits_10_minutes": True, "issues": []}
+OK = {"faithful_to_source": True, "age_appropriate": True, "safe": True, "fits_10_minutes": True, "fits_level": True,
+      "issues": []}
 
 
 def test_without_a_key_the_bank_entry_is_served_with_practice_words():
     out = asyncio.run(act.generate(CTX))
     assert out["generated_by"] == "bank" and not out["accepted"]
-    assert out["plan"]["practice_words"] == ["पानी", "केला", "नाव"]
+    # A Word group practises single short words from the rhyme (not the rhyme itself, not the misread words)
+    plan = out["plan"]
+    assert plan["material"]["kind"] == "words" and plan["practice_words"] == plan["material"]["items"]
+    assert all(2 <= len(act.aksharas(w)) <= 3 for w in plan["practice_words"]) and "जुकाम" in plan["practice_words"]
+    assert plan["text"]["id"] == "hi-rhyme-nandu" and plan["text"]["read_aloud"]
     assert out["source_activity_id"] == act.candidates("word", CTX["pattern_counts"])[0]["id"]
 
 
@@ -130,7 +141,8 @@ def test_accepted_plan(fake_models):
 
 
 def test_a_plan_for_a_kannada_class_is_in_kannada_and_english(fake_models):
-    fake_models["plans"] = [lambda ids: good_plan(ids[0]) | {"title_local": "ಒಂದು ಸ್ವರ ಚಿಹ್ನೆ ಬದಲಿಸಿ"}]
+    kn_words = ["ನಾಗರಹಾವೆ", "ಬಾಗಿಲ", "ಕೈಗಳ"]
+    fake_models["plans"] = [lambda ids: good_plan(ids[0], words=kn_words) | {"title_local": "ಒಂದು ಸ್ವರ ಚಿಹ್ನೆ ಬದಲಿಸಿ"}]
     fake_models["verdicts"] = [OK]
     out = asyncio.run(act.generate(CTX | {"language": "kn", "teacher_language": {"code": "kn", "name": "Kannada"}}))
     assert out["accepted"] and out["plan"]["title"] == {"en": "Change one matra", "kn": "ಒಂದು ಸ್ವರ ಚಿಹ್ನೆ ಬದಲಿಸಿ"}
@@ -146,6 +158,18 @@ def test_reviewer_rejection_triggers_one_regeneration(fake_models):
     assert out["accepted"] and len(fake_models["gen_calls"]) == 2
     retry = fake_models["gen_calls"][1][0]
     assert retry[-1]["role"] == "user" and "Different method" in retry[-1]["content"]
+
+
+def test_practice_words_must_come_from_the_text(fake_models):
+    # Words from outside the text are dropped; fewer than three left sends the plan back once.
+    fake_models["plans"] = [lambda ids: good_plan(ids[0], words=["पानी", "केला", "जुकाम"]),
+                            lambda ids: good_plan(ids[0], words=["जुकाम,", "नंदू", "छींका", "पानी"])]
+    fake_models["verdicts"] = [OK]
+    out = asyncio.run(act.generate(CTX | {"cohort": "paragraph"}))  # a Paragraph group reads the rhyme itself
+    assert out["accepted"] and len(fake_models["gen_calls"]) == 2
+    assert "copied exactly from the text" in fake_models["gen_calls"][1][0][-1]["content"]
+    assert out["plan"]["practice_words"] == ["जुकाम", "नंदू", "छींका"]
+    assert out["plan"]["text"]["author"] == "रामनरेश त्रिपाठी"
 
 
 def test_plans_that_break_the_rules_twice_fall_back_to_the_bank(fake_models):
