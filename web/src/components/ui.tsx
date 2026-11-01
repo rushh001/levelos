@@ -45,7 +45,14 @@ export function Page({
   const { teacher, logout } = useAuth()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const pending = useLiveQuery(() => db.checkins.where('status').anyOf('queued', 'failed').count(), [], 0)
+  // Reading checks and changes (a class, a child, a group) waiting on the phone for the network.
+  const pending = useLiveQuery(
+    async () =>
+      (await db.checkins.where('status').anyOf('queued', 'failed').count()) +
+      (((await db.cache.get('outbox'))?.value as unknown[] | undefined)?.length ?? 0),
+    [],
+    0,
+  )
 
   return (
     <div className={`mx-auto flex min-h-full flex-col px-4 pb-10 pt-3 ${wide ? 'max-w-3xl' : 'max-w-md'}`}>

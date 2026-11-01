@@ -7,7 +7,7 @@ services:
     region: singapore
     dockerfilePath: ./api/Dockerfile
     dockerContext: .
-    healthCheckPath: /api/health
+    healthCheckPath: /api/ping # reads no database, so Neon can sleep; /api/health has the details
     envVars:
       - key: APP_ENV
         value: prod

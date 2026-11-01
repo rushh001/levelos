@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,6 +23,19 @@ from .speech.audio import ffmpeg_available
 _startup_tasks: set[asyncio.Task] = set()
 
 
+async def _keep_awake(url: str, every_s: float) -> None:
+    """Render's free plan stops the server after 15 minutes without a request from outside. A call to our own public
+    address goes out and comes back in through Render, so it counts as one. /api/ping reads no database, so Neon's
+    free compute still sleeps while nobody uses the app."""
+    async with httpx.AsyncClient(timeout=30) as client:
+        while True:
+            await asyncio.sleep(every_s)
+            try:
+                await client.get(f"{url}/api/ping")
+            except httpx.HTTPError:
+                pass  # missed once; the next call follows
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     check_secret()
@@ -39,7 +53,12 @@ async def lifespan(_: FastAPI):
             task.add_done_callback(_startup_tasks.discard)
     finally:
         db.close()
+    keep_awake = None
+    if settings.keep_awake_url and settings.keep_awake_minutes > 0:
+        keep_awake = asyncio.create_task(_keep_awake(settings.keep_awake_url.rstrip("/"), settings.keep_awake_minutes * 60))
     yield
+    if keep_awake:
+        keep_awake.cancel()
 
 
 app = FastAPI(title="LevelOS API", version="0.2.0", lifespan=lifespan)
@@ -54,6 +73,12 @@ app.include_router(auth_routes.router)
 app.include_router(class_routes.router)
 app.include_router(checkin_routes.router)
 app.include_router(activity_routes.router)
+
+
+@app.get("/api/ping")
+def ping() -> dict:
+    """Keeps the free server awake (_keep_awake, GitHub Actions) and wakes it as the web app opens. Reads no database."""
+    return {"ok": True}
 
 
 @app.get("/api/health")

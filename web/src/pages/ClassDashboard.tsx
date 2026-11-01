@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { Api } from '../api'
 import { Button, COHORT_STYLE, ChildChip, CohortIcon, ErrorBox, Page, ReadingTestSwitch, Spinner } from '../components/ui'
 import { nameIn } from '../lib/names'
+import { addChild } from '../lib/outbox'
 import { patternKey, useReadingLang } from '../lib/readingLang'
 import { useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
@@ -44,7 +45,7 @@ export default function ClassDashboard() {
     e.preventDefault()
     const first = name.trim()
     const second = otherName.trim()
-    await Api.addStudent(id, { first_name: first, avatar, names: second ? { [ui]: first, [other]: second } : undefined })
+    await addChild(id, { first_name: first, avatar, names: second ? { [ui]: first, [other]: second } : undefined }) // offline too
     setName('')
     setOtherName('')
     setAdding(false)

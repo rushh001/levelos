@@ -10,6 +10,7 @@ import { startOffline } from '../lib/offline'
 import { patternKey, useReadingLang } from '../lib/readingLang'
 import { Button, ErrorBox, LevelBadge, Page, ReadingTestSwitch, Spinner, formatDate } from '../components/ui'
 import type { Checkin, Cohort } from '../lib/types'
+import { changeGroup } from '../lib/outbox'
 import { pick, useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
@@ -60,10 +61,7 @@ export default function Student() {
   }
 
   const moveTo = async (value: string) => {
-    await Api.patchStudent(
-      s.id,
-      value === 'auto' ? { clear_cohort_override: true, language: lang } : { cohort_override: value, language: lang },
-    )
+    await changeGroup(s, lang, value === 'auto' ? null : (value as Cohort)) // offline too: sent when the network is back
     await reload()
   }
 

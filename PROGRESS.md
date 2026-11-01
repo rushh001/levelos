@@ -115,6 +115,8 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 - [x] Z: a Story group of its own (Letter, Word, Paragraph, Story; story readers had shared the Paragraph group): on the dashboard, in the group menu (chosen by hand: only the story card), with its own 10-minute activity (read and answer, read a story together, read and retell, a long poem); 170 API tests
 - [x] Z: Paragraph and Story groups get homework on the text (rhyme: read it aloud at home twice, copy two lines; story: read it at home, retell it, write two sentences) instead of a practice-word list; six languages; shown on older plans too; 171 API tests
 - [x] Z: teacher sign-up (name, email, PIN 4–8 digits) gives a unique 6-digit login ID, shown once to write down; one account per email (`teachers.email`, added on start-up); a language menu on the login and sign-up screens only; 173 API tests
+- [x] Z (1 Nov): offline, everything works but voice scoring and sign-up/login — 10-minute activities made on the phone from the bundled book bank by the server's rules ("Made on this phone (offline)"); new class, new child, group change and activity rating kept in an outbox and sent when back online (temporary IDs replaced, offline checks follow); reads use the phone's copy when there is no network, and the outbox goes first when it returns; LM Studio support: on a computer running LM Studio its local model adapts the offline activity ("Generated offline using LM Studio"), checked by the same rules, else the phone-made one
+- [x] Z (1 Nov): the free API keeps itself awake — `/api/ping` (no database); the server calls its own public address every 10 minutes (`RENDER_EXTERNAL_URL`); a GitHub Actions schedule wakes it every 30 minutes; the web app wakes it as it opens; Render's health check moved to `/api/ping` so Neon can still sleep; README: how to try offline; 176 API tests
 
 ---
 
@@ -123,7 +125,7 @@ Owners: **CC** = Claude Code (writes code/docs), **Z** = Zaid (accounts, keys, p
 | Item | Needed from | Why it blocks |
 |---|---|---|
 | Recordings of children (with written parental consent) | Z + R | Accuracy on children's voices — the claim judges care about |
-| Keep-alive monitor on `/api/health` ([docs/DEPLOY.md](docs/DEPLOY.md) step 6), if not set up yet | Z | Without it the free API sleeps and the first login takes up to a minute |
+| Render **Health Check Path** → `/api/ping`, only if the service was made by hand rather than from `render.yaml` ([docs/DEPLOY.md](docs/DEPLOY.md) step 6) | Z | `/api/health` reads the database, so Neon's free compute would never sleep now that the API stays up |
 | Android phone test (Chrome) | Z | Microphone, layout and offline on a real budget phone |
 | 3 teachers for one round of testing (Tue 28 – Wed 29) | Z + R | User-testing evidence (35% of the score) |
 | Educator check of item banks + activity bank (status: draft) | R | Fidelity claims in the PPT |

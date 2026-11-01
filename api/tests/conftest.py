@@ -14,6 +14,7 @@ from app.config import settings  # noqa: E402
 for _key in ("anthropic_api_key", "sarvam_api_key", "azure_speech_key", "gemini_api_key"):
     setattr(settings, _key, None)
 settings.speech_cache = False
+settings.keep_awake_url = None  # never call out, even if the environment sets it
 settings.diagnosis_debounce_s = 0  # no waiting in tests
 
 

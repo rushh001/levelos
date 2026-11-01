@@ -67,14 +67,15 @@ export function textForActivity(activityId: string, lang: string): BundledText |
 }
 
 const ZW = new Set([String.fromCharCode(0x200c), String.fromCharCode(0x200d)])
-const wordsOf = (t: BundledText) =>
+/** The words of a text in order, as printed, without the punctuation around them. */
+export const wordsOf = (t: BundledText) =>
   t.lines
     .join(' ')
     .split(/\s+/)
     .map((w) => w.replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, ''))
     .filter((w) => w && [...w].every((c) => /[\p{L}\p{M}]/u.test(c) || ZW.has(c)))
-const isAscii = (w: string) => [...w].every((c) => c.charCodeAt(0) < 128)
-const NUKTA = new Set([String.fromCharCode(0x093c), String.fromCharCode(0x09bc)]) // part of the letter: ड़, ড়
+export const isAscii = (w: string) => [...w].every((c) => c.charCodeAt(0) < 128)
+export const NUKTA = new Set([String.fromCharCode(0x093c), String.fromCharCode(0x09bc)]) // part of the letter: ड़, ড়
 
 /** The letters or words a Letter or Word group reads in a text activity opened from the shelf (the server picks
  * them for a generated plan): the letters the rhyme's words start with, most frequent first, or its short words. */
@@ -128,6 +129,11 @@ export function rhymeFor(lang: string): Rhyme | null {
 const BANKS: Record<string, Bank> = Object.fromEntries(Object.values(files).map((m) => [m.default.language, m.default]))
 const LANGUAGES = languageConfig as unknown as Record<string, LanguageConfig>
 const ACTIVITIES = activityBank as unknown as BankActivity[]
+
+/** Whether the language is written in Latin script (English): no barakhadi or matra work. */
+export function isLatinScript(lang: string): boolean {
+  return LANGUAGES[lang]?.script === 'Latin'
+}
 
 export function hasBank(lang: string): boolean {
   return lang in BANKS

@@ -5,8 +5,9 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 
-/** The activity bank is 200 KB of six-language text the API serves; the app only needs each entry's id, title,
- * cohorts, script and examples (for the "Show the class" screens), so it ships that slice as a virtual module. */
+/** The activity bank is 200 KB of six-language text the API serves. The app ships each entry's id, title, cohorts,
+ * script and examples (for the "Show the class" screens), and the whole of the book-based entries with the homework
+ * and the sources, so a 10-minute activity can be put together on the phone with no network. */
 function activityBank(): Plugin {
   const id = 'virtual:activity-bank'
   const resolved = '\0' + id
@@ -16,9 +17,20 @@ function activityBank(): Plugin {
     load(source) {
       if (source !== resolved) return
       const path = fileURLToPath(new URL('../content/activities/bank.json', import.meta.url))
-      const bank = JSON.parse(readFileSync(path, 'utf8')) as { activities: Record<string, unknown>[] }
-      const slim = bank.activities.map(({ id, title, cohorts, script, examples, uses_text, reads }) => ({ id, title, cohorts, script, examples, uses_text, reads }))
-      return `export default ${JSON.stringify(slim)}`
+      const bank = JSON.parse(readFileSync(path, 'utf8')) as {
+        activities: Record<string, unknown>[]
+        homework: unknown
+        sources: unknown
+      }
+      const slim = bank.activities.map((a) => {
+        const { id, title, cohorts, script, examples, uses_text, reads } = a
+        return uses_text ? a : { id, title, cohorts, script, examples, uses_text, reads }
+      })
+      return [
+        `export default ${JSON.stringify(slim)}`,
+        `export const homework = ${JSON.stringify(bank.homework)}`,
+        `export const sources = ${JSON.stringify(bank.sources)}`,
+      ].join('\n')
     },
   }
 }

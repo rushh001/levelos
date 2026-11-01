@@ -1,0 +1,19 @@
+# Render's free plan stops the API after 15 minutes without a request. The API calls itself every 10 minutes
+# (api/app/main.py, _keep_awake); this wakes it if it was stopped anyway (a restart or a redeploy).
+# Every 30 minutes stays inside a private repository's 2,000 free Actions minutes a month (about 1,500 used).
+name: Keep the API awake
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call /api/ping (waits up to about 3 minutes for a sleeping API to start)
+        run: curl --silent --show-error --fail --retry 6 --retry-delay 20 --retry-all-errors --max-time 60 https://levelos-api.onrender.com/api/ping

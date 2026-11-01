@@ -69,7 +69,7 @@ Render and Vercel deploy straight from `github.com/rushh001/levelos`. Claude Cod
 <details>
 <summary>If you prefer not to use the Blueprint (manual setup)</summary>
 
-**New +** → **Web Service** → choose the repository → **Language: Docker** → **Dockerfile Path:** `api/Dockerfile` → **Docker Build Context Directory:** `.` (the repository root) → **Instance Type: Free** → **Region: Singapore** → under **Advanced**, **Health Check Path:** `/api/health` → add every variable listed in `render.yaml` by hand (for `JWT_SECRET`, use any random string of 40+ characters) → **Create Web Service**.
+**New +** → **Web Service** → choose the repository → **Language: Docker** → **Dockerfile Path:** `api/Dockerfile` → **Docker Build Context Directory:** `.` (the repository root) → **Instance Type: Free** → **Region: Singapore** → under **Advanced**, **Health Check Path:** `/api/ping` → add every variable listed in `render.yaml` by hand (for `JWT_SECRET`, use any random string of 40+ characters) → **Create Web Service**.
 </details>
 
 ---
@@ -108,12 +108,17 @@ On an **Android phone in Chrome** (also try a laptop browser):
 
 ---
 
-## Step 6 — Keep the API awake (UptimeRobot)
+## Step 6 — Keep the API awake
 
-Render's free plan puts the API to sleep after about 15 minutes without visitors; the next visitor then waits about a minute. A free monitor that visits every 5 minutes keeps it awake.
+Render's free plan stops the API after 15 minutes without a request from outside; the next visitor then waits about a minute. Three things keep it up, with nothing to sign up for:
 
-1. **uptimerobot.com** → sign up (free).
-2. **Add New Monitor** → type **HTTP(s)** → URL `https://levelos-api.onrender.com/api/health` → interval **5 minutes** → **Create Monitor**.
+1. **The API calls itself.** Every 10 minutes it calls its own public address (`/api/ping`). Render sets `RENDER_EXTERNAL_URL`, so there is nothing to configure (`KEEP_AWAKE_URL` overrides it, `KEEP_AWAKE_MINUTES` changes the interval). This keeps a running API up; it cannot start one that was stopped.
+2. **GitHub Actions wakes it** every 30 minutes ([.github/workflows/keep-awake.yml](../.github/workflows/keep-awake.yml)), in case it was stopped anyway (a restart or a redeploy). To run it by hand: GitHub → **Actions** → **Keep the API awake** → **Run workflow**. On a private repository this uses about 1,500 of the 2,000 free Actions minutes a month (on a public one it is free).
+3. **The web app wakes it** as it opens, so the API is starting while the teacher reads the login screen.
+
+`/api/ping` reads no database, so Neon's free compute still sleeps when nobody uses the app (the first request after that wakes it in about a second). For the same reason the **Health Check Path** is `/api/ping` (`render.yaml` sets it; on a service made by hand: Render → the service → **Settings** → **Health Check Path**). Staying up all month uses about 720–744 of Render's 750 free instance hours, so keep this the only free service in the Render workspace.
+
+Check: `https://levelos-api.onrender.com/api/ping` shows `{"ok":true}`; in Render → **Logs**, a `GET /api/ping` appears every 10 minutes.
 
 The phone app on Vercel never sleeps, so the app itself always opens; only scoring waits if the API is asleep.
 

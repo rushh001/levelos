@@ -4,7 +4,7 @@
 
 Built for the AI for Foundational Learning Hackathon (Challenge 02: Learning-Level Visibility) by Team rushhies.
 
-**Live demo: [levelos-nine.vercel.app](https://levelos-nine.vercel.app)** (API status: [levelos-api.onrender.com/api/health](https://levelos-api.onrender.com/api/health)). The API runs on a free plan; if it has been idle, the first login can take up to a minute.
+**Live demo: [levelos-nine.vercel.app](https://levelos-nine.vercel.app)** (API status: [levelos-api.onrender.com/api/health](https://levelos-api.onrender.com/api/health)). The API runs on Render's free plan and keeps itself awake ([Deploy](#deploy)); only right after a restart can the first login take up to a minute.
 
 **Demo logins** (teacher is the only role): `demo` / PIN `1234` or `judge` / PIN `2026` — or tap **Try the demo class** on the login page. A new teacher can **create an account** (name, email, PIN) and is given a 6-digit login ID; the login and sign-up screens have a language menu. The demo class (Grade 2) has 16 fictional children, each with two weeks of history in English and in Hindi; no real child's data is in the hosted demo.
 
@@ -75,13 +75,20 @@ Full table: [document.md §8](document.md#8-guardrails).
 | Open the app, class, groups, children | ✓ | ✓ cached on the phone |
 | Cards and spoken instructions | ✓ | ✓ shipped in the app |
 | Check-in and level | ✓ AI-scored | ✓ teacher taps the mistakes, ladder on the phone, provisional level |
-| AI scoring, diagnosis, activity | ✓ | sent automatically when back online; AI–tap disagreements come back for confirmation |
+| 10-minute activity | ✓ adapted by Claude | ✓ made on the phone from the same book bank and level rules ("Made on this phone (offline)"); on a computer running **LM Studio**, its local model adapts the wording ("Generated offline using LM Studio") |
+| New class, new child, group change, activity rating | ✓ | ✓ kept on the phone and shown at once; sent when back online (a class or child made offline gets its real ID then, and its checks follow) |
+| AI scoring of recordings, diagnosis | ✓ | sent automatically when back online; AI–tap disagreements come back for confirmation |
+| Sign-up and login | ✓ | needs the network |
+
+**LM Studio (optional, offline AI on a laptop).** Install [LM Studio](https://lmstudio.ai), download a small instruct model (for example Qwen2.5 3B or 7B Instruct), load it, start the local server (Developer tab, port 1234) and turn on *Enable CORS*. When the LevelOS server cannot be reached, the app checks for LM Studio at `VITE_LMSTUDIO_URL` (default `http://localhost:1234`); if a model is loaded, the model rewrites the chosen activity's title, steps and notes in English and the teacher's language, while the book text, the letters or words and the homework stay as they are. A plan that breaks the rules (not 3–4 steps of about 10 minutes, or not in the teacher's script) is refused and the phone-made activity is used. On a laptop without a graphics card expect 30–90 seconds per activity; a phone never reaches LM Studio and always gets the phone-made one. Open the app in Chrome on the computer that runs LM Studio; from the hosted site Chrome may ask to let it reach apps on this device — allow it.
+
+**Try offline.** With the network on, open the app and log in once (the phone keeps the app, the class and the children), then open the class and a child. Turn on airplane mode and reload: run a check by tapping the mistakes, add a child, move a child to another group, open **▶ 10-minute activity**. A ⏳ badge counts what is waiting. Turn the network back on: everything is sent, recordings are scored, and any word the AI hears differently from the teacher's tap comes back for the teacher to confirm.
 
 ## Results
 
 On nine real recordings (an adult reading scripted mistakes in Hindi and English on an Android phone; references confirmed by listening back), the live configuration agreed on **117 of 118 words (99.2%)** and gave the expected pass/fail on **9 of 9** cards; the one miss was sent to the teacher as uncertain, and it caught a slip the reader didn't notice. Children's voices are not yet in the set. Details: [eval/README.md](eval/README.md).
 
-153 automated tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
+176 automated API tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
 
 ## Run locally
 
@@ -112,6 +119,8 @@ Tests: `cd api && .venv/Scripts/python -m pytest` (no network or keys needed).
 
 Step by step, about 45 minutes, free plans: [docs/DEPLOY.md](docs/DEPLOY.md) — database from Vercel Storage (Neon), API on Render (`render.yaml`), web app on Vercel (root directory `web`).
 
+The free API keeps itself awake: it calls its own `/api/ping` every 10 minutes (at `RENDER_EXTERNAL_URL`, which Render sets), a GitHub Actions schedule ([.github/workflows/keep-awake.yml](.github/workflows/keep-awake.yml)) wakes it every 30 minutes in case it was stopped anyway (a restart or a redeploy), and the web app wakes it as it opens. `/api/ping` reads no database, so Neon's free compute still sleeps when nobody uses the app.
+
 ## Repository
 
 ```
@@ -120,6 +129,7 @@ api/       FastAPI: speech pipeline, scorer, ASER rules, Claude, spend caps; scr
 content/   item banks (hi, en), activity bank, language config
 eval/      scripted test clips, gold transcripts, results
 docs/      deploy guide, recording script, build plan, research briefs
+.github/   schedule that keeps the free API awake
 ```
 
 More: [document.md](document.md) (full description) · [PROGRESS.md](PROGRESS.md) (status) · [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md) · [docs/research/](docs/research/)
@@ -135,7 +145,7 @@ Item banks are original texts written to the ASER 2024 reading-tool specificatio
 - Single letters are hardest for the recognisers, so letter cards ask the teacher to confirm more often (replay makes it quick).
 - The English test uses the same letter → word → paragraph → story ladder as Hindi, not ASER's own English tool (capital letters, small letters, words, sentences, meaning).
 - Beta languages (Marathi, Tamil, Kannada, Bengali) are not yet validated with children, and their strings, activity translations, rhymes and picture word lists are AI-drafted, awaiting native-speaking reviewers; single letters are unreliable for the recognisers there, so the teacher confirms letter cards by ear.
-- On free plans the API sleeps when idle (a monitor keeps it awake) and Azure allows one request at a time.
+- On free plans Azure allows one request at a time, and the API stays up only because it calls itself (after a restart the first request waits about a minute).
 
 ## Licence
 

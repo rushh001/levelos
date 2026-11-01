@@ -5,6 +5,7 @@ import { Api } from '../api'
 import { Button, ErrorBox, Page, Spinner } from '../components/ui'
 import { bankLanguages, isBeta } from '../lib/content'
 import { nameIn } from '../lib/names'
+import { createClass } from '../lib/outbox'
 import { useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
@@ -23,7 +24,7 @@ export default function Classes({ list }: { list?: boolean }) {
 
   const create = async (e: FormEvent) => {
     e.preventDefault()
-    await Api.createClass({ name, grade, language })
+    await createClass({ name, grade, language }) // offline too: sent when the network is back
     setCreating(false)
     setName('')
     await reload()

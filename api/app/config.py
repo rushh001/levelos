@@ -1,7 +1,7 @@
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from pydantic import field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 API_DIR = Path(__file__).resolve().parents[1]
@@ -52,6 +52,12 @@ class Settings(BaseSettings):
     keep_audio: bool = False  # also write raw uploads to disk (consented evaluation set only)
     # Recordings kept (as small MP3) so the teacher can listen again; deleted after this many days. 0 = never stored.
     audio_retention_days: int = 30
+
+    # Render's free plan stops the server after 15 minutes without a request from outside, and the next visitor waits
+    # about a minute. The server calls its own public address this often so that never happens (app.main._keep_awake).
+    # Render sets RENDER_EXTERNAL_URL itself; KEEP_AWAKE_URL overrides it. Unset (local runs, tests) = off.
+    keep_awake_url: str | None = Field(None, validation_alias=AliasChoices("keep_awake_url", "render_external_url"))
+    keep_awake_minutes: float = 10
 
     @field_validator("database_url")
     @classmethod

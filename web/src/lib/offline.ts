@@ -11,6 +11,7 @@ import { Api, ApiError, OfflineError } from '../api'
 import { db, type QueuedCheckin } from '../db'
 import i18n from '../i18n'
 import { nextItemLevel, outcomeFromMarks, placedLevel, skippedOutcome, startLevel } from './aser'
+import { flushOutbox, waitsForChild } from './outbox'
 import { pickItem } from './content'
 import { nameIn } from './names'
 import type { ItemLevel, ItemPublic, Level, StudentDetail } from './types'
@@ -160,8 +161,10 @@ export async function syncAll(): Promise<number> {
   running = true
   let synced = 0
   try {
+    await flushOutbox() // classes, children and group changes made offline go first: the checks may need them
     const pending = await db.checkins.where('status').anyOf('queued', 'failed').sortBy('startedAt')
     for (const c of pending) {
+      if (waitsForChild(c.studentId)) continue // the child made offline is not on the server yet
       try {
         await syncOne(c)
         synced += 1

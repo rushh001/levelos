@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Api } from '../api'
+import { Api, OfflineError } from '../api'
 import { SCREEN_ICON, ShowClass, hasShowScreen, screenKind } from '../components/show/ShowClass'
 import { Button, COHORT_STYLE, ErrorBox, Page, Spinner } from '../components/ui'
 import { activityExamples, bankActivities, fillExamples, textFor } from '../lib/content'
+import { adaptWithLmStudio, lmStudioModel } from '../lib/lmstudio'
+import { localActivities, makeLocalActivity, saveLocalActivity } from '../lib/localActivity'
+import { rateActivity } from '../lib/outbox'
 import { useReadingLang, useUiFollows } from '../lib/readingLang'
 import type { Activity, Cohort } from '../lib/types'
 import { pick, useUiLang } from '../lib/uiLang'
@@ -21,19 +24,38 @@ export default function ActivityPage() {
   const [current, setCurrent] = useState<Activity | null>(null)
   const [previous, setPrevious] = useState<Activity[]>([])
   const [busy, setBusy] = useState(false)
+  const [busyLabel, setBusyLabel] = useState<string | null>(null) // what the wait is for, when not the usual
   const [error, setError] = useState<Error | null>(null)
   const [library, setLibrary] = useState<string | null>(null) // a bank activity opened straight as a screen
   const started = useRef(false)
   // Every activity with a "Show the class" screen for this group, so a teacher is never more than two taps away.
   const shelf = bankActivities(cohort, lang).filter((a) => hasShowScreen(a.id) && a.id !== current?.source_activity_id)
 
-  const generate = async () => {
+  // `history`: the group's activities, newest first (the page's own list once it is loaded).
+  const generate = async (history?: Activity[]) => {
     setBusy(true)
+    setBusyLabel(null)
     setError(null)
     try {
-      const a = await Api.generateActivity(id, cohort, lang)
+      let a: Activity
+      try {
+        a = await Api.generateActivity(id, cohort, lang)
+      } catch (e) {
+        // No network: the phone puts the activity together itself, by the same rules, from the bundled books.
+        const earlier = history ?? [current, ...previous].filter((x): x is Activity => !!x)
+        const local = e instanceof OfflineError ? makeLocalActivity(cohort as Cohort, lang, earlier) : null
+        if (!local) throw e
+        a = local
+        // On a computer running LM Studio, its local model adapts the wording; otherwise the phone-made one stays.
+        const model = await lmStudioModel()
+        if (model) {
+          setBusyLabel(t('activity.generatingLmStudio'))
+          a = (await adaptWithLmStudio(model, local, ui)) ?? local
+        }
+        await saveLocalActivity(id, a)
+      }
       setCurrent(a)
-      setPrevious((p) => p.filter((x) => x.id !== a.id))
+      setPrevious((p) => [...(current ? [current] : []), ...p].filter((x) => x.id !== a.id))
     } catch (e) {
       setError(e as Error)
     } finally {
@@ -44,8 +66,16 @@ export default function ActivityPage() {
   useEffect(() => {
     if (started.current) return
     started.current = true
-    // Show today's activity if there is one; otherwise prepare one.
-    Api.activities(id, cohort, lang)
+    // Show today's activity if there is one; otherwise prepare one. The list joins the server's activities (its
+    // copy on the phone when offline) with those made on this phone without network.
+    Promise.all([
+      Api.activities(id, cohort, lang).catch((e) => {
+        if (e instanceof OfflineError) return [] as Activity[]
+        throw e
+      }),
+      localActivities(id, cohort, lang),
+    ])
+      .then(([server, local]) => [...local, ...server].sort((x, y) => y.created_at.localeCompare(x.created_at)))
       .then((list) => {
         // Today's activity, if it fits the group's level: letters or words for a Letter or Word group, a text for
         // the Paragraph group (one made earlier under the old rules is replaced).
@@ -61,7 +91,7 @@ export default function ActivityPage() {
           setPrevious(earlier)
         } else {
           setPrevious(earlier)
-          void generate()
+          void generate(earlier)
         }
       })
       .catch((e) => setError(e as Error))
@@ -75,8 +105,8 @@ export default function ActivityPage() {
       back={`/class/${id}`}
     >
       <ErrorBox error={error} onRetry={() => void generate()} />
-      {busy && <Spinner label={t('activity.generating')} />}
-      {current && !busy && <ActivityCard a={current} cohort={cohort as Cohort} lang={lang} onRated={setCurrent} />}
+      {busy && <Spinner label={busyLabel ?? t('activity.generating')} />}
+      {current && !busy && <ActivityCard a={current} classId={id} cohort={cohort as Cohort} lang={lang} onRated={setCurrent} />}
       {!busy && (
         <Button kind="secondary" onClick={() => void generate()} className="mt-4 w-full">
           ↻ {t('activity.another')}
@@ -139,16 +169,28 @@ export default function ActivityPage() {
 const yearOf = (t: { author: string; year?: number | null }) =>
   t.year && !t.author.includes(String(t.year)) ? ` (${t.year})` : ''
 
-function ActivityCard({ a, cohort, lang, onRated }: { a: Activity; cohort: Cohort; lang: string; onRated: (a: Activity) => void }) {
+function ActivityCard({ a, classId, cohort, lang, onRated }: { a: Activity; classId: string; cohort: Cohort; lang: string; onRated: (a: Activity) => void }) {
   const { t } = useTranslation()
   const ui = useUiLang()
   const p = a.plan
   const materials = pick(p.materials, ui) ?? []
   const [showing, setShowing] = useState(false)
-  const rate = async (n: number) => onRated(await Api.rateActivity(a.id, n))
+  // An activity made on this phone is rated on the phone; the others on the server.
+  const rate = async (n: number) => {
+    if (!a.id.startsWith('local-')) return onRated(await rateActivity(a, n)) // offline: sent when the network is back
+    const rated = { ...a, teacher_rating: n }
+    await saveLocalActivity(classId, rated)
+    onRated(rated)
+  }
   return (
     <article className={`rounded-2xl border-2 p-4 ${COHORT_STYLE[cohort]}`}>
-      <div className="text-xs text-mute">{a.generated_by === 'bank' ? t('activity.fromBank') : t('activity.adapted')}</div>
+      <div className="text-xs text-mute">{a.generated_by.startsWith('lmstudio:')
+          ? t('activity.fromLmStudio', { model: a.generated_by.slice('lmstudio:'.length) })
+          : a.generated_by === 'phone'
+            ? t('activity.fromPhone')
+            : a.generated_by === 'bank'
+              ? t('activity.fromBank')
+              : t('activity.adapted')}</div>
       <h2 className="text-xl font-bold">{pick(p.title, ui)}</h2>
       {pick(p.why, ui) && <p className="mt-1 text-sm text-ink">{pick(p.why, ui)}</p>}
 

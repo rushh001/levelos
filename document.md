@@ -245,9 +245,12 @@ The judges test low-connectivity behaviour, so offline is designed in, not added
 | Reading cards and spoken instructions | ✓ | ✓ shipped inside the app |
 | Run a check-in with the ASER ladder | ✓ AI-scored | ✓ the teacher records (optional) and **taps the mistakes**; the ladder runs on the phone |
 | Level | ✓ | ✓ provisional, from the taps |
-| AI scoring, diagnosis, activity | ✓ | sent automatically when the network returns |
+| 10-minute activity | ✓ adapted by Claude | ✓ made on the phone (`web/src/lib/localActivity.ts`): the same book-based activities and level rules as the server, from the bundled bank and texts; the group's last activity is left out and texts rotate; labelled "Made on this phone (offline)". On a computer running LM Studio (`web/src/lib/lmstudio.ts`): its local model adapts the chosen activity's wording through LM Studio's OpenAI-compatible server (`VITE_LMSTUDIO_URL`, default `http://localhost:1234`), with a JSON schema and the same checks (3–4 steps, about 10 minutes, the teacher's script); the book text, letters or words and homework are kept; labelled "Generated offline using LM Studio (model)" only when the model's plan was used |
+| New class, new child, group change, activity rating | ✓ | ✓ an outbox on the phone (`web/src/lib/outbox.ts`): applied at once to the phone's copies of the pages, sent in order when the network returns (before the queued checks and before any page is read again); a class or child made offline has a temporary ID until the server gives the real one (`web/src/lib/idmap.ts`), and its offline checks follow |
+| AI scoring of recordings, diagnosis | ✓ | sent automatically when the network returns |
+| Sign-up and login | ✓ | needs the network |
 
-**Sync** (when the network returns, on start, and every minute): each offline check-in is created on the server with the phone's ID (so retries never duplicate) and the same starting rung; the taps are replayed through the same ladder; the check-in is finished; then each recording is AI-scored. Wherever the AI disagrees with the teacher's tap on a word, that word becomes **uncertain** for the teacher to confirm — the level is never silently overwritten. Recordings are deleted from the phone once the server has them. A ⏳ badge shows how many check-ins are waiting.
+**Sync** (when the network returns, on start, and every minute): each offline check-in is created on the server with the phone's ID (so retries never duplicate) and the same starting rung; the taps are replayed through the same ladder; the check-in is finished; then each recording is AI-scored. Wherever the AI disagrees with the teacher's tap on a word, that word becomes **uncertain** for the teacher to confirm — the level is never silently overwritten. Recordings are deleted from the phone once the server has them. A ⏳ badge shows how many check-ins and changes are waiting.
 
 Code: `web/src/lib/offline.ts`, `web/src/pages/OfflineCheckin.tsx`, `web/src/db.ts`, `api/app/services/checkins.py` (`attach_audio`).
 
@@ -375,7 +378,7 @@ The one miss was marked uncertain and sent to the teacher. The system also caugh
 
 **Beta languages (synthetic voices, plumbing only)**: an Azure neural voice read every Marathi, Tamil, Kannada and Bengali word card, the first paragraph and two letter cards, scored by the live pipeline. Paragraphs: 4 / 4 read fully correctly. Word cards: all 12 pass; five words the recognisers heard as a more common word (Tamil படம் → பணம் "money", இலை → இல்லை "no"; Kannada ದೋಣಿ → "Dhoni"; Marathi गाय → काय "what", बोट → पोट) were replaced with equally familiar words. Single letters were unreliable in all four languages, hence teacher-confirmed letter cards. This shows the services, locales and scripts work end to end; it says nothing about children's speech.
 
-**Software tests**: 153 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
+**Software tests**: 176 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
 
 ---
 
@@ -396,7 +399,7 @@ The one miss was marked uncertain and sent to the teacher. The system also caugh
 ```
 api/
   app/
-    main.py            app setup, routers, /api/health, startup (tables, purge old recordings)
+    main.py            app setup, routers, /api/health, /api/ping, startup (tables, purge old recordings, keep-awake)
     config.py          every setting (environment variables, .env / .env.local)
     models.py          database tables
     auth.py            login, PIN hashing, tokens
@@ -411,7 +414,7 @@ api/
                        activities (generate + review), budget (spend ledger and caps)
   scripts/             seed_demo, run_clips (evaluation), claude_spend, diagnose_pending,
                        make_instruction_audio, make_rhyme_audio, fetch_pictures
-  tests/               173 tests
+  tests/               176 tests
   Dockerfile
 web/
   src/pages/           Login, Signup, Classes, ClassDashboard, Student, Checkin, OfflineCheckin, Result, ActivityPage
@@ -458,6 +461,7 @@ API settings (environment variables; locally in `api/.env.local`, which is never
 | `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_FOR_CHILDREN` | —, `gemini-3.5-flash`, false | evaluation only |
 | `AUDIO_RETENTION_DAYS` | 30 | how long recordings are kept for replay (0 = never stored) |
 | `KEEP_AUDIO` | false | also keep raw uploads on disk (consented evaluation set only) |
+| `KEEP_AWAKE_URL` / `KEEP_AWAKE_MINUTES` | `RENDER_EXTERNAL_URL` (set by Render) / 10 | the server calls `<url>/api/ping` this often, so Render's free plan never stops it; unset (local runs) = off |
 | `PROD_DATABASE_URL` | — | local only: the hosted database, for maintenance scripts |
 
 Web app: `VITE_API_BASE` — the API's address (empty in development, where Vite proxies `/api`).
@@ -482,7 +486,7 @@ Web app: `VITE_API_BASE` — the API's address (empty in development, where Vite
 - **Halting** uses word timings where Azure Pronunciation Assessment is available (Hindi, English, Tamil) and otherwise silence detection, which a noisy classroom can mask.
 - **Beta languages** (Marathi, Tamil, Kannada, Bengali): reading cards, interface strings, rule-based advice, activity translations, rhymes and picture word lists are AI-drafted and await native-speaking educators; accuracy is checked only with synthetic voices; the speed floors are derived from word length, not yet from children's readings; letter cards rely on the teacher. Odia, Telugu and Gujarati have no item banks yet; Malayalam is not configured.
 - **The English ladder** follows the shared letter → word → paragraph → story ladder, not ASER's English tool (capital letters, small letters, words, sentences, meaning); moving to the ASER English tool is the natural next step if English stays the focus.
-- **Free tiers**: the API sleeps after inactivity on Render's free plan (a monitor keeps it awake); Azure's free tier allows one request at a time.
+- **Free tiers**: Render's free plan stops the API after 15 minutes without a request, so the API calls its own `/api/ping` every 10 minutes, a GitHub Actions schedule wakes it every 30 minutes if it was stopped anyway, and the web app wakes it as it opens (`/api/ping` reads no database, so Neon's free compute still sleeps when idle); after a restart the first request waits about a minute. Azure's free tier allows one request at a time.
 - **Roadmap** (from the build plan): numeracy (the ASER maths ladder), validated Tier 2 languages, integration with state platforms, parent reports, on-device speech recognition.
 
 ---

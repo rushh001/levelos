@@ -1,4 +1,5 @@
 import { db } from './db'
+import { realPath } from './lib/idmap'
 import type {
   Activity,
   Checkin,
@@ -16,6 +17,11 @@ import type {
 const BASE = ((import.meta.env.VITE_API_BASE as string | undefined) ?? '').replace(/\/$/, '')
 const TOKEN_KEY = 'levelos.token'
 export const LOGOUT_EVENT = 'levelos:logout'
+
+/** Wakes the free API server (it sleeps when idle) while the first screen is read; nothing waits for the answer. */
+export function wakeServer(): void {
+  if (navigator.onLine) fetch(`${BASE}/api/ping`).catch(() => {})
+}
 
 /** The request never reached the server (no network). Reads fall back to the phone's cache before this is thrown. */
 export class OfflineError extends Error {}
@@ -46,7 +52,9 @@ export function setToken(token: string | null) {
   }
 }
 
-export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function api<T>(givenPath: string, init: RequestInit = {}): Promise<T> {
+  // A class or child made offline keeps working under its temporary ID once the server has given it a real one.
+  const path = await realPath(givenPath)
   const headers = new Headers(init.headers)
   if (init.body && !(init.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
@@ -55,6 +63,18 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (t) headers.set('Authorization', `Bearer ${t}`)
 
   const method = (init.method ?? 'GET').toUpperCase()
+  const fromPhone = async (): Promise<T> => {
+    const cached = method === 'GET' ? await db.cache.get(path).catch(() => undefined) : undefined
+    if (cached) return cached.value as T
+    throw new OfflineError('offline')
+  }
+  // No network: read the phone's copy straight away (a change made offline is in it), write nothing.
+  if (!navigator.onLine) return fromPhone()
+  // Back online: changes made offline go to the server before anything is read again, so a fresh read has them.
+  if (method === 'GET' && !path.startsWith('/auth/')) {
+    const { flushOutbox } = await import('./lib/outbox')
+    await flushOutbox()
+  }
   let res: Response
   try {
     res = await fetch(`${BASE}/api${path}`, { ...init, headers })
