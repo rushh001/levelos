@@ -1,109 +1,154 @@
-# LevelOS
+# 📖 LevelOS
 
-**A 3-minute, voice-first reading check on the teacher's phone.** It finds each child's real reading level the ASER way, shows what kind of mistakes the child makes, regroups the class for Teaching at the Right Level, and gives the teacher a 10-minute activity for each group. Hindi and English, with Marathi, Tamil, Kannada and Bengali in beta. Works offline.
+> **A 3-minute, voice-first reading check on the teacher's phone.**
+> Finds each child's reading level the ASER way 🪜, shows *why* they struggle 🧠, groups the class 👥, and gives each group a 10-minute activity 📚. **Works offline** 📴.
 
-Built for the AI for Foundational Learning Hackathon (Challenge 02: Learning-Level Visibility) by Team rushhies.
+🏆 AI for Foundational Learning Hackathon · Challenge 02: Learning-Level Visibility · Team **rushhies**
 
-**Live demo: [levelos-nine.vercel.app](https://levelos-nine.vercel.app)** (API status: [levelos-api.onrender.com/api/health](https://levelos-api.onrender.com/api/health)). The API runs on Render's free plan and keeps itself awake ([Deploy](#deploy)); only right after a restart can the first login take up to a minute.
-
-**Demo logins** (teacher is the only role): `demo` / PIN `1234` or `judge` / PIN `2026` — or tap **Try the demo class** on the login page. A new teacher can **create an account** (name, email, PIN) and is given a 6-digit login ID; the login and sign-up screens have a language menu. The demo class (Grade 2) has 16 fictional children, each with two weeks of history in English and in Hindi; no real child's data is in the hosted demo.
-
-📖 **How everything works, stage by stage:** [document.md](document.md)
+| | |
+|---|---|
+| 🌐 **Live app** | **[levelos-nine.vercel.app](https://levelos-nine.vercel.app)** |
+| 🩺 API status | [levelos-api.onrender.com/api/health](https://levelos-api.onrender.com/api/health) |
+| 📘 Full details | [document.md](document.md) — every stage, rule and number |
 
 ---
 
-## What it does
+## 🔑 Test logins
 
-- **Adaptive reading check (ASER)**: letters → words → paragraph → story, one card at a time, moving up on a pass and down on a fail until the level is bracketed. A child not checked yet starts at letters; a group the teacher picks by hand gets only that group's card. The child reads from a large card; the teacher records. A card that is clearly too hard or too easy can be **skipped** instead of forced on the child: a skipped card counts for nothing, the check moves on to a card not tried yet, and the level comes only from the cards the child read (none read, no level).
-- **English and regional-language tests**: as in ASER, each child is tested in English and in their regional language (Hindi; **Marathi, Tamil, Kannada and Bengali in beta**), with a separate level and group in each. One switch, **Reading test**, chooses the test and with it the language of the whole app: choose Hindi and everything is in Hindi (names, advice, activities, messages), choose English and everything is in English, choose Tamil and everything is in Tamil — including what the teacher says to the child before each card and its 🔊 recording.
-- **Scoring that cannot "auto-correct" the child**: two speech recognisers (Sarvam, Azure) transcribe without seeing the text; deterministic code aligns their transcripts with the card akshara by akshara and marks every word right, wrong, skipped or self-corrected.
-- **Honest uncertainty**: words the recognisers disagree on are marked *uncertain*; if they could change the result, the teacher confirms them — listening to the child's recording, with a 🔊 per word — before the check moves on.
-- **ASER rules in code decide the level**; two agreeing check-ins confirm it; the teacher can override anything.
-- **Diagnosis by Claude**: the error pattern (matras, conjuncts, blending, letter confusion, sight words, guessing, fluency; for English: letter sounds, vowel sounds, blends) with the exact words as evidence, and a short note for the teacher in English and the class's language.
-- **Class dashboard** in four reading groups (Letter, Word, Paragraph, Story) with each group's main difficulties.
-- **10-minute activity per group, built on a book**: Claude adapts one of twelve activities built on a real poem or story from a free book, each serving a goal of NCERT's foundational-stage curriculum (NCF-FS 2022, the curriculum CBSE follows and state boards adapt), and a second model checks it, including that it fits the level. What the children read matches their level, because a child who cannot read letters cannot read a word: a Letter group reads only letters taken from the rhyme (the teacher says the rhyme aloud; the letters the children misread in their check come first), a Word group only single short words from it, paragraph readers a short rhyme of about 35 words (ASER's paragraph length) and story readers a story or a long poem (the Story group). Letter groups: letter cards, clap for the sound, find and write the letters. Word groups: word cards, break and join words, sort the word cards. Paragraph readers: read a classic rhyme, word hunt, fill the missing word. Story readers: read and answer, read a story together, read and retell, a long poem. Paragraph and Story groups also get homework on the text they read (read it aloud at home, retell it, write two sentences), instead of a list of single words. "Another activity" brings another routine and another text. The earlier method bank (Pratham TaRL, ASER) stays for the Show-the-class shelf and for a language without texts.
-- **Real texts, free to use, credited**: 28 texts in `content/texts/` across the six languages: public-domain classics (Balkavi, Sane Guruji, Bharathiyar, Avvaiyar, Kavimani, Subhadra Kumari Chauhan, Shridhar Pathak, Premchand, Sukumar Ray, Upendrakishore, Panje Mangeshrao, Jane Taylor, Mother Goose, Aesop) and openly licensed ones (the Tamil Nadu Government's CC0 books, folk rhymes on Kannada Wikisource under CC BY-SA). Under every activity the teacher sees the book the text comes from, with its licence, and the NCERT goal it serves. A test refuses any text that is not public domain in India (author died before 1966) or openly licensed. NCERT and state-board textbook pages are never copied: they are all-rights-reserved or CC BY-NC-ND.
-- **Made for children too**: a parrot mascot that speaks the instruction, the ASER ladder climbing on screen, a live microphone meter, and a burst of stars with "शाबाश!" (in the language of the test) after every card, pass or not — the result itself stays with the teacher. The reading cards stay in plain textbook letters.
-- **Show the class**: eight activities open as full-screen, big-text, tappable versions the teacher holds up to the group, in every language, with pictures, sounds and songs: change one matra or vowel (the changed syllable glows), look-alike letters (say one, a child taps it), build a word from letter and matra cards (with its picture), quick-flash word cards that flip over with their picture, the barakhadi / kagunita / uyirmei or letter-sound chart with a pointer that runs along a row, column, diagonal or zig-zag and a **sing** mode (the alphabet song, or the row as a chant), find the wrong word in a sentence, **match words to pictures**, and **rhyme and read**: an original four-line rhyme per language, read aloud line by line by the language's voice, then "find the word". Chimes and a fanfare are synthesised on the phone (nothing to download) and can be muted.
-- **Meaning, not just decoding**: after a word card, the child is shown a word and three pictures and points to the right one (as ASER's English tool asks the meaning of words read); the teacher taps what the child points to. It is noted for the diagnosis and never changes the level. Pictures are OpenMoji drawings bundled with the app.
-- **Replay**: every card's recording can be played again for 30 days (only by that teacher), with words highlighted as they are read.
-- **Offline**: the app, class data, cards and spoken instructions work without network; the teacher taps the mistakes, the ladder runs on the phone, and everything syncs and is AI-checked when the network returns.
+👩‍🏫 **Teacher** is the only role; children never log in.
 
-## How a check-in flows
+| Login ID | PIN | Note |
+|---|---|---|
+| `demo` | `1234` | or just tap **Try the demo class** |
+| `judge` | `2026` | same demo class, its own copy |
+| ➕ new | your own | **Create account** (name, email, PIN) → you get a 6-digit login ID |
+
+🏫 Demo class: Grade 2, 16 fictional children, two weeks of history in English and Hindi. The shared demo class can't be deleted.
+
+## ▶️ Try these
+
+1. 🎙️ **Reading check:** open **Farhan** (*Not checked yet*) → **Start reading check** → read the card aloud → see the level and what he struggles with.
+2. 📚 **Activity:** on the class page, tap **▶ 10-minute activity** on a group → a plan built on a real poem or story, at that group's level → **Another activity**.
+3. 🌏 **Language:** switch **Reading test** between English and Hindi (Marathi, Tamil, Kannada, Bengali in beta) → the whole app follows.
+4. 📴 **Offline:** open the class once → ✈️ airplane mode → reload → run a check by tapping mistakes, add a child, get an activity → ⏳ counts what's waiting → network on → it all syncs.
+5. 🖐️ **Show the class:** on an activity, tap **Show the class** → full-screen letter chart (try **Sing**), word ↔ picture match, rhymes.
+
+---
+
+## ✨ What it does
+
+| | |
+|---|---|
+| 🪜 **Adaptive ASER check** | letters → words → paragraph → story; up on a pass, down on a fail · ⏭️ **Skip** a card and it never counts |
+| 🙈 **Fair scoring** | 2 speech recognisers transcribe **without seeing the text**, so they can't "auto-correct" the child; code marks each word ✅ right · ❌ wrong · ⏭️ skipped · 🔁 self-corrected |
+| 👂 **Honest uncertainty** | recognisers disagree → the teacher listens 🔊 and confirms |
+| 📐 **Rules decide the level** | ASER rules in code, not AI · 2 agreeing checks confirm · teacher can override |
+| 🧠 **Diagnosis** | Claude names the error pattern (matras, conjuncts, blending, guessing…) with the exact words as evidence |
+| 👥 **4 groups** | Letter · Word · Paragraph · Story, with each group's main difficulty |
+| 📚 **10-minute activity** | built on a free, credited poem or story, matched to the level · 📝 homework for Paragraph and Story |
+| 🌏 **2 tests per child** | English + regional language, each with its own level and group |
+| 🧒 **Child-friendly** | 🦜 parrot mascot, ladder on screen, ⭐ "शाबाश!" after every card, picture meaning check |
+| 🔁 **Replay** | every card's recording for 30 days, words highlighted as read |
+| 🗂️ **Classes** | create · add children · move groups · 🗑️ delete a class |
+
+**How a check flows**
 
 ```
-phone: record a card ─► API: ffmpeg → quality gate (silent / short / long / wrong card → re-record)
-  ─► speech: Sarvam + Azure STT (never see the text) · Azure Pronunciation Assessment (tie-break, timings)
-  ─► align + fuse words (akshara level) → uncertain words → teacher confirms if they could flip the card
-  ─► ASER rules: 4/5 letters or words; paragraph/story ≤3 mistakes, not halting → next card or level
-  ─► level (provisional → confirmed by 2 check-ins) → diagnosis (rules at once, Claude in the background)
-  ─► dashboard groups → 10-minute activity (Claude adapts a book-based bank entry, Claude Haiku reviews it)
+🎙️ record a card → 🔇 quality gate (silent / too short / wrong card → record again)
+→ 🗣️ Sarvam + Azure, blind to the text → 🔤 align word by word → 👂 teacher confirms unsure words
+→ 🪜 ASER rules → 📊 level → 🧠 diagnosis (rules at once, Claude in the background) → 📚 activity
 ```
 
-Every stage, rule and number is described in [document.md §4](document.md#4-a-check-in-stage-by-stage).
+🏗️ 📱 React PWA (Vercel) → ⚙️ FastAPI in Docker (Render) → 🐘 Postgres (Neon)
 
-**Architecture**: React PWA on Vercel → FastAPI in Docker on Render → Postgres on Neon (via Vercel Storage); speech by Sarvam and Azure; Claude via the Anthropic API.
+---
 
-## AI services and keys
+## 🤖 AI services and keys
 
-| Service | Used for | Key (`api/.env.local`, never committed) |
+🔐 **Where keys are needed:** only on the API server: in `api/.env.local` locally (copy [`api/.env.example`](api/.env.example)), or in Render → **Environment** when hosted. 📱 The web app and the phones hold no keys.
+
+| Service | What it does | Key |
 |---|---|---|
-| Anthropic **Claude Opus 5.5** (`claude-opus-5-5`) | Error-pattern diagnosis (~$0.02 per check-in); adapting activities (~$0.05 each) | `ANTHROPIC_API_KEY` |
-| Anthropic **Claude Haiku 5.5** (`claude-haiku-5-5`) | Reviewing each generated activity | `ANTHROPIC_API_KEY` |
-| **Sarvam AI** `saaras:v3` | Speech recognition path A (reference-free) | `SARVAM_API_KEY` |
-| **Azure Speech** | Speech recognition path B (reference-free), Pronunciation Assessment (tie-break, word timings), pre-recorded instructions (TTS) | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` |
-| Google Gemini `gemini-3.5-flash` | Evaluation script only (adult test clips); never used for children's audio | `GEMINI_API_KEY` (optional) |
+| 🧠 **Claude Opus 5.5** `claude-opus-5-5` | diagnosis (~$0.02 a check) · adapts activities (~$0.05 each) | `ANTHROPIC_API_KEY` |
+| 🔍 **Claude Haiku 5.5** `claude-haiku-5-5` | reviews every activity (faithful, safe, fits the level) | `ANTHROPIC_API_KEY` |
+| 🗣️ **Sarvam** `saaras:v3` | speech → text, path A | `SARVAM_API_KEY` |
+| 🗣️ **Azure Speech** | speech → text, path B · pronunciation tie-break · spoken instructions (TTS) | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` |
+| 🧪 **Gemini** `gemini-3.5-flash` | evaluation script only; **never hears children** | `GEMINI_API_KEY` (optional) |
+| 💻 **LM Studio** (optional, local) | offline activity wording on a laptop | none · `VITE_LMSTUDIO_URL` in [`web/.env.example`](web/.env.example) |
 
-**No LLM decides a level.** Without `ANTHROPIC_API_KEY`, or once the spend cap is reached, diagnosis and activities fall back to rule-based and bank versions and the app keeps working.
+💡 **No AI decides a level.** With no Claude key, or once the budget is used, the app falls back to rule-based diagnoses and bank activities and keeps working.
 
-## Guardrails
+🔎 **Where the calls are in the code:**
+- Claude: [`api/app/llm/diagnose.py`](api/app/llm/diagnose.py), [`api/app/llm/activities.py`](api/app/llm/activities.py), spend caps in [`api/app/llm/budget.py`](api/app/llm/budget.py)
+- Speech: [`api/app/speech/`](api/app/speech/) (`sarvam.py`, `azure.py`, `gemini.py`)
+- LM Studio: [`web/src/lib/lmstudio.ts`](web/src/lib/lmstudio.ts)
 
-- Recognisers that vote never see the expected text; the text-aware one only breaks ties.
-- Disagreements become uncertain words; the teacher confirms them (by ear) whenever they could change a result.
-- Two agreeing check-ins to confirm a level; teacher overrides logged; levels replayed from history.
-- Claude: fixed pattern list and JSON schema, citations verified against the evidence, rule-based fallback, no gender guessed from names; activities must adapt a cited bank entry and pass a second-model review.
-- Poor audio is never scored: "please record again".
-- **Spend caps** on Claude (hosted demo: $400 total, $25 a day) with a cost ledger, so the credit lasts through the evaluation.
-- Child data: first name + emoji only; recordings kept 30 days for the teacher, then deleted (or deleted by the teacher any time).
+## 🛡️ Guardrails
 
-Full table: [document.md §8](document.md#8-guardrails).
+- 🙈 The recognisers that vote never see the text; the one that does only breaks ties.
+- 👂 Unsure words go to the teacher whenever they could change the result.
+- ✅ 2 agreeing checks confirm a level; overrides are logged.
+- 📐 Claude works from a fixed pattern list and a JSON schema, and its evidence is checked. An activity must adapt a cited bank entry and pass the Haiku review.
+- 🔇 Bad audio is never scored ("please record again").
+- 💰 Spend caps: $400 total, $25 a day.
+- 🔒 Children: first name + emoji only · recordings deleted after 30 days · never sent to Gemini.
 
-## Offline
+➡️ [document.md §8](document.md#8-guardrails)
 
-| | Online | Offline |
+---
+
+## 📴 Offline
+
+| ✅ Works offline | 🌐 Needs the network |
+|---|---|
+| 📱 Open the app, classes, children, groups | 🔑 Sign-up and login |
+| 🪜 Reading check (teacher taps the mistakes) + provisional level | 🗣️ AI scoring of recordings (sent when back online) |
+| 📚 10-minute activity, made on the phone from the book bank | 🧠 Claude diagnosis (when back online) |
+| 🗂️ New class · new child · group change · rating · delete a class | |
+| 🔊 Cards, pictures, spoken instructions | |
+
+**⚙️ How it works**
+
+- 📦 **PWA:** the app, cards, pictures and audio are stored on the phone.
+- 💾 **Data:** every page opened is kept in the phone's database (IndexedDB).
+- 🪜 **Same rules:** the ASER ladder runs on the phone too (a test keeps it in step with the server).
+- 📤 **Outbox:** changes wait on the phone (⏳ badge). A class or child made offline gets a temporary ID and is created only once.
+- 🔄 **Back online:** changes are sent first, then the checks. Recordings get AI-scored, and any word where the AI ≠ the teacher comes back to confirm. A level never changes silently.
+
+**💻 LM Studio: offline AI on a laptop (optional)**
+
+1. Install [LM Studio](https://lmstudio.ai) → download a small instruct model (e.g. Qwen2.5 3B or 7B Instruct) → load it.
+2. **Developer** tab → start the server (port 1234) → turn on **Enable CORS**.
+3. Open the app in Chrome on that laptop (allow access to apps on this device if Chrome asks). Offline activities now say **"Generated offline using LM Studio"**.
+
+✔️ The plan is checked by the same rules (3–4 steps, ~10 minutes, the teacher's language); otherwise the phone-made activity is used. ⏱️ Expect 30–90 s per activity without a GPU. A phone always gets the phone-made activity.
+
+---
+
+## 🎯 Results
+
+| Scripted test set: 9 recordings, 118 words, Hindi + English | |
+|---|---|
+| ✅ Words agreed | **117 / 118 (99.2%)** |
+| ✅ Card pass / fail correct | **9 / 9** |
+
+- 👧 Also tried with children in a school.
+- 🧪 179 automated API tests, plus browser runs: online check, activity, offline round trip, replay.
+- ➡️ [eval/README.md](eval/README.md)
+
+---
+
+## 🛠️ Run locally
+
+Needs 🐍 Python 3.12 · 🟢 Node 20+ (ffmpeg optional; a copy is bundled)
+
+| 📄 Sample env file | Copy to | What goes in it |
 |---|---|---|
-| Open the app, class, groups, children | ✓ | ✓ cached on the phone |
-| Cards and spoken instructions | ✓ | ✓ shipped in the app |
-| Check-in and level | ✓ AI-scored | ✓ teacher taps the mistakes, ladder on the phone, provisional level |
-| 10-minute activity | ✓ adapted by Claude | ✓ made on the phone from the same book bank and level rules ("Made on this phone (offline)"); on a computer running **LM Studio**, its local model adapts the wording ("Generated offline using LM Studio") |
-| New class, new child, group change, activity rating, deleting a class | ✓ | ✓ kept on the phone and shown at once; sent when back online (a class or child made offline gets its real ID then, and its checks follow) |
-| AI scoring of recordings, diagnosis | ✓ | sent automatically when back online; AI–tap disagreements come back for confirmation |
-| Sign-up and login | ✓ | needs the network |
-
-**LM Studio (optional, offline AI on a laptop).** Install [LM Studio](https://lmstudio.ai), download a small instruct model (for example Qwen2.5 3B or 7B Instruct), load it, start the local server (Developer tab, port 1234) and turn on *Enable CORS*. When the LevelOS server cannot be reached, the app checks for LM Studio at `VITE_LMSTUDIO_URL` (default `http://localhost:1234`); if a model is loaded, the model rewrites the chosen activity's title, steps and notes in English and the teacher's language, while the book text, the letters or words and the homework stay as they are. A plan that breaks the rules (not 3–4 steps of about 10 minutes, or not in the teacher's script) is refused and the phone-made activity is used. On a laptop without a graphics card expect 30–90 seconds per activity; a phone never reaches LM Studio and always gets the phone-made one. Open the app in Chrome on the computer that runs LM Studio; from the hosted site Chrome may ask to let it reach apps on this device — allow it.
-
-**Try offline.** With the network on, open the app and log in once (the phone keeps the app, the class and the children), then open the class and a child. Turn on airplane mode and reload: run a check by tapping the mistakes, add a child, move a child to another group, open **▶ 10-minute activity**. A ⏳ badge counts what is waiting. Turn the network back on: everything is sent, recordings are scored, and any word the AI hears differently from the teacher's tap comes back for the teacher to confirm.
-
-**How offline works.**
-- **The app itself** is an installable web app (PWA): its service worker keeps the app, the reading cards, pictures and spoken instructions on the phone, so it opens with no network.
-- **The class's data**: every page the teacher has opened is kept in the phone's database (IndexedDB) and read from there when there is no network.
-- **A reading check** runs the same ASER ladder on the phone (`web/src/lib/aser.ts`, kept in step with the server by a test). The teacher taps the words the child misread, the recordings stay on the phone, and the child gets a provisional level at once.
-- **Changes** (a new class or child, a group change, a rating, a deleted class) go into an outbox on the phone and show at once. A class or child made offline has a temporary ID until the server gives it a real one; the temporary ID goes with it, so it is created only once even if the app closes in the middle of a sync.
-- **10-minute activities** are made on the phone from the bundled book bank by the same level rules as the server. On a laptop running LM Studio, its local model adapts the wording (above).
-- **Back online**, the outbox is sent first, then the checks. The recordings are scored by the AI, and any word where the AI and the teacher's tap differ comes back for the teacher to confirm; a level is never changed silently.
-
-## Results
-
-On nine scripted recordings (planned reading mistakes in Hindi and English on an Android phone; references confirmed by listening back), the live configuration agreed on **117 of 118 words (99.2%)** and gave the expected pass/fail on **9 of 9** cards; the one miss was sent to the teacher as uncertain, and it caught a slip the reader didn't notice. The app has also been tried with children in a school; their recordings are not part of these figures. Details: [eval/README.md](eval/README.md).
-
-179 automated API tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
-
-## Run locally
-
-Prerequisites: Python 3.12, Node 20+ (ffmpeg optional; a bundled copy is used).
+| [`api/.env.example`](api/.env.example) | `api/.env.local` | 🔑 AI keys + settings (database, login secret, spend caps) |
+| [`web/.env.example`](web/.env.example) | `web/.env` (optional) | 🌐 `VITE_API_BASE` for a deployed API · 💻 `VITE_LMSTUDIO_URL` for LM Studio |
 
 ```bash
-# API
+# ⚙️ API
 cd api
 python -m venv .venv
 .venv/Scripts/activate              # macOS/Linux: source .venv/bin/activate
@@ -112,50 +157,60 @@ cp .env.example .env.local          # add your keys
 python -m scripts.seed_demo         # demo logins + class
 uvicorn app.main:app --reload --port 8000
 
-# Web (second terminal)
+# 📱 Web (second terminal)
 cd web
 npm install
 npm run dev                         # http://localhost:5173 (proxies /api to :8000)
-npm run dev:https                   # self-signed HTTPS, to test the microphone on a phone on the same Wi-Fi
+npm run dev:https                   # HTTPS, to test the microphone from a phone on the same Wi-Fi
 ```
 
-Or the API exactly as deployed: `docker build -f api/Dockerfile -t levelos-api .` from the repository root, then run it with `APP_ENV=prod`, `JWT_SECRET`, `DATABASE_URL`, `CORS_ORIGINS` and the keys ([document.md §15](document.md#15-configuration) lists every setting).
+- 🐳 **As deployed:** `docker build -f api/Dockerfile -t levelos-api .` from the repo root, then run it with `APP_ENV=prod`, `JWT_SECRET`, `DATABASE_URL`, `CORS_ORIGINS` and the keys (all settings: [document.md §15](document.md#15-configuration)).
+- 🧪 **Tests:** `cd api && .venv/Scripts/python -m pytest` (no network or keys needed).
 
-Tests: `cd api && .venv/Scripts/python -m pytest` (no network or keys needed).
+## 🚀 Deploy
 
-## Deploy
+- 📋 [docs/DEPLOY.md](docs/DEPLOY.md): about 45 minutes, all free plans: 🐘 Neon (via Vercel Storage) · ⚙️ Render (`render.yaml`) · 📱 Vercel (`web/`).
+- ⏰ **Always awake:**
+  - the API pings itself every 10 minutes;
+  - a [GitHub Actions schedule](.github/workflows/keep-awake.yml) wakes it every 30 minutes;
+  - the app wakes it as it opens;
+  - `/api/ping` skips the database, so Neon can still sleep.
 
-Step by step, about 45 minutes, free plans: [docs/DEPLOY.md](docs/DEPLOY.md) — database from Vercel Storage (Neon), API on Render (`render.yaml`), web app on Vercel (root directory `web`).
+## 📚 Content and sources
 
-The free API keeps itself awake: it calls its own `/api/ping` every 10 minutes (at `RENDER_EXTERNAL_URL`, which Render sets), a GitHub Actions schedule ([.github/workflows/keep-awake.yml](.github/workflows/keep-awake.yml)) wakes it every 30 minutes in case it was stopped anyway (a restart or a redeploy), and the web app wakes it as it opens. `/api/ping` reads no database, so Neon's free compute still sleeps when nobody uses the app.
+- 📝 **Reading cards:** original texts written to the ASER 2024 spec (test-enforced).
+- 📖 **28 free, credited texts:** public domain in India, CC0 or CC BY-SA. Authors include Premchand, Subhadra Kumari Chauhan, Bharathiyar, Sukumar Ray and Aesop.
+- 🎯 **Goals:** NCERT NCF-FS (foundational stage). 🚫 No textbook text is copied (copyright).
+- 🧩 **Methods:** Pratham / TaRL Africa (2021) · StoryWeaver · ASER 2024.
+- 🔤 **Error types:** Raman & Rao (Interspeech 2025).
+- ➡️ [document.md §11](document.md#11-content-item-banks-activities-languages)
 
-## Repository
+## 🔒 Secrets and privacy
+
+- 🚫 **No keys in the repo:** every `.env*` file is gitignored except the `.env.example` templates, and a test fails if a key or secret in them gets a value.
+- 🧒 **No real children's data:** the demo children are fictional; recordings (`recordings/`, `eval/clips/`) and databases are never committed.
+- 🧊 **Frozen at submission:** no commits after 1 Nov 2026, 23:59 IST; the evaluated version is the last commit before then.
+
+## 🗂️ Repository
 
 ```
-web/       React PWA (teacher's phone)
-api/       FastAPI: speech pipeline, scorer, ASER rules, Claude, spend caps; scripts; tests
-content/   item banks (hi, en), activity bank, language config
-eval/      scripted test clips, gold transcripts, results
-docs/      deploy guide, recording script, build plan, research briefs
-.github/   schedule that keeps the free API awake
+web/       📱 React PWA (teacher's phone)
+api/       ⚙️ FastAPI: speech, scorer, ASER rules, Claude, spend caps, tests
+content/   📚 item banks, activity bank, texts, language config
+eval/      🎯 scripted test clips, gold transcripts, results
+docs/      📋 deploy guide, recording script, build plan, research
+.github/   ⏰ keep-awake schedule
 ```
 
-More: [document.md](document.md) (full description) · [PROGRESS.md](PROGRESS.md) (status) · [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md) · [docs/research/](docs/research/)
+## ⚠️ Known limitations
 
-## Content and sources
+- 👧 Tried with children in a school; accuracy figures from children's recordings (with parental consent) come next.
+- ✍️ Item and activity banks are AI-drafted and await an educator's review.
+- 🔤 Single letters are hardest for the recognisers, so the teacher confirms them more often.
+- 🇬🇧 English uses the same ladder as Hindi, not ASER's separate English tool.
+- 🧪 Beta languages (Marathi, Tamil, Kannada, Bengali) are AI-drafted and await native-speaker review.
+- 🆓 Free tiers: Azure takes one request at a time; after a restart the first request takes about a minute.
 
-Item banks are original texts written to the ASER 2024 reading-tool specification (test-enforced); the activity bank's main activities are built on free texts and NCERT's NCF-FS goals, and its earlier entries adapt activities from Pratham / TaRL Africa *Planning TaRL Sessions* (2021) and *Literacy TLM Note* (2021), the ASER 2024 procedure and StoryWeaver, each entry citing its source. Both are drafts awaiting an educator's review. Error categories follow Raman & Rao (Interspeech 2025). English and Hindi are complete. **Marathi, Tamil, Kannada and Bengali are in beta**: the child is tested in that language with ASER-style reading cards (drafted, awaiting native-speaking educators), spoken instructions, a reading-speed floor fitted to the language's word length and activity examples in its script, with the teacher's screens, diagnoses and activities in that language and English (translations drafted, awaiting the same review); checked end to end with synthetic voices only. Odia, Telugu and Gujarati are configured without item banks; Malayalam is still to be configured. Each language is a data pack (language config, item bank, instruction audio, word lists, review), not new code ([document.md §11](document.md#11-content-item-banks-activities-languages)).
+## 📄 Licence
 
-## Known limitations
-
-- The app has been tried with children in a school; accuracy figures from children's recordings (with written parental consent) are the next evaluation step.
-- Item and activity banks are AI-drafted and await an educator's review.
-- Single letters are hardest for the recognisers, so letter cards ask the teacher to confirm more often (replay makes it quick).
-- The English test uses the same letter → word → paragraph → story ladder as Hindi, not ASER's own English tool (capital letters, small letters, words, sentences, meaning).
-- Beta languages (Marathi, Tamil, Kannada, Bengali) are not yet validated with children, and their strings, activity translations, rhymes and picture word lists are AI-drafted, awaiting native-speaking reviewers; single letters are unreliable for the recognisers there, so the teacher confirms letter cards by ear.
-- On free plans Azure allows one request at a time, and the API stays up only because it calls itself (after a restart the first request waits about a minute).
-
-## Licence
-
-MIT — see [LICENSE](LICENSE). Bundled third-party work: the word pictures are [OpenMoji](https://openmoji.org) drawings (CC BY-SA 4.0); the display typeface is the Baloo family (SIL Open Font License); the alphabet song's tune is the public-domain "Twinkle, Twinkle, Little Star".
-The reading texts in `content/texts/` are public domain or openly licensed, each credited on screen and in the file: Hindi: रामनरेश त्रिपाठी "नंदू को जुकाम", सुभद्राकुमारी चौहान "बादल हैं किसके काका?", श्रीधर पाठक "उठो भई उठो" (first eight lines), प्रेमचंद "दो बैलों की कथा" (passage); English: Jane Taylor "The Star", Christina Rossetti "Who has seen the wind?", "Humpty Dumpty" and "Rain" (The Real Mother Goose, 1916), "The Crow and the Pitcher" and "The Fox and the Grapes" (The Æsop for Children, 1919); Marathi: बालकवी "आनंदी आनंद गडे" and "श्रावणमासी हर्ष मानसी", साने गुरुजी "श्यामची आई" (passage); Tamil: பாரதியார் "பாப்பாப் பாட்டு", கவிமணி "முத்தந் தா" and "ஊகமுள்ள காகம்", ஔவையார் "ஆத்திசூடி" (opening), முல்லை முத்தையா "ஏமாந்த ஓநாய்" (Tamil Nadu Government nationalised book, CC0); Kannada: ಪಂಜೆ ಮಂಗೇಶರಾವ್ "ಹಾವಿನ ಹಾಡು", the folk rhymes "ಹುಯ್ಯೋ ಹುಯ್ಯೋ ಮಳೆರಾಯ" and "ಆನೆ ಬಂತೊಂದಾನೆ" and "ತೋಳ ಮತ್ತು ಸಿಂಹ" (Aesop retold), all from Kannada Wikisource (CC BY-SA 4.0 page text); Bengali: সুকুমার রায় "বাবুরাম সাপুড়ে", যোগীন্দ্রনাথ সরকার "এক যে রাজা", "হাজার চুমা" and "উপবাসী", উপেন্দ্রকিশোর রায়চৌধুরী "পিঁপড়ে আর পিঁপড়ীর কথা" and "টুনটুনি আর বিড়ালের কথা" (opening).
+MIT ([LICENSE](LICENSE)) · 🖼️ [OpenMoji](https://openmoji.org) pictures (CC BY-SA 4.0) · 🔤 Baloo font (OFL) · 🎵 "Twinkle, Twinkle" tune (public domain)
