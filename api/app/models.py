@@ -33,6 +33,12 @@ class Teacher(Base):
     classrooms: Mapped[list[Classroom]] = relationship(back_populates="teacher", order_by="Classroom.name")
 
 
+# Logins everyone trying the app shares (scripts/seed_demo.py): their seeded class cannot be deleted, so the next
+# person still finds it. A class they add themselves can be.
+DEMO_LOGINS = ("demo", "judge")
+DEMO_CLASS_NAME = "कक्षा 2 – अ"
+
+
 class Classroom(Base):
     __tablename__ = "classrooms"
 
@@ -42,9 +48,14 @@ class Classroom(Base):
     grade: Mapped[int] = mapped_column(Integer, default=2)
     language: Mapped[str] = mapped_column(String(8), default="hi")  # default assessment language
     names: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # the name per interface language, if given
+    local_id: Mapped[str | None] = mapped_column(String(64), nullable=True)  # the phone's ID, if made offline (sent once)
 
     teacher: Mapped[Teacher] = relationship(back_populates="classrooms")
     students: Mapped[list[Student]] = relationship(back_populates="classroom", order_by="Student.first_name")
+
+    @property
+    def shared_demo(self) -> bool:
+        return self.name == DEMO_CLASS_NAME and self.teacher.login in DEMO_LOGINS
 
 
 class Student(Base):
@@ -63,6 +74,7 @@ class Student(Base):
     provisional_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
     confirmed_level: Mapped[str | None] = mapped_column(String(16), nullable=True)
     cohort_override: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    local_id: Mapped[str | None] = mapped_column(String(64), nullable=True)  # the phone's ID, if made offline (sent once)
 
     classroom: Mapped[Classroom] = relationship(back_populates="students")
     checkins: Mapped[list[Checkin]] = relationship(back_populates="student", order_by="Checkin.started_at")

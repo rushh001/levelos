@@ -76,7 +76,7 @@ Full table: [document.md §8](document.md#8-guardrails).
 | Cards and spoken instructions | ✓ | ✓ shipped in the app |
 | Check-in and level | ✓ AI-scored | ✓ teacher taps the mistakes, ladder on the phone, provisional level |
 | 10-minute activity | ✓ adapted by Claude | ✓ made on the phone from the same book bank and level rules ("Made on this phone (offline)"); on a computer running **LM Studio**, its local model adapts the wording ("Generated offline using LM Studio") |
-| New class, new child, group change, activity rating | ✓ | ✓ kept on the phone and shown at once; sent when back online (a class or child made offline gets its real ID then, and its checks follow) |
+| New class, new child, group change, activity rating, deleting a class | ✓ | ✓ kept on the phone and shown at once; sent when back online (a class or child made offline gets its real ID then, and its checks follow) |
 | AI scoring of recordings, diagnosis | ✓ | sent automatically when back online; AI–tap disagreements come back for confirmation |
 | Sign-up and login | ✓ | needs the network |
 
@@ -84,11 +84,19 @@ Full table: [document.md §8](document.md#8-guardrails).
 
 **Try offline.** With the network on, open the app and log in once (the phone keeps the app, the class and the children), then open the class and a child. Turn on airplane mode and reload: run a check by tapping the mistakes, add a child, move a child to another group, open **▶ 10-minute activity**. A ⏳ badge counts what is waiting. Turn the network back on: everything is sent, recordings are scored, and any word the AI hears differently from the teacher's tap comes back for the teacher to confirm.
 
+**How offline works.**
+- **The app itself** is an installable web app (PWA): its service worker keeps the app, the reading cards, pictures and spoken instructions on the phone, so it opens with no network.
+- **The class's data**: every page the teacher has opened is kept in the phone's database (IndexedDB) and read from there when there is no network.
+- **A reading check** runs the same ASER ladder on the phone (`web/src/lib/aser.ts`, kept in step with the server by a test). The teacher taps the words the child misread, the recordings stay on the phone, and the child gets a provisional level at once.
+- **Changes** (a new class or child, a group change, a rating, a deleted class) go into an outbox on the phone and show at once. A class or child made offline has a temporary ID until the server gives it a real one; the temporary ID goes with it, so it is created only once even if the app closes in the middle of a sync.
+- **10-minute activities** are made on the phone from the bundled book bank by the same level rules as the server. On a laptop running LM Studio, its local model adapts the wording (above).
+- **Back online**, the outbox is sent first, then the checks. The recordings are scored by the AI, and any word where the AI and the teacher's tap differ comes back for the teacher to confirm; a level is never changed silently.
+
 ## Results
 
-On nine real recordings (an adult reading scripted mistakes in Hindi and English on an Android phone; references confirmed by listening back), the live configuration agreed on **117 of 118 words (99.2%)** and gave the expected pass/fail on **9 of 9** cards; the one miss was sent to the teacher as uncertain, and it caught a slip the reader didn't notice. Children's voices are not yet in the set. Details: [eval/README.md](eval/README.md).
+On nine scripted recordings (planned reading mistakes in Hindi and English on an Android phone; references confirmed by listening back), the live configuration agreed on **117 of 118 words (99.2%)** and gave the expected pass/fail on **9 of 9** cards; the one miss was sent to the teacher as uncertain, and it caught a slip the reader didn't notice. The app has also been tried with children in a school; their recordings are not part of these figures. Details: [eval/README.md](eval/README.md).
 
-176 automated API tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
+179 automated API tests (SQLite and Postgres); end-to-end browser runs against the production Docker image (recorded check-in, activity, offline round trip, replay).
 
 ## Run locally
 
@@ -140,7 +148,7 @@ Item banks are original texts written to the ASER 2024 reading-tool specificatio
 
 ## Known limitations
 
-- Accuracy on children's voices is not yet measured (the real recordings so far are of an adult).
+- The app has been tried with children in a school; accuracy figures from children's recordings (with written parental consent) are the next evaluation step.
 - Item and activity banks are AI-drafted and await an educator's review.
 - Single letters are hardest for the recognisers, so letter cards ask the teacher to confirm more often (replay makes it quick).
 - The English test uses the same letter → word → paragraph → story ladder as Hindi, not ASER's own English tool (capital letters, small letters, words, sentences, meaning).

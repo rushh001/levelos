@@ -52,7 +52,11 @@
     "languageHint": "The language the children learn to read in. The English reading test is always there too.",
     "students_one": "{{count}} child",
     "students_other": "{{count}} children",
-    "beta": "beta"
+    "beta": "beta",
+    "delete": "Delete",
+    "deleteLabel": "Delete {{name}}",
+    "deleteConfirm": "Delete {{name}}? Its children and their reading checks are deleted too. This cannot be undone.",
+    "deleteYes": "Delete class"
   },
   "dashboard": {
     "groups": "Reading groups",

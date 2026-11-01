@@ -49,6 +49,7 @@ export interface ClassSummary {
   language: string
   languages: string[]
   students_count: number
+  shared_demo?: boolean // the demo logins' seeded class: cannot be deleted
   students?: StudentSummary[]
 }
 

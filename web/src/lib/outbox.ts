@@ -1,6 +1,6 @@
 /**
  * Changes a teacher makes with no network, kept on the phone and sent when the network is back: a new class, a new
- * child, a child moved to another group, an activity rated. Each is applied at once to the phone's copies of the
+ * child, a child moved to another group, an activity rated, a class deleted. Each is applied at once to the phone's copies of the
  * pages (the API cache), so the teacher sees it straight away; a class or child made offline gets a temporary ID
  * until the server gives it a real one (lib/idmap.ts), and the reading checks done offline for that child follow.
  * Online, these calls go straight to the server as before.
@@ -12,9 +12,9 @@ import type { Activity, ClassSummary, Cohort, Dashboard, LangLevel, Level, Stude
 
 interface Pending {
   id: string
-  method: 'POST' | 'PATCH'
+  method: 'POST' | 'PATCH' | 'DELETE'
   path: string
-  body: unknown
+  body?: unknown
   tempId?: string // the class or child this creates
   at: number
 }
@@ -114,7 +114,8 @@ export async function addChild(
     if (!(e instanceof OfflineError)) throw e
   }
   const tempId = newId('s')
-  await queue({ method: 'POST', path: `/classes/${classId}/students`, body, tempId })
+  // The temporary ID goes along, so the server adds the child once even if this is sent twice (the app closed mid-sync).
+  await queue({ method: 'POST', path: `/classes/${classId}/students`, body: { ...body, local_id: tempId }, tempId })
   const keys = await dashboardKeys(classId)
   const cls = ((await db.cache.get(keys[0] ?? '').catch(() => undefined))?.value as Dashboard | undefined)?.class
   if (!cls) return
@@ -153,7 +154,7 @@ export async function createClass(body: { name: string; grade: number; language:
     if (!(e instanceof OfflineError)) throw e
   }
   const tempId = newId('c')
-  await queue({ method: 'POST', path: '/classes', body, tempId })
+  await queue({ method: 'POST', path: '/classes', body: { ...body, local_id: tempId }, tempId }) // created once, as for a child
   const languages = body.language === 'en' ? ['en'] : [body.language, 'en']
   const cls: ClassSummary = { id: tempId, name: body.name, names: {}, grade: body.grade, language: body.language, languages, students_count: 0 }
   const board = (lang: string): Dashboard => ({
@@ -170,6 +171,22 @@ export async function createClass(body: { name: string; grade: number; language:
   await put('/classes', [...list, cls])
 }
 
+// ---------------------------------------------------------------- a class deleted
+
+/** Deletes the class with its children and their checks: on the server, and the phone's copies (with any checks
+ * still waiting to be sent for it). */
+export async function deleteClass(classId: string): Promise<void> {
+  try {
+    await Api.deleteClass(classId)
+  } catch (e) {
+    if (!(e instanceof OfflineError)) throw e
+    await queue({ method: 'DELETE', path: `/classes/${classId}` })
+  }
+  await edit<ClassSummary[]>('/classes', (list) => list.filter((c) => c.id !== classId))
+  await db.cache.bulkDelete(await dashboardKeys(classId))
+  await db.checkins.filter((c) => c.classId === classId).delete()
+}
+
 // ---------------------------------------------------------------- an activity rated
 
 export async function rateActivity(a: Activity, rating: number): Promise<Activity> {
@@ -184,37 +201,41 @@ export async function rateActivity(a: Activity, rating: number): Promise<Activit
 
 // ---------------------------------------------------------------- sending
 
-let flushing = false
+let flushing: Promise<void> | null = null
 
 /** Sends the waiting changes in order; stops at the first one the network does not carry. A class or child the
- * server creates replaces its temporary ID everywhere: later changes, reading checks waiting on the phone, paths. */
-export async function flushOutbox(): Promise<void> {
-  if (flushing || !navigator.onLine) return
-  flushing = true
-  try {
-    for (;;) {
-      const [p] = await pending()
-      if (!p) return
-      const path = await realPath(p.path)
-      let created: { id?: string } | undefined
-      try {
-        created = await api<{ id?: string }>(path, { method: p.method, body: JSON.stringify(p.body) })
-      } catch (e) {
-        if (e instanceof OfflineError || (e instanceof ApiError && e.status === 401)) return
-        // the server refused this change (e.g. the child was removed): drop it so the rest can go
-      }
-      if (p.tempId && created?.id) {
-        await remember(p.tempId, created.id)
-        const field = p.tempId.startsWith('local-s-') ? 'studentId' : 'classId'
-        const serverId = created.id
-        await db.checkins.toCollection().modify((c) => {
-          if (c[field] === p.tempId) c[field] = serverId
-        })
-      }
-      await save((await pending()).filter((x) => x.id !== p.id))
+ * server creates replaces its temporary ID everywhere: later changes, reading checks waiting on the phone, paths.
+ * A caller that comes while a send is under way waits for it, so a page read after it sees the changes. */
+export function flushOutbox(): Promise<void> {
+  if (!navigator.onLine) return Promise.resolve()
+  flushing ??= send().finally(() => {
+    flushing = null
+  })
+  return flushing
+}
+
+async function send(): Promise<void> {
+  for (;;) {
+    const [p] = await pending()
+    if (!p) return
+    const path = await realPath(p.path)
+    let created: { id?: string } | undefined
+    try {
+      const body = p.body === undefined ? undefined : JSON.stringify(p.body)
+      created = await api<{ id?: string }>(path, { method: p.method, body })
+    } catch (e) {
+      if (e instanceof OfflineError || (e instanceof ApiError && e.status === 401)) return
+      // the server refused this change (e.g. the child was removed): drop it so the rest can go
     }
-  } finally {
-    flushing = false
+    if (p.tempId && created?.id) {
+      await remember(p.tempId, created.id)
+      const field = p.tempId.startsWith('local-s-') ? 'studentId' : 'classId'
+      const serverId = created.id
+      await db.checkins.toCollection().modify((c) => {
+        if (c[field] === p.tempId) c[field] = serverId
+      })
+    }
+    await save((await pending()).filter((x) => x.id !== p.id))
   }
 }
 

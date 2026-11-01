@@ -127,6 +127,7 @@ export const Api = {
 
   classes: () => api<ClassSummary[]>('/classes'),
   createClass: (body: { name: string; grade: number; language: string }) => post<ClassSummary>('/classes', body),
+  deleteClass: (classId: string) => api<{ ok: boolean }>(`/classes/${classId}`, { method: 'DELETE' }),
   dashboard: (classId: string, language?: string) =>
     api<Dashboard>(`/classes/${classId}/dashboard${language ? `?language=${language}` : ''}`),
   addStudent: (classId: string, body: { first_name: string; avatar: string; names?: Record<string, string> }) =>

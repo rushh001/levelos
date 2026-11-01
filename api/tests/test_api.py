@@ -5,7 +5,8 @@ from fastapi.testclient import TestClient
 
 from app.auth import hash_pin
 from app.content import get_item
-from app.models import LevelHistory, Teacher
+from app.models import (Checkin, Classroom, Diagnosis, GeneratedActivity, ItemAudio, ItemResult, LevelHistory,
+                        LlmUsage, Student, StudentLevel, Teacher)
 from app.speech.align import tokenize
 from app.speech.scorer import ItemScore
 
@@ -97,6 +98,63 @@ def test_teachers_only_see_their_own_classes(client):
     assert client.get(f"/api/classes/{cls['id']}", headers=other).status_code == 404
     assert client.get(f"/api/students/{st['id']}", headers=other).status_code == 404
     assert client.post("/api/checkins", json={"student_id": st["id"]}, headers=other).status_code == 404
+
+
+def test_teacher_deletes_a_class_and_everything_in_it(client, script, db):
+    h = login(client)
+    cls, st = make_student(client, h)
+    kept, _ = make_student(client, h)
+    run_checkin(client, h, st["id"], {"word": {"wrong": 0}, "paragraph": {"wrong": 6}}, script)
+    db.add(GeneratedActivity(classroom_id=cls["id"], cohort="word", language="hi", source_activity_id="x"))
+    db.add(LlmUsage(purpose="activity", model="m", cost_usd=0.05))
+    db.commit()
+    assert client.delete(f"/api/classes/{cls['id']}", headers=login(client, "ravi", "9999")).status_code == 404
+    assert client.delete(f"/api/classes/{cls['id']}", headers=h).json() == {"ok": True}
+    assert [c["id"] for c in client.get("/api/classes", headers=h).json()] == [kept["id"]]
+    assert client.get(f"/api/students/{st['id']}", headers=h).status_code == 404
+    db.expire_all()
+    assert db.query(Student).count() == 1  # the other class's child
+    for model in (Checkin, ItemResult, ItemAudio, Diagnosis, LevelHistory, GeneratedActivity):
+        assert db.query(model).count() == 0, model.__name__
+    assert db.query(StudentLevel).filter(StudentLevel.student_id == st["id"]).count() == 0
+    assert db.query(Classroom).count() == 1
+    assert db.query(LlmUsage).count() == 1  # the spend ledger stays: the caps count it
+
+
+def test_a_class_or_child_made_offline_is_created_once(client):
+    # The phone sends what was made offline until it hears back; if the app closed mid-sync it sends it again.
+    h = login(client)
+    body = {"name": "Class 3", "grade": 3, "language": "en", "local_id": "local-c-abc-123"}
+    first = client.post("/api/classes", json=body, headers=h).json()
+    assert client.post("/api/classes", json=body, headers=h).json()["id"] == first["id"]
+    assert len(client.get("/api/classes", headers=h).json()) == 1
+    child = {"first_name": "Kiran", "local_id": "local-s-abc-123"}
+    kid = client.post(f"/api/classes/{first['id']}/students", json=child, headers=h).json()
+    assert client.post(f"/api/classes/{first['id']}/students", json=child, headers=h).json()["id"] == kid["id"]
+    assert len(client.get(f"/api/classes/{first['id']}", headers=h).json()["students"]) == 1
+    # another teacher's phone with the same temporary ID gets its own class
+    other = login(client, "ravi", "9999")
+    assert client.post("/api/classes", json=body, headers=other).json()["id"] != first["id"]
+
+
+def test_the_shared_demo_class_cannot_be_deleted(client, db):
+    from app.models import DEMO_CLASS_NAME, DEMO_LOGINS
+    from scripts import seed_demo
+
+    assert seed_demo.CLASS_NAME == DEMO_CLASS_NAME and [x[0] for x in seed_demo.LOGINS] == list(DEMO_LOGINS)
+    db.add(Teacher(login="judge", name="Evaluator", pin_hash=hash_pin("2026")))
+    db.commit()
+    h = login(client, "judge", "2026")
+    demo = client.post("/api/classes", json={"name": DEMO_CLASS_NAME, "grade": 2, "language": "hi"}, headers=h).json()
+    mine = client.post("/api/classes", json={"name": "Practice", "grade": 3, "language": "en"}, headers=h).json()
+    assert (demo["shared_demo"], mine["shared_demo"]) == (True, False)
+    assert client.delete(f"/api/classes/{demo['id']}", headers=h).status_code == 403
+    assert client.delete(f"/api/classes/{mine['id']}", headers=h).status_code == 200
+    # a teacher's own class with the same name is theirs to delete
+    asha = login(client)
+    same = client.post("/api/classes", json={"name": DEMO_CLASS_NAME, "grade": 2, "language": "hi"}, headers=asha).json()
+    assert same["shared_demo"] is False
+    assert client.delete(f"/api/classes/{same['id']}", headers=asha).status_code == 200
 
 
 # ---- the adaptive ladder and the two-check guardrail

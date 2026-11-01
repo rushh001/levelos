@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from ..auth import current_teacher
 from ..content import available_languages, reading_languages
 from ..db import get_db
 from ..levels.aser_rules import COHORTS
-from ..models import Classroom, LevelHistory, Student, Teacher
+from ..models import (Checkin, Classroom, Diagnosis, GeneratedActivity, ItemAudio, ItemResult, LevelHistory, Student,
+                      StudentLevel, Teacher)
 from ..serialize import checkin_out, classroom_out, iso, student_out
 from ..services.checkins import level_row, owned_student
 
@@ -42,6 +44,7 @@ class ClassIn(BaseModel):
     names: Names | None = None
     grade: int = Field(ge=1, le=8)
     language: str = "hi"
+    local_id: str | None = Field(default=None, max_length=64)  # made offline: the phone may send it more than once
 
 
 class ClassPatch(BaseModel):
@@ -57,6 +60,7 @@ class StudentIn(BaseModel):
     avatar: str = Field(default="🙂", max_length=32)
     grade: int | None = Field(default=None, ge=1, le=8)
     home_lang: str | None = None
+    local_id: str | None = Field(default=None, max_length=64)  # made offline: the phone may send it more than once
 
 
 class StudentPatch(BaseModel):
@@ -78,8 +82,12 @@ def list_classes(teacher: Teacher = Depends(current_teacher)) -> list[dict]:
 @router.post("/classes", status_code=201)
 def create_class(body: ClassIn, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
     _check_lang(body.language)
+    if body.local_id:  # sent again (the app closed mid-sync): the class it already made
+        made = db.query(Classroom).filter_by(teacher_id=teacher.id, local_id=body.local_id).first()
+        if made:
+            return classroom_out(made, students=True)
     c = Classroom(teacher_id=teacher.id, name=body.name.strip(), names=_names(body.names, 120), grade=body.grade,
-                  language=body.language)
+                  language=body.language, local_id=body.local_id)
     db.add(c)
     db.commit()
     return classroom_out(c, students=True)
@@ -101,13 +109,43 @@ def patch_class(class_id: str, body: ClassPatch, teacher: Teacher = Depends(curr
     return classroom_out(c, students=True)
 
 
+@router.delete("/classes/{class_id}")
+def delete_class(class_id: str, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
+    """The class, its children and everything recorded about them (checks, recordings, levels, activities). The Claude
+    spend ledger is kept, as the spend caps count it."""
+    c = owned_class(db, teacher, class_id)
+    if c.shared_demo:
+        raise HTTPException(403, "the shared demo class cannot be deleted")
+    students = select(Student.id).where(Student.classroom_id == c.id)
+    checkins = select(Checkin.id).where(Checkin.student_id.in_(students))
+    items = select(ItemResult.id).where(ItemResult.checkin_id.in_(checkins))
+    for stmt in (
+        delete(ItemAudio).where(ItemAudio.item_result_id.in_(items)),
+        delete(ItemResult).where(ItemResult.checkin_id.in_(checkins)),
+        delete(Diagnosis).where(Diagnosis.checkin_id.in_(checkins)),
+        delete(LevelHistory).where(LevelHistory.student_id.in_(students)),
+        delete(Checkin).where(Checkin.student_id.in_(students)),
+        delete(StudentLevel).where(StudentLevel.student_id.in_(students)),
+        delete(Student).where(Student.classroom_id == c.id),
+        delete(GeneratedActivity).where(GeneratedActivity.classroom_id == c.id),
+        delete(Classroom).where(Classroom.id == c.id),
+    ):
+        db.execute(stmt.execution_options(synchronize_session=False))
+    db.commit()
+    return {"ok": True}
+
+
 @router.post("/classes/{class_id}/students", status_code=201)
 def add_student(class_id: str, body: StudentIn, teacher: Teacher = Depends(current_teacher),
                 db: Session = Depends(get_db)) -> dict:
     c = owned_class(db, teacher, class_id)
     _check_lang(body.home_lang)
+    if body.local_id:  # sent again (the app closed mid-sync): the child it already added
+        made = db.query(Student).filter_by(classroom_id=c.id, local_id=body.local_id).first()
+        if made:
+            return student_out(made)
     s = Student(classroom_id=c.id, first_name=body.first_name.strip(), names=_names(body.names, 80),
-                avatar=body.avatar, grade=body.grade or c.grade, home_lang=body.home_lang)
+                avatar=body.avatar, grade=body.grade or c.grade, home_lang=body.home_lang, local_id=body.local_id)
     db.add(s)
     db.commit()
     return student_out(s)

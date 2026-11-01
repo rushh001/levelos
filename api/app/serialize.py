@@ -67,7 +67,8 @@ def student_out(s: Student, language: str | None = None) -> dict:
 
 def classroom_out(c: Classroom, *, students: bool = False) -> dict:
     out = {"id": c.id, "name": c.name, "names": c.names or {}, "grade": c.grade, "language": c.language,
-           "languages": reading_languages(c.language) or [c.language], "students_count": len(c.students)}
+           "languages": reading_languages(c.language) or [c.language], "students_count": len(c.students),
+           "shared_demo": c.shared_demo}
     if students:
         out["students"] = [student_out(s) for s in c.students]
     return out

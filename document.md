@@ -246,7 +246,7 @@ The judges test low-connectivity behaviour, so offline is designed in, not added
 | Run a check-in with the ASER ladder | ✓ AI-scored | ✓ the teacher records (optional) and **taps the mistakes**; the ladder runs on the phone |
 | Level | ✓ | ✓ provisional, from the taps |
 | 10-minute activity | ✓ adapted by Claude | ✓ made on the phone (`web/src/lib/localActivity.ts`): the same book-based activities and level rules as the server, from the bundled bank and texts; the group's last activity is left out and texts rotate; labelled "Made on this phone (offline)". On a computer running LM Studio (`web/src/lib/lmstudio.ts`): its local model adapts the chosen activity's wording through LM Studio's OpenAI-compatible server (`VITE_LMSTUDIO_URL`, default `http://localhost:1234`), with a JSON schema and the same checks (3–4 steps, about 10 minutes, the teacher's script); the book text, letters or words and homework are kept; labelled "Generated offline using LM Studio (model)" only when the model's plan was used |
-| New class, new child, group change, activity rating | ✓ | ✓ an outbox on the phone (`web/src/lib/outbox.ts`): applied at once to the phone's copies of the pages, sent in order when the network returns (before the queued checks and before any page is read again); a class or child made offline has a temporary ID until the server gives the real one (`web/src/lib/idmap.ts`), and its offline checks follow |
+| New class, new child, group change, activity rating, deleting a class | ✓ | ✓ an outbox on the phone (`web/src/lib/outbox.ts`): applied at once to the phone's copies of the pages, sent in order when the network returns (before the queued checks and before any page is read again); a class or child made offline has a temporary ID until the server gives the real one (`web/src/lib/idmap.ts`), and its offline checks follow; the temporary ID is sent with it (`local_id`), so the server creates it once even if the app closes mid-sync and sends it again |
 | AI scoring of recordings, diagnosis | ✓ | sent automatically when the network returns |
 | Sign-up and login | ✓ | needs the network |
 
@@ -365,7 +365,7 @@ At about $0.02 per check-in, $400 covers roughly 20,000 check-in diagnoses.
 
 `api/scripts/run_clips.py` sends labelled test recordings through every speech path and reports per-word agreement with what was actually said, and whether each card passed or failed as expected ([eval/README.md](eval/README.md)).
 
-**Real recordings** (nine clips, an adult on an Android phone reading scripted mistakes in Hindi and English, 118 words; reference transcripts confirmed by the reader listening back):
+**Real recordings** (nine scripted clips on an Android phone, planned reading mistakes in Hindi and English, 118 words; reference transcripts confirmed by the reader listening back):
 
 | | Words matching what was said | Cards with the expected pass/fail |
 |---|---|---|
@@ -374,11 +374,11 @@ At about $0.02 per check-in, $400 covers roughly 20,000 check-in diagnoses.
 | Azure STT alone | 112 / 118 | |
 | With Gemini as a third opinion | 118 / 118 | 9 / 9 |
 
-The one miss was marked uncertain and sent to the teacher. The system also caught a slip the reader did not notice (रानी read for रीना). These are adult voices in a quiet room; children's voices and classroom noise are harder, and children's recordings (with parental consent) are the next evaluation step.
+The one miss was marked uncertain and sent to the teacher. The system also caught a slip the reader did not notice (रानी read for रीना). These are scripted recordings in a quiet room. The app has also been tried with children in a school; accuracy figures from children's recordings (with parental consent) in classroom noise are the next evaluation step.
 
 **Beta languages (synthetic voices, plumbing only)**: an Azure neural voice read every Marathi, Tamil, Kannada and Bengali word card, the first paragraph and two letter cards, scored by the live pipeline. Paragraphs: 4 / 4 read fully correctly. Word cards: all 12 pass; five words the recognisers heard as a more common word (Tamil படம் → பணம் "money", இலை → இல்லை "no"; Kannada ದೋಣಿ → "Dhoni"; Marathi गाय → काय "what", बोट → पोट) were replaced with equally familiar words. Single letters were unreliable in all four languages, hence teacher-confirmed letter cards. This shows the services, locales and scripts work end to end; it says nothing about children's speech.
 
-**Software tests**: 176 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
+**Software tests**: 179 automated API tests (no network or keys needed), run on SQLite and on Postgres; browser end-to-end runs (online check-in with a real recording as the microphone, activity, the full offline round trip, recording replay) against the production Docker image.
 
 ---
 
@@ -414,7 +414,7 @@ api/
                        activities (generate + review), budget (spend ledger and caps)
   scripts/             seed_demo, run_clips (evaluation), claude_spend, diagnose_pending,
                        make_instruction_audio, make_rhyme_audio, fetch_pictures
-  tests/               176 tests
+  tests/               179 tests
   Dockerfile
 web/
   src/pages/           Login, Signup, Classes, ClassDashboard, Student, Checkin, OfflineCheckin, Result, ActivityPage
@@ -480,7 +480,7 @@ Web app: `VITE_API_BASE` — the API's address (empty in development, where Vite
 
 ## 17. Known limitations and next steps
 
-- **Children's voices**: accuracy so far is measured on an adult's recordings; children's recordings (with parental consent) are next.
+- **Children's voices**: the app has been tried with children in a school; the accuracy figures so far come from scripted recordings, and figures from children's recordings (with parental consent) are next.
 - **Content review**: the item banks and activity bank are AI-drafted and must be checked by an educator against their sources before they are presented as ASER- or TaRL-faithful.
 - **Single letters** are the hardest for the recognisers (Azure especially), so letter cards ask the teacher to confirm more often; the replay makes that quick.
 - **Halting** uses word timings where Azure Pronunciation Assessment is available (Hindi, English, Tamil) and otherwise silence detection, which a noisy classroom can mask.
