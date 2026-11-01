@@ -202,15 +202,6 @@ docs/      📋 deploy guide, recording script, build plan, research
 .github/   ⏰ keep-awake schedule
 ```
 
-## ⚠️ Known limitations
-
-- 👧 Tried with children in a school; accuracy figures from children's recordings (with parental consent) come next.
-- ✍️ Item and activity banks are AI-drafted and await an educator's review.
-- 🔤 Single letters are hardest for the recognisers, so the teacher confirms them more often.
-- 🇬🇧 English uses the same ladder as Hindi, not ASER's separate English tool.
-- 🧪 Beta languages (Marathi, Tamil, Kannada, Bengali) are AI-drafted and await native-speaker review.
-- 🆓 Free tiers: Azure takes one request at a time; after a restart the first request takes about a minute.
-
 ## 📄 Licence
 
 MIT ([LICENSE](LICENSE)) · 🖼️ [OpenMoji](https://openmoji.org) pictures (CC BY-SA 4.0) · 🔤 Baloo font (OFL) · 🎵 "Twinkle, Twinkle" tune (public domain)
