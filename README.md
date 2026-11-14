@@ -28,7 +28,7 @@
 ## ▶️ Try these
 
 1. 🎙️ **Reading check:** open **Farhan** (*Not checked yet*) → **Start reading check** → read the card aloud → see the level and what he struggles with.
-2. 📚 **Activity:** on the class page, tap **▶ 10-minute activity** on a group → a plan built on a real poem or story, at that group's level → **Another activity**.
+2. 📚 **Activity:** on the class page, tap **▶ 10-minute activity** on a group → 🎯 see which of the group's mistakes it works on → 🔊 **Listen to this activity** → ⏱ **Start the 10 minutes** (one step at a time, with a timer) → **Another activity**.
 3. 🌏 **Language:** switch **Reading test** between English and Hindi (Marathi, Tamil, Kannada, Bengali in beta) → the whole app follows.
 4. 📴 **Offline:** open the class once → ✈️ airplane mode → reload → run a check by tapping mistakes, add a child, get an activity → ⏳ counts what's waiting → network on → it all syncs.
 5. 🖐️ **Show the class:** on an activity, tap **Show the class** → full-screen letter chart (try **Sing**), word ↔ picture match, rhymes.
@@ -45,7 +45,9 @@
 | 📐 **Rules decide the level** | ASER rules in code, not AI · 2 agreeing checks confirm · teacher can override |
 | 🧠 **Diagnosis** | Claude names the error pattern (matras, conjuncts, blending, guessing…) with the exact words as evidence |
 | 👥 **4 groups** | Letter · Word · Paragraph · Story, with each group's main difficulty |
-| 📚 **10-minute activity** | built on a free, credited poem or story, matched to the level · 📝 homework for Paragraph and Story |
+| 📚 **10-minute activity** | matched to the level: 🔤 Letter group: letter cards with picture words (ग → गाय 🐄), no poem · Word, Paragraph, Story: built on a free, credited poem or story · 🎯 starts with the group's own mistakes (children per mistake, letters or words they misread ⭐) · 3 short steps, each with a picture · 📝 homework for Paragraph and Story |
+| 🔊 **Listen** | the whole activity read aloud in the teacher's language, with a slider and Step 1/2/3 chips to jump to any part · offline: the phone's own voice |
+| ⏱ **Step by step** | **Start the 10 minutes**: one step at a time, big text, a timer, the letters or words on screen, then a rating |
 | 🌏 **2 tests per child** | English + regional language, each with its own level and group |
 | 🧒 **Child-friendly** | 🦜 parrot mascot, ladder on screen, ⭐ "शाबाश!" after every card, picture meaning check |
 | 🔁 **Replay** | every card's recording for 30 days, words highlighted as read |
@@ -70,9 +72,9 @@
 | Service | What it does | Key |
 |---|---|---|
 | 🧠 **Claude Opus 5.5** `claude-opus-5-5` | diagnosis (~$0.02 a check) · adapts activities (~$0.05 each) | `ANTHROPIC_API_KEY` |
-| 🔍 **Claude Haiku 5.5** `claude-haiku-5-5` | reviews every activity (faithful, safe, fits the level) | `ANTHROPIC_API_KEY` |
+| 🔍 **Claude Haiku 5.5** `claude-haiku-5-5` | reviews every activity (faithful, safe, fits the level, easy to follow, works on the group's mistakes) | `ANTHROPIC_API_KEY` |
 | 🗣️ **Sarvam** `saaras:v3` | speech → text, path A | `SARVAM_API_KEY` |
-| 🗣️ **Azure Speech** | speech → text, path B · pronunciation tie-break · spoken instructions (TTS) | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` |
+| 🗣️ **Azure Speech** | speech → text, path B · pronunciation tie-break · spoken instructions (TTS) · reads activities aloud for the teacher (TTS) | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` |
 | 🧪 **Gemini** `gemini-3.5-flash` | evaluation script only; **never hears children** | `GEMINI_API_KEY` (optional) |
 | 💻 **LM Studio** (optional, local) | offline activity wording on a laptop | none · `VITE_LMSTUDIO_URL` in [`web/.env.example`](web/.env.example) |
 
@@ -88,7 +90,7 @@
 - 🙈 The recognisers that vote never see the text; the one that does only breaks ties.
 - 👂 Unsure words go to the teacher whenever they could change the result.
 - ✅ 2 agreeing checks confirm a level; overrides are logged.
-- 📐 Claude works from a fixed pattern list and a JSON schema, and its evidence is checked. An activity must adapt a cited bank entry and pass the Haiku review.
+- 📐 Claude works from a fixed pattern list and a JSON schema, and its evidence is checked. An activity must adapt a cited bank entry, have exactly 3 steps of one short line each (checked in code), and pass the Haiku review.
 - 🔇 Bad audio is never scored ("please record again").
 - 💰 Spend caps: $400 total, $25 a day.
 - 🔒 Children: first name + emoji only · recordings deleted after 30 days · never sent to Gemini.
@@ -133,7 +135,7 @@
 | ✅ Card pass / fail correct | **9 / 9** |
 
 - 👧 Also tried with children in a school.
-- 🧪 179 automated API tests, plus browser runs: online check, activity, offline round trip, replay.
+- 🧪 186 automated API tests, plus browser runs: online check, activity, offline round trip, replay.
 - ➡️ [eval/README.md](eval/README.md)
 
 ---

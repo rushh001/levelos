@@ -127,6 +127,9 @@ export const Api = {
 
   classes: () => api<ClassSummary[]>('/classes'),
   createClass: (body: { name: string; grade: number; language: string }) => post<ClassSummary>('/classes', body),
+  /** An activity read aloud: the parts joined into one MP3 (base64) with the second each part starts at. */
+  speech: (language: string, parts: string[]) =>
+    post<{ mime: string; audio: string; starts: number[]; duration: number }>('/speech', { language, parts }),
   deleteClass: (classId: string) => api<{ ok: boolean }>(`/classes/${classId}`, { method: 'DELETE' }),
   dashboard: (classId: string, language?: string) =>
     api<Dashboard>(`/classes/${classId}/dashboard${language ? `?language=${language}` : ''}`),
@@ -170,8 +173,15 @@ export const Api = {
   abandon: (id: string) => post<Checkin>(`/checkins/${id}/abandon`),
   deleteRecordings: (id: string) => api<Checkin>(`/checkins/${id}/audio`, { method: 'DELETE' }),
 
-  generateActivity: (classId: string, cohort: string, language: string) =>
-    post<Activity>(`/classes/${classId}/activities`, { cohort, language }),
+  /** A new activity for the group, also put at the top of the phone's copy of the group's list, so it is still
+   * today's activity (with its recording) when the network goes. */
+  generateActivity: async (classId: string, cohort: string, language: string) => {
+    const a = await post<Activity>(`/classes/${classId}/activities`, { cohort, language })
+    const key = `/classes/${classId}/activities?cohort=${cohort}&language=${language}`
+    const list = ((await db.cache.get(key).catch(() => undefined))?.value as Activity[] | undefined) ?? []
+    await db.cache.put({ key, value: [a, ...list.filter((x) => x.id !== a.id)], updatedAt: Date.now() }).catch(() => undefined)
+    return a
+  },
   activities: (classId: string, cohort: string, language: string) =>
     api<Activity[]>(`/classes/${classId}/activities?cohort=${cohort}&language=${language}`),
   rateActivity: (id: string, rating: number) => post<Activity>(`/activities/${id}/rating`, { rating }),

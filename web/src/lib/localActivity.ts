@@ -3,15 +3,16 @@
  * rules (api/app/llm/activities.py) on the same bundled data: only activities built on a free book text; what the
  * children read matches the group (letters for a Letter group, single words for a Word group, a short rhyme for a
  * Paragraph group, a story or long poem for a Story group); the group's last activity is left out and texts rotate;
- * Paragraph and Story groups get homework; the book and the NCERT goal are credited. Online, the server (and Claude)
+ * Paragraph and Story groups get homework; the book and the NCERT goal are credited; the activity that works on most
+ * of the group's mistakes comes first, and the plan says which mistakes those are. Online, the server (and Claude)
  * make the activity as before; this is only the offline path.
  */
 import bank, { homework, sources } from 'virtual:activity-bank'
 import { db } from '../db'
 import { UI_LANGS } from '../i18n'
-import { isAscii, isLatinScript, NUKTA, textsFor, wordsOf, type BundledText } from './content'
+import { isAscii, isLatinScript, letterCards, textsFor, wordsOf, type BundledText } from './content'
 import { clusters } from './graphemes'
-import type { Activity, ActivityMaterial, ActivityPlan, Cohort } from './types'
+import type { Activity, ActivityFocus, ActivityMaterial, ActivityPlan, Cohort } from './types'
 
 type BankEntry = (typeof bank)[number]
 type Filled = Record<string, string>
@@ -23,30 +24,12 @@ const TA_NO_START = new Set([...'லளழறனணஙஞட'])
 const TA_NO_END = ['க்', 'ச்', 'ஞ்', 'ட்', 'த்', 'ப்', 'ங்', 'ற்']
 
 const isShort = (t: BundledText) => t.lines.join(' ').split(/\s+/).filter(Boolean).length <= SHORT_WORDS && t.lines.length <= SHORT_LINES
-const baseLetter = (w: string) => {
-  const c = [...w]
-  return (NUKTA.has(c[1]) ? c[0] + c[1] : c[0] ?? '').toLowerCase()
-}
 const tamilFragment = (w: string) => {
   const code = w.charCodeAt(0)
   return code >= 0x0b80 && code <= 0x0bff && (TA_NO_START.has(w[0]) || TA_NO_END.some((e) => w.endsWith(e)))
 }
 const simpleWord = (w: string) =>
   isAscii(w) ? w.length >= 2 && w.length <= 5 && /^[a-z]+$/i.test(w) : clusters(w).length >= 2 && clusters(w).length <= 3 && !tamilFragment(w)
-
-/** Letters for a Letter group: the letters the rhyme's words start with, most frequent first, each with a word. */
-function lettersFrom(t: BundledText): ActivityMaterial {
-  const counts = new Map<string, number>()
-  const anchors: Record<string, string> = {}
-  for (const w of wordsOf(t)) {
-    const b = baseLetter(w)
-    counts.set(b, (counts.get(b) ?? 0) + 1)
-    const word = isAscii(w) ? w.toLowerCase() : w
-    if (!anchors[b] || (clusters(anchors[b]).length < 2 && clusters(word).length >= 2)) anchors[b] = word
-  }
-  const items = [...counts.keys()].sort((x, y) => (counts.get(y) ?? 0) - (counts.get(x) ?? 0)).slice(0, 5)
-  return { kind: 'letters', items, anchors: Object.fromEntries(items.map((b) => [b, anchors[b]])) }
-}
 
 /** Words for a Word group: the rhyme's own words to find first, then its other short words, simple ones first. */
 function wordsFrom(t: BundledText): ActivityMaterial {
@@ -60,10 +43,6 @@ function wordsFrom(t: BundledText): ActivityMaterial {
 }
 
 function materialFor(a: BankEntry, t: BundledText): ActivityMaterial | null {
-  if (a.reads === 'letters') {
-    const m = lettersFrom(t)
-    return m.items.length >= 3 ? m : null
-  }
   if (a.reads === 'words') {
     const m = wordsFrom(t)
     return m.items.length >= 4 ? m : null
@@ -79,9 +58,14 @@ function pickText(lang: string, kind: string, used: string[], fits?: (t: Bundled
   return pool.reduce((a, b) => (used.indexOf(a.id) >= used.indexOf(b.id) ? a : b))
 }
 
-function textFor(a: BankEntry, lang: string, cohort: Cohort, used: string[]): [BundledText | null, ActivityMaterial | null] {
+function textFor(a: BankEntry, lang: string, cohort: Cohort, used: string[], turn: number): [BundledText | null, ActivityMaterial | null] {
   const kind = a.uses_text as string
-  if (a.reads === 'letters' || a.reads === 'words') {
+  if (a.reads === 'letters') {
+    // Letter cards with picture words, no poem; the text only keeps the activity on offer (as on the server).
+    const cards = letterCards(lang, turn)
+    return [pickText(lang, kind, used), cards.items.length >= 3 ? cards : null]
+  }
+  if (a.reads === 'words') {
     for (const short of [true, false]) {
       const t = pickText(lang, kind, used, (x) => (!short || isShort(x)) && !!materialFor(a, x))
       if (t) return [t, materialFor(a, t)]
@@ -97,7 +81,7 @@ function textFor(a: BankEntry, lang: string, cohort: Cohort, used: string[]): [B
 function filler(t: BundledText, m: ActivityMaterial | null): (s: string) => string {
   const first = Array.from(new Set(t.words_to_find.map((w) => (clusters(w)[0] ?? '').toLowerCase()).filter(Boolean)))
   const values: Filled = { title: t.title, words: t.words_to_find.join(', '), letter: first[0] ?? '', letters: first.join(', ') }
-  if (m?.kind === 'letters') Object.assign(values, { letter: m.items[0], letters: m.items.join(', ') })
+  if (m?.kind === 'letters') Object.assign(values, { letter: m.items[0], letters: m.items.join(', '), words: Object.values(m.anchors ?? {}).join(', ') })
   if (m?.kind === 'words') values.words = m.items.join(', ')
   return (s) => s.replace(/\{(title|words|letter|letters)\}/g, (_, k: string) => values[k] ?? '')
 }
@@ -114,7 +98,10 @@ function plan(a: BankEntry, t: BundledText, m: ActivityMaterial | null): Activit
     practice_words: m ? m.items : t.words_to_find.slice(0, 6),
     watch_for: perLang(a.watch_for, fill),
     why: { en: '' },
-    text: {
+  }
+  // A Letter group works with letter cards only; a Word group hears the rhyme its words come from.
+  if (m?.kind !== 'letters') {
+    p.text = {
       id: t.id,
       kind: t.kind,
       title: t.title,
@@ -127,7 +114,7 @@ function plan(a: BankEntry, t: BundledText, m: ActivityMaterial | null): Activit
       source: t.source,
       note: t.note ?? null,
       read_aloud: !!m,
-    },
+    }
   }
   if (m) p.material = m
   else p.homework = perLang(homework[t.kind], (s) => s.replace('{title}', t.title))
@@ -147,24 +134,48 @@ function recentOf(list: Activity[]) {
   return { activities: list.map((x) => x.source_activity_id), texts: list.map((x) => x.plan.text?.id).filter((x): x is string => !!x) }
 }
 
-/** A 10-minute activity for the group, made on the phone: the first book-based activity for its level that it did
- * not do last time, on the text it has not read yet (or read longest ago). Null if the language has no texts. */
-export function makeLocalActivity(cohort: Cohort, lang: string, earlier: Activity[]): Activity | null {
+/** The group as the phone's copy of the class page knows it: how many children, and their mistakes per pattern. */
+export interface GroupInfo {
+  children: number
+  pattern_counts: Record<string, number>
+}
+
+/** What the activity is for (as the server's focus_of): the group's most common mistakes and whether it works on them.
+ * The letters or words the children misread are known only to the server. */
+function focusOf(group: GroupInfo | undefined, a: BankEntry): ActivityFocus | null {
+  if (!group) return null
+  const ranked = Object.entries(group.pattern_counts)
+    .filter(([, n]) => n > 0)
+    .sort((x, y) => y[1] - x[1])
+    .slice(0, 3)
+  const works = new Set(a.patterns ?? [])
+  return { children: group.children, patterns: ranked.map(([pattern, children]) => ({ pattern, children, targeted: works.has(pattern) })), misread: [] }
+}
+
+/** A 10-minute activity for the group, made on the phone: the book-based activity for its level that works on most
+ * of the group's mistakes (`group`, from the class page), not the one it did last time, on the text it has not read
+ * yet (or read longest ago). Null if the language has no texts. */
+export function makeLocalActivity(cohort: Cohort, lang: string, earlier: Activity[], group?: GroupInfo): Activity | null {
   const recent = recentOf(earlier)
   const script = isLatinScript(lang) ? 'latin' : 'indic'
   const usable = bank.filter((a) => a.uses_text && a.cohorts.includes(cohort) && (a.script ?? script) === script && (a.readers ?? [cohort]).includes(cohort))
-  const picked = usable.map((a) => [a, ...textFor(a, lang, cohort, recent.texts)] as const).filter(([, t]) => t)
+  const picked = usable.map((a) => [a, ...textFor(a, lang, cohort, recent.texts, earlier.length)] as const).filter(([x, t, m]) => t && (x.reads !== 'letters' || m))
   const pool = picked.length > 2 ? picked.filter(([a]) => a.id !== recent.activities[0]) : picked
-  const chosen = pool[0]
+  const counts = group?.pattern_counts ?? {}
+  const overlap = (a: BankEntry) => (a.patterns ?? []).reduce((n, p) => n + (counts[p] ?? 0), 0)
+  const ranked = [...pool].sort(([x], [y]) => overlap(y) - overlap(x) || Number(!x.script) - Number(!y.script)) // stable, as on the server
+  const chosen = ranked[0]
   if (!chosen) return null
   const [a, t, m] = chosen
+  const made = plan(a, t as BundledText, m)
+  made.focus = focusOf(group, a)
   return {
     id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     cohort,
     language: lang,
     source_activity_id: a.id,
     source: sourceOf(a),
-    plan: plan(a, t as BundledText, m),
+    plan: made,
     accepted: false,
     generated_by: 'phone',
     teacher_rating: null,

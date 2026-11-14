@@ -35,6 +35,8 @@ def activity_out(g: GeneratedActivity) -> dict:
     plan = g.plan
     if plan.get("text") and not plan.get("material") and "homework" not in plan and plan["text"].get("kind") in ("rhyme", "story"):
         plan = plan | {"homework": act.homework_for(plan["text"])}  # a plan made before homework existed
+    if "focus" not in plan and g.validation.get("context"):  # a plan made before the focus was kept with it
+        plan = plan | {"focus": act.focus_of(g.validation["context"], a, plan)}
     return {
         "id": g.id,
         "cohort": g.cohort,

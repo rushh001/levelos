@@ -15,15 +15,22 @@ body,
 body {
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  /* a word wider than its box (long Tamil and Kannada words on a small phone) breaks rather than spilling off */
+  overflow-wrap: break-word;
 }
 
 /* Child-facing reading text: large, high-contrast, generous line height for Indic scripts — and always the plain
    system face, never the display font: a child learning to read must see textbook letter shapes. */
 .reading-text,
-.show-text {
+.show-text,
+.reading-face {
   font-family: system-ui, 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
   letter-spacing: 0.01em;
+  /* a word longer than the card (Kannada and Tamil words often are) breaks instead of running off the screen */
+  overflow-wrap: anywhere;
 }
+/* .reading-face: the same textbook face at the size the element sets (text-lg, text-4xl …), for the teacher's
+   copy of a text and for letter and word tiles; .reading-text and .show-text set their own large size. */
 .reading-text {
   font-size: clamp(2rem, 8vw, 3.5rem);
   line-height: 1.6;
@@ -35,6 +42,7 @@ body {
 }
 .show-text-sm {
   font-family: system-ui, 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
+  overflow-wrap: anywhere;
   font-size: clamp(1.75rem, 8vw, 4rem);
   line-height: 1.5;
 }

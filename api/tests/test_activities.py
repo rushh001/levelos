@@ -75,6 +75,40 @@ def test_a_tamil_group_sees_tamil_letters_and_the_charts_own_name():
     assert "বন্ধু → ব + ন্ + ধু" in split["en"] and "বন্ধু → ব + ন্ + ধু" in split["hi"]
 
 
+def test_book_activities_are_three_short_steps_with_a_picture_each():
+    # What a teacher sees most: one short line per step, held to the same rules as Claude's plans.
+    for a in act.bank()["activities"]:
+        if not a.get("uses_text"):
+            continue
+        assert len(a["steps"]) == act.STEPS and sum(s["minutes"] for s in a["steps"]) == 10, a["id"]
+        for lang in TEACHER_LANGUAGES[1:]:
+            assert all(not act.step_problems(s, lang) for s in a["steps"]), (a["id"], lang)
+
+
+def test_a_step_is_one_short_line_with_an_icon():
+    ok = {"minutes": 3, "icon": "show", "en": "Show each card (क, म, स, र, ल, न, प, ब) and say its sound.",
+          "local": "हर कार्ड दिखाकर उसकी ध्वनि बोलें।"}
+    assert act.step_problems(ok) == []  # the example letters in brackets do not count
+    assert "icon" in act.step_problems(ok | {"icon": "dance"})[0]
+    long = "Hold up the first card and say its sound, then say a word from the rhyme that starts with it."
+    assert "at most 12 words" in act.step_problems(ok | {"en": long})[0]
+    assert "too long" in act.step_problems(ok | {"local": "क" * 130})[0]
+    four = good_plan("rhyme-word-cards", minutes=(2, 3, 3, 2)) | {"source_activity_id": "x"}
+    assert "use exactly 3" in " ".join(act.check_plan(four, ["x"]))
+
+
+def test_every_plan_says_which_mistakes_it_works_on():
+    # The group's own mistakes, shown above the plan: how many children make each, whether this activity works on
+    # it, and the misread words the activity uses.
+    ctx = CTX | {"misread_words": ["जुकाम", "पानी"]}
+    plan = asyncio.run(act.generate(ctx))["plan"]
+    f = plan["focus"]
+    assert f["children"] == 6 and f["patterns"][0] == {"pattern": "matra_vowel_sign", "children": 4, "targeted": True}
+    assert f["misread"] == ["जुकाम"] and plan["material"]["items"][0] == "जुकाम"  # in the rhyme, so it comes first
+    letters = act.focus_of({"misread_words": ["ज", "पानी"]}, None, {"material": {"kind": "letters", "items": ["न", "ज"]}})
+    assert letters["misread"] == ["ज"] and letters["patterns"] == []
+
+
 def test_candidates_follow_the_groups_difficulties():
     top = act.candidates("word", {"matra_vowel_sign": 5})
     assert len(top) == 3 and all("word" in a["cohorts"] and a.get("text") for a in top)
@@ -91,7 +125,8 @@ HI_RHYME_WORDS = ["जुकाम", "नंदू", "छींका", "पत�
 def good_plan(source_id, minutes=(3, 4, 3), words=HI_RHYME_WORDS):
     return {"source_activity_id": source_id, "title_en": "Change one matra", "title_local": "एक मात्रा बदलो",
             "materials_en": ["Board"], "materials_local": ["बोर्ड"],
-            "steps": [{"minutes": m, "en": f"Step {i}", "local": f"चरण {i}"} for i, m in enumerate(minutes)],
+            "steps": [{"minutes": m, "icon": "say", "en": f"Step {i}: the group says each word", "local": f"चरण {i}"}
+                      for i, m in enumerate(minutes)],
             "practice_words": list(words), "watch_for_en": "Matra position", "watch_for_local": "मात्रा की जगह",
             "why_en": "The group drops matras.", "why_local": "समूह मात्राएँ छोड़ता है।"}
 
@@ -116,7 +151,7 @@ def fake_models(monkeypatch):
 
 
 OK = {"faithful_to_source": True, "age_appropriate": True, "safe": True, "fits_10_minutes": True, "fits_level": True,
-      "issues": []}
+      "easy_to_follow": True, "targets_gap": True, "issues": []}
 
 
 def test_without_a_key_the_bank_entry_is_served_with_practice_words():
@@ -146,7 +181,7 @@ def test_a_plan_for_a_kannada_class_is_in_kannada_and_english(fake_models):
     fake_models["verdicts"] = [OK]
     out = asyncio.run(act.generate(CTX | {"language": "kn", "teacher_language": {"code": "kn", "name": "Kannada"}}))
     assert out["accepted"] and out["plan"]["title"] == {"en": "Change one matra", "kn": "ಒಂದು ಸ್ವರ ಚಿಹ್ನೆ ಬದಲಿಸಿ"}
-    assert set(out["plan"]["steps"][0]) == {"minutes", "en", "kn"}
+    assert set(out["plan"]["steps"][0]) == {"minutes", "icon", "en", "kn"}
     messages, _ = fake_models["gen_calls"][0]
     assert '"teacher_language": {"code": "kn"' in messages[0]["content"]
 
@@ -172,6 +207,15 @@ def test_practice_words_must_come_from_the_text(fake_models):
     assert out["plan"]["text"]["author"] == "रामनरेश त्रिपाठी"
 
 
+def test_a_plan_hard_to_follow_or_off_the_groups_mistakes_is_sent_back(fake_models):
+    fake_models["plans"] = [lambda ids: good_plan(ids[0]), lambda ids: good_plan(ids[0])]
+    fake_models["verdicts"] = [{**OK, "easy_to_follow": False, "targets_gap": False, "issues": ["Steps too wordy"]}, OK]
+    out = asyncio.run(act.generate(CTX))
+    assert out["accepted"] and len(fake_models["gen_calls"]) == 2
+    assert "Steps too wordy" in fake_models["gen_calls"][1][0][-1]["content"]
+    assert out["plan"]["steps"][0]["icon"] == "say" and out["plan"]["focus"]["children"] == 6
+
+
 def test_plans_that_break_the_rules_twice_fall_back_to_the_bank(fake_models):
     too_long = lambda ids: good_plan(ids[0], minutes=(10, 10, 10))  # noqa: E731
     fake_models["plans"] = [too_long, too_long]
@@ -191,7 +235,8 @@ def test_generate_endpoint_and_rating(client, script):
     r = client.post(f"/api/classes/{cls['id']}/activities", json={"cohort": "word"}, headers=h)
     assert r.status_code == 201, r.text
     a = r.json()
-    assert a["source"]["url"].startswith("https://") and a["plan"]["steps"]
+    assert a["source"]["url"].startswith("https://") and len(a["plan"]["steps"]) == 3
+    assert a["plan"]["focus"]["children"] == 1  # the one child in the Word group
     assert client.post(f"/api/classes/{cls['id']}/activities", json={"cohort": "x"}, headers=h).status_code == 422
     rated = client.post(f"/api/activities/{a['id']}/rating", json={"rating": 4}, headers=h).json()
     assert rated["teacher_rating"] == 4

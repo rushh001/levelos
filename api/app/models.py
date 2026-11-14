@@ -167,6 +167,17 @@ class ItemAudio(Base):
     item_result: Mapped[ItemResult] = relationship(back_populates="audio")
 
 
+class SpeechClip(Base):
+    """One part of an activity read aloud (Azure neural voice, MP3), kept by a hash of its voice and text, so
+    listening again costs nothing. Deleted after AUDIO_RETENTION_DAYS (app.api.speech.purge_speech)."""
+
+    __tablename__ = "speech_clips"
+
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    audio: Mapped[bytes] = mapped_column(LargeBinary)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+
+
 class Diagnosis(Base):
     __tablename__ = "diagnoses"
 

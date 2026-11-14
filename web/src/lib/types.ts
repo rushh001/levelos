@@ -219,10 +219,29 @@ export interface ActivityMaterial {
   anchors?: Record<string, string>
 }
 
+/** What an activity is for: the group's most common mistakes (children per pattern; `targeted`: this activity
+ * works on it) and the letters or words it uses that the children misread in their reading check. */
+export interface ActivityFocus {
+  children: number
+  levels?: Record<string, number>
+  patterns: { pattern: string; children: number; targeted: boolean }[]
+  misread: string[]
+}
+
+/** What happens in a step, drawn as a picture next to it. */
+export type StepIcon = 'listen' | 'say' | 'show' | 'point' | 'clap' | 'write' | 'read' | 'find' | 'sort' | 'ask' | 'turns' | 'join'
+
+export interface ActivityStep {
+  minutes: number
+  icon?: StepIcon
+  en: string
+  [lang: string]: string | number | undefined
+}
+
 export interface ActivityPlan {
   title: Bilingual
   materials: Partial<Record<string, string[]>>
-  steps: { minutes: number; en: string; [lang: string]: string | number }[]
+  steps: ActivityStep[]
   practice_words: string[]
   watch_for: Bilingual
   why: Bilingual
@@ -230,6 +249,7 @@ export interface ActivityPlan {
   material?: ActivityMaterial | null
   /** A Paragraph or Story group's homework on the text, in each interface language. */
   homework?: Bilingual | null
+  focus?: ActivityFocus | null
 }
 
 export interface Activity {

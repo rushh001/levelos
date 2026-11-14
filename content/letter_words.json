@@ -1,0 +1,10 @@
+{
+  "_comment": "Everyday words for letter cards, as on a classic alphabet chart (क for कमल), for the ASER letters that have no picture word in pictures.json and no simple word on the language's ASER word cards. A Letter group's card shows the letter with one of these for its sound (api/app/llm/activities.py anchor_word; web/src/lib/content.ts letterCards). Letters that never begin a word (ळ, ण, ட, ள, ன) have none. AI-drafted, awaiting native-speaking reviewers.",
+  "words": {
+    "hi": { "ल": "लड्डू", "व": "वन" },
+    "mr": { "र": "रथ", "त": "ताट", "ज": "जहाज", "च": "चमचा" },
+    "kn": { "ಸ": "ಸಿಂಹ", "ರ": "ರಥ", "ಪ": "ಪಟ", "ಲ": "ಲಾರಿ", "ಜ": "ಜಿಂಕೆ", "ದ": "ದನ", "ಚ": "ಚಮಚ", "ವ": "ವೀಣೆ" },
+    "ta": { "இ": "இலை", "த": "தட்டு", "ல": "லட்டு", "ர": "ரயில்", "ச": "சட்டை", "அ": "அம்மா" },
+    "bn": { "র": "রুটি", "ত": "তালা", "ট": "টুপি" }
+  }
+}

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate } from 'react-router-dom'
 import { Api } from '../api'
+import { LangPicker } from '../components/LangPicker'
 import { Button, ErrorBox, Page, Spinner } from '../components/ui'
 import { bankLanguages, isBeta } from '../lib/content'
 import { nameIn } from '../lib/names'
@@ -47,6 +48,9 @@ export default function Classes({ list }: { list?: boolean }) {
 
   return (
     <Page title={t('classes.title')}>
+      <div className="mb-3">
+        <LangPicker withTest />
+      </div>
       <ErrorBox error={error} onRetry={reload} />
       <ErrorBox error={deleteError} />
       {data?.length === 0 && <p className="text-mute">{t('classes.empty')}</p>}

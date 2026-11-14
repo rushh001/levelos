@@ -46,7 +46,7 @@ The demo loop judges must see in under 3 minutes:
 ┌──────────────── Teacher's Android phone (PWA) ────────────────┐
 │ React + Vite + TS + Tailwind · vite-plugin-pwa (Workbox)      │
 │ Dexie (IndexedDB): queued check-ins, cached roster/dashboard  │
-│ MediaRecorder (Opus/webm, ~150 KB/min) · precached item bank  │
+│ MediaRecorder (Opus/webm, ~180 KB/min) · precached item bank  │
 │ + instruction audio (pre-generated Indic TTS)                 │
 │ Offline: record + teacher tap-to-mark → provisional level     │
 └──────────────┬────────────────────────────────────────────────┘

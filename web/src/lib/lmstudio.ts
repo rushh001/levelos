@@ -11,7 +11,7 @@
  * (and "Enable CORS" on, as the browser calls it). If it is not running, or does not answer in time, or returns a
  * plan that breaks the rules, the phone-made activity is used instead and labelled as such.
  */
-import type { Activity, ActivityPlan } from './types'
+import type { Activity, ActivityPlan, StepIcon } from './types'
 
 const BASE = ((import.meta.env.VITE_LMSTUDIO_URL as string | undefined) ?? 'http://localhost:1234').replace(/\/$/, '')
 const CONNECT_MS = 1500
@@ -49,12 +49,19 @@ export async function lmStudioModel(): Promise<string | null> {
   }
 }
 
+// The same rules the server holds Claude's plans to (api/app/llm/activities.py): three steps, one short line each,
+// with a picture for what happens in it.
+const ICONS: StepIcon[] = ['listen', 'say', 'show', 'point', 'clap', 'write', 'read', 'find', 'sort', 'ask', 'turns', 'join']
+const MAX_WORDS_EN = 16
+const MAX_CHARS_LOCAL = 120
+const outsideBrackets = (s: string) => s.replace(/\([^)]*\)/g, '')
+
 interface Adapted {
   title_en: string
   title_local: string
   why_en: string
   why_local: string
-  steps: { minutes: number; en: string; local: string }[]
+  steps: { minutes: number; icon: StepIcon; en: string; local: string }[]
   watch_for_en: string
   watch_for_local: string
 }
@@ -70,11 +77,11 @@ const SCHEMA = {
     steps: {
       type: 'array',
       minItems: 3,
-      maxItems: 4,
+      maxItems: 3,
       items: {
         type: 'object',
-        properties: { minutes: { type: 'integer' }, en: str, local: str },
-        required: ['minutes', 'en', 'local'],
+        properties: { minutes: { type: 'integer' }, icon: { type: 'string', enum: ICONS }, en: str, local: str },
+        required: ['minutes', 'icon', 'en', 'local'],
       },
     },
     watch_for_en: str,
@@ -98,7 +105,9 @@ function prompt(a: Activity, local: string): { system: string; user: string } {
     'Keep the activity\'s method and its text exactly; adapt only the wording, the examples and the timing. Do not invent a different activity.',
     `The children read ${READS[reads]}.`,
     'Use only the letters or words given as examples. Never rewrite, shorten or translate the text.',
-    `Write 3 or 4 short steps whose minutes add up to 10. Each step is one or two plain sentences a teacher can follow while standing in front of the group, in English ("en") and in ${local} ("local", in ${local}'s own script).`,
+    `Write exactly 3 steps whose minutes add up to 10. Each step is ONE short sentence of at most 12 words (example letters or words in brackets do not count) a teacher reads at a glance, in English ("en") and in ${local} ("local", in ${local}'s own script).`,
+    `Give each step an "icon" for what happens in it: ${ICONS.join(', ')}.`,
+    `Use the letters or words the children misread first; "why" names the group's main mistake and how the activity helps.`,
     `"title" and "watch_for" in English and ${local} too; "why" is one sentence linking the activity to what this group needs.`,
     'No children\'s names, nothing that shames a child. Reply with the JSON object only.',
   ].join('\n')
@@ -117,14 +126,19 @@ function prompt(a: Activity, local: string): { system: string; user: string } {
   return { system, user }
 }
 
-/** The plan's rules, checked in code: 3 or 4 steps of about 10 minutes, every field filled, the teacher's language
- * in its own script. */
+/** The plan's rules, checked in code: 3 short steps of about 10 minutes, each with its icon, every field filled, the
+ * teacher's language in its own script. */
 function valid(out: Adapted, ui: string): boolean {
   const steps = out.steps ?? []
   const total = steps.reduce((n, s) => n + (Number(s.minutes) || 0), 0)
   const texts = [out.title_en, out.title_local, out.why_en, out.why_local, out.watch_for_en, out.watch_for_local, ...steps.flatMap((s) => [s.en, s.local])]
-  if (steps.length < 3 || steps.length > 4 || total < 8 || total > 12) return false
+  if (steps.length !== 3 || total < 8 || total > 12) return false
   if (texts.some((t) => typeof t !== 'string' || !t.trim())) return false
+  const short = (s: Adapted['steps'][number]) =>
+    ICONS.includes(s.icon) &&
+    outsideBrackets(s.en).split(/\s+/).filter(Boolean).length <= MAX_WORDS_EN &&
+    outsideBrackets(s.local).length <= MAX_CHARS_LOCAL
+  if (!steps.every(short)) return false
   const script = SCRIPT[ui]
   return !script || [out.title_local, ...steps.map((s) => s.local)].every((t) => script.test(t))
 }
@@ -178,7 +192,7 @@ export async function adaptWithLmStudio(model: string, base: Activity, ui: strin
     ...base.plan, // the text, the letters or words, the homework and the materials stay as the bank has them
     title: two(out.title_en.trim(), out.title_local.trim()),
     why: two(out.why_en.trim(), out.why_local.trim()),
-    steps: out.steps.map((s) => ({ minutes: Math.round(Number(s.minutes)), ...two(s.en.trim(), s.local.trim()) })),
+    steps: out.steps.map((s) => ({ minutes: Math.round(Number(s.minutes)), icon: s.icon, ...two(s.en.trim(), s.local.trim()) })),
     watch_for: two(out.watch_for_en.trim(), out.watch_for_local.trim()),
   }
   return { ...base, plan, generated_by: `lmstudio:${model}` }

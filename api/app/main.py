@@ -10,6 +10,7 @@ from .api import activities as activity_routes
 from .api import auth as auth_routes
 from .api import checkins as checkin_routes
 from .api import classes as class_routes
+from .api import speech as speech_routes
 from .auth import check_secret
 from .config import settings
 from .content import available_languages, languages
@@ -44,6 +45,7 @@ async def lifespan(_: FastAPI):
     db = SessionLocal()
     try:
         purge_audio(db)  # recordings past the retention period
+        speech_routes.purge_speech(db)  # activities read aloud, likewise
         db.commit()
         migrate_levels(db)  # one level per child -> one per language (no-op once done)
         # Diagnoses of a Kannada (Marathi, Tamil, Bengali) class from before they were written in its language.
@@ -73,6 +75,7 @@ app.include_router(auth_routes.router)
 app.include_router(class_routes.router)
 app.include_router(checkin_routes.router)
 app.include_router(activity_routes.router)
+app.include_router(speech_routes.router)
 
 
 @app.get("/api/ping")

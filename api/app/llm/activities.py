@@ -6,10 +6,13 @@
               the group's last activity is left out and texts rotate, so "another activity" gives something new
   generate    Claude adapts ONE candidate (schema-enforced; source_activity_id must be one of the candidates),
               around its text, with practice words copied from the text
-  validate    deterministic checks (source id, minutes, steps, practice words in the text) + Claude Haiku as
-              reviewer (faithful to the source, age-appropriate, safe, fits 10 minutes); one regeneration with
-              the reviewer's issues
+  validate    deterministic checks (source id, 3 short steps with an icon each, about 10 minutes, practice words
+              in the text) + Claude Haiku as reviewer (faithful to the source, age-appropriate, safe, fits 10
+              minutes and the level, easy to follow, works on the group's mistakes); one regeneration with the
+              reviewer's issues
   fallback    the raw bank entry, filled with the text's words: always available, also offline
+  focus       every plan carries what it is for: the group's most common mistakes (children per pattern), which of
+              them the activity works on, and the letters or words the children misread that it uses
 """
 
 from __future__ import annotations
@@ -24,15 +27,19 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..config import settings
-from ..content import languages, latin_script, teacher_language, text_for, texts
+from ..content import items, languages, latin_script, teacher_language, text_for, texts
 from ..levels.aser_rules import cohort_for_level, effective_level
 from ..models import Classroom, GeneratedActivity
 from .diagnose import _get_client, claude_enabled
 from .patterns import PATTERNS
 
 log = logging.getLogger(__name__)
-PROMPT_VERSION = "act-v7"
+PROMPT_VERSION = "act-v8"
 MIN_MINUTES, MAX_MINUTES = 8, 12
+# A step is one short line a teacher reads at a glance, with a picture for what to do (the app draws the icon).
+STEPS = 3
+STEP_ICONS = ("listen", "say", "show", "point", "clap", "write", "read", "find", "sort", "ask", "turns", "join")
+STEP_MAX_WORDS_EN, STEP_MAX_CHARS_LOCAL = 16, 120  # not counting the example letters or words in brackets
 
 
 @lru_cache(maxsize=1)
@@ -119,10 +126,11 @@ def pick_text(language: str, kind: str, used: list[str] | tuple = (), fits=None)
 # ---------------------------------------------------------------- what a group reads, by level
 #
 # A child who cannot read letters cannot read a word, and one who cannot read words cannot read a rhyme. So the
-# children in a Letter group read only letters (taken from a rhyme the teacher says aloud), a Word group only
-# single short words from it, a Paragraph group a short text (as long as ASER's paragraph, about 35 words) and
-# story readers a story or a long poem. The bank entry says what it has the children read (`reads`: letters |
-# words | text) and for which readers (`readers`).
+# children in a Letter group work only with letter cards (the letters they misread first, then the letters of the
+# language's ASER letter cards), each with a picture word for its sound, and no poem; a Word group reads only
+# single short words from a rhyme the teacher says aloud, a Paragraph group a short text (as long as ASER's
+# paragraph, about 35 words) and story readers a story or a long poem. The bank entry says what it has the children
+# read (`reads`: letters | words | text) and for which readers (`readers`).
 
 _ZW = chr(0x200C) + chr(0x200D)
 _NUKTA = "़়"  # Devanagari, Bengali: part of the letter (ड़, ড়)
@@ -162,19 +170,58 @@ def is_short(t: dict) -> bool:
     return sum(len(line.split()) for line in t["lines"]) <= SHORT_TEXT_WORDS and len(t["lines"]) <= SHORT_TEXT_LINES
 
 
-def letters_from(t: dict, prefer: list[str] | tuple = ()) -> dict:
-    """Letters for a Letter group: the letters the rhyme's words start with (letters the children misread in their
-    check first, then the most frequent), each with a word from the rhyme the teacher says for it."""
-    counts: dict[str, int] = {}
-    anchors: dict[str, str] = {}
-    for w in text_tokens(t):
-        b = base_letter(w)
-        counts[b] = counts.get(b, 0) + 1
-        if b not in anchors or len(aksharas(anchors[b])) < 2 <= len(aksharas(w)):  # "all" for a, not "a" itself
-            anchors[b] = w.lower() if w.isascii() else w
-    misread = {base_letter(p) for p in prefer if len(aksharas(p)) == 1}
-    items = sorted(counts, key=lambda b: (b not in misread, -counts[b]))[:MAX_LETTERS]
-    return {"kind": "letters", "items": items, "anchors": {b: anchors[b] for b in items}}
+@lru_cache(maxsize=1)
+def _pictures() -> dict:
+    return json.loads((settings.content_dir / "pictures.json").read_text(encoding="utf-8"))["words"]
+
+
+def _script(s: str) -> str:
+    """The script a letter is written in ("DEVANAGARI", "TAMIL", "LATIN", …)."""
+    return unicodedata.name(s[:1], "").split(" ")[0]
+
+
+@lru_cache(maxsize=1)
+def _letter_words() -> dict:
+    return json.loads((settings.content_dir / "letter_words.json").read_text(encoding="utf-8"))["words"]
+
+
+def letter_pool(language: str) -> list[str]:
+    """The letters of the language's ASER letter cards, in order: what a Letter group learns first."""
+    units = [u for it in items(language).values() if it.level == "letter" for u in it.units or ()]
+    return list(dict.fromkeys(base_letter(u) for u in units))
+
+
+def anchor_word(letter: str, language: str) -> str | None:
+    """A short word that starts with the letter's sound, for the teacher to say with its card: one the app has a
+    picture for first, then a classic alphabet-chart word (content/letter_words.json), then one from the language's
+    ASER word cards (simple everyday words). None for a letter that never begins a word."""
+    short = lambda w: 2 <= len(aksharas(w)) <= 3  # noqa: E731
+    pictured = sorted((w for w in _pictures().get(language, {}) if base_letter(w) == letter),
+                      key=lambda w: (not short(w), len(aksharas(w))))
+    if pictured:
+        return pictured[0]
+    if chart := _letter_words().get(language, {}).get(letter):
+        return chart
+    for it in items(language).values():
+        for w in (it.units or ()) if it.level == "word" else ():
+            w = w.lower() if w.isascii() else w
+            if base_letter(w) == letter and short(w):
+                return w
+    return None
+
+
+def letter_cards(language: str, prefer: list[str] | tuple = (), turn: int = 0) -> dict:
+    """Letters for a Letter group: the letters the children misread in their check first, then the language's ASER
+    letters (a different five each time the group gets another activity: `turn`), each with a picture word."""
+    pool = letter_pool(language)
+    if pool:
+        k = (turn * MAX_LETTERS) % len(pool)
+        pool = pool[k:] + pool[:k]
+    script = _script(pool[0]) if pool else None
+    misread = [base_letter(p) for p in prefer if len(aksharas(p)) == 1 and _script(p) == script]
+    chosen = list(dict.fromkeys(misread + pool))[:MAX_LETTERS]
+    anchors = {x: w for x in chosen if (w := anchor_word(x, language))}
+    return {"kind": "letters", "items": chosen, "anchors": anchors}
 
 
 _TA_NO_START = "லளழறனணஙஞட"  # Tamil words do not begin with these
@@ -206,13 +253,40 @@ def words_from(t: dict, prefer: list[str] | tuple = ()) -> dict:
 
 
 def material_for(a: dict, t: dict, prefer: list[str] | tuple = ()) -> dict | None:
-    if a.get("reads") == "letters":
-        m = letters_from(t, prefer)
-        return m if len(m["items"]) >= MIN_LETTERS else None
+    """The single words a Word group reads from a rhyme (a Letter group's cards come from letter_cards)."""
     if a.get("reads") == "words":
         m = words_from(t, prefer)
         return m if len(m["items"]) >= MIN_WORDS else None
     return None
+
+
+def from_check(material: dict, misread: list[str] | tuple) -> list[str]:
+    """The letters or words a group reads that the children misread in their reading check (put first by
+    letter_cards / words_from)."""
+    if material["kind"] == "letters":
+        mis = {base_letter(w) for w in misread if len(aksharas(w)) == 1}
+    else:
+        mis = {w.lower() if w.isascii() else w for w in misread}
+    return [x for x in material["items"] if x in mis]
+
+
+def focus_of(ctx: dict, a: dict | None, plan: dict) -> dict:
+    """What the activity is for, shown above the plan: the group's most common mistakes (how many children make
+    each, and whether this activity works on it) and the letters or words it uses that the children misread."""
+    ranked = sorted((ctx.get("pattern_counts") or {}).items(), key=lambda kv: -kv[1])[:3]
+    works_on = set((a or {}).get("patterns", []))
+    misread = ctx.get("misread_words") or []
+    m, t = plan.get("material"), plan.get("text")
+    if m:
+        used = from_check(m, misread)
+    elif t:
+        have = text_words(t)
+        used = [w for w in misread if bare_word(w) in have][:6]
+    else:
+        used = []
+    return {"children": ctx.get("group_size", 0), "levels": ctx.get("levels") or {},
+            "patterns": [{"pattern": p, "children": n, "targeted": p in works_on} for p, n in ranked],
+            "misread": used}
 
 
 def reader_level(cohort: str, levels: dict | None = None) -> str:
@@ -221,9 +295,13 @@ def reader_level(cohort: str, levels: dict | None = None) -> str:
 
 
 def text_for_activity(a: dict, language: str, reader: str, used: list[str] | tuple = (),
-                      prefer: list[str] | tuple = ()) -> tuple[dict | None, dict | None]:
-    """The text an activity uses for this group, and the letters or words the children read from it."""
+                      prefer: list[str] | tuple = (), turn: int = 0) -> tuple[dict | None, dict | None]:
+    """The text an activity uses for this group, and the letters or words the children read from it. A Letter
+    group's cards do not come from the text (it never hears a poem); the text only keeps the activity on offer."""
     kind = a["uses_text"]
+    if a.get("reads") == "letters":
+        cards = letter_cards(language, prefer, turn)
+        return pick_text(language, kind, used), cards if len(cards["items"]) >= MIN_LETTERS else None
     if a.get("reads") in ("letters", "words"):  # any rhyme the teacher can say: a short one first
         for fits in (is_short, None):
             t = pick_text(language, kind, used, lambda x: (fits is None or fits(x)) and material_for(a, x, prefer))
@@ -248,7 +326,7 @@ def with_text(plan: dict, a: dict) -> dict:
     licence and source, into the plan, so the teacher's screen shows the text and credits it; the model never gets
     to rewrite it. For a Letter or Word group the plan also carries the letters or words the children read, and the
     text is marked as one the teacher reads aloud."""
-    t = a.get("text")
+    t = a.get("text") if a.get("reads") != "letters" else None  # a Letter group works with letter cards only
     if t:
         plan["text"] = {k: t[k] for k in ("id", "kind", "title", "author", "licence", "lines", "words_to_find")} | {
             "year": t.get("year"), "questions": t.get("questions", []), "source": t["source"], "note": t.get("note"),
@@ -273,7 +351,8 @@ def localize(a: dict, language: str, text: dict | None = None, material: dict | 
         text = text or text_for(language, a["uses_text"])
         words = text_examples(text) | words
         if material and material["kind"] == "letters":
-            words |= {"letter": material["items"][0], "letters": ", ".join(material["items"])}
+            words |= {"letter": material["items"][0], "letters": ", ".join(material["items"]),
+                      "words": ", ".join(material.get("anchors", {}).values())}
         elif material:
             words |= {"words": ", ".join(material["items"])}
     ui_langs = ui_languages()
@@ -352,7 +431,8 @@ def candidates(cohort: str, pattern_counts: dict[str, int], k: int = 3, language
     script = "latin" if latin_script(language) else "indic"
     usable = [a for a in bank()["activities"] if a.get("script", script) == script and (
         cohort in a["cohorts"] or (cohort == "story" and "paragraph" in a["cohorts"] and not a.get("uses_text")))]
-    picked = {a["id"]: text_for_activity(a, language, reader, used, misread) for a in usable
+    turn = len(recent.get("activities") or [])  # a Letter group gets other letters with each new activity
+    picked = {a["id"]: text_for_activity(a, language, reader, used, misread, turn) for a in usable
               if a.get("uses_text") and reader in a.get("readers", [cohort])}
     on_texts = [a for a in usable if picked.get(a["id"], (None,))[0]]
     pool = on_texts or [a for a in usable if not a.get("uses_text")]
@@ -379,7 +459,7 @@ def recent_history(db: Session, classroom_id: str, cohort: str, language: str, n
 
 def plan_from_bank(a: dict, ctx: dict) -> dict:
     t, m = a.get("text"), a.get("material")
-    return with_text({
+    plan = with_text({
         "title": a["title"],
         "materials": a["materials"],
         "steps": a["steps"],
@@ -387,6 +467,7 @@ def plan_from_bank(a: dict, ctx: dict) -> dict:
         "watch_for": a["watch_for"],
         "why": {"en": ""},
     }, a)
+    return plan | {"focus": focus_of(ctx, a, plan)}
 
 
 def plan_from_claude(out: dict, local: str) -> dict:
@@ -394,11 +475,37 @@ def plan_from_claude(out: dict, local: str) -> dict:
     return {
         "title": {"en": out["title_en"], local: out["title_local"]},
         "materials": {"en": out["materials_en"], local: out["materials_local"]},
-        "steps": [{"minutes": s["minutes"], "en": s["en"], local: s["local"]} for s in out["steps"]],
+        "steps": [{"minutes": s["minutes"], "icon": s["icon"], "en": s["en"], local: s["local"]} for s in out["steps"]],
         "practice_words": out["practice_words"],
         "watch_for": {"en": out["watch_for_en"], local: out["watch_for_local"]},
         "why": {"en": out["why_en"], local: out["why_local"]},
     }
+
+
+def _outside_brackets(s: str) -> str:
+    """A step without its examples in brackets ("Show each card (क, म, स) …" → "Show each card  …")."""
+    out, depth = [], 0
+    for c in s:
+        depth += c == "("
+        if not depth:
+            out.append(c)
+        depth -= c == ")" and depth > 0
+    return "".join(out)
+
+
+def step_problems(step: dict, local: str = "local") -> list[str]:
+    """A step a teacher can take in at a glance: an icon and one short line, in English and the teacher's language."""
+    problems = []
+    if step.get("icon") not in STEP_ICONS:
+        problems.append(f"step icon {step.get('icon')!r} is not one of {', '.join(STEP_ICONS)}")
+    en, loc = str(step.get("en", "")).strip(), str(step.get(local, "")).strip()
+    if not en or not loc:
+        problems.append("every step needs English and teacher's-language text")
+    elif (n := len(_outside_brackets(en).split())) > STEP_MAX_WORDS_EN:
+        problems.append(f"a step has {n} words; keep each step to one short line of at most 12 words")
+    elif len(_outside_brackets(loc)) > STEP_MAX_CHARS_LOCAL:
+        problems.append("a step in the teacher's language is too long; keep it to one short line")
+    return problems
 
 
 def check_plan(out: dict, allowed: list[str]) -> list[str]:
@@ -408,15 +515,15 @@ def check_plan(out: dict, allowed: list[str]) -> list[str]:
         problems.append("source_activity_id is not one of the candidates")
     steps = out.get("steps") or []
     total = sum(int(s.get("minutes", 0)) for s in steps)
-    if not 2 <= len(steps) <= 6:
-        problems.append(f"{len(steps)} steps; use 3 or 4")
+    if len(steps) != STEPS:
+        problems.append(f"{len(steps)} steps; use exactly {STEPS}")
     if not MIN_MINUTES <= total <= MAX_MINUTES:
         problems.append(f"steps add up to {total} minutes; the plan must take about 10")
-    for key in ("title_en", "title_local", "watch_for_en", "watch_for_local"):
+    for key in ("title_en", "title_local", "watch_for_en", "watch_for_local", "why_en", "why_local"):
         if not str(out.get(key, "")).strip():
             problems.append(f"{key} is empty")
-    if any(not str(s.get("en", "")).strip() or not str(s.get("local", "")).strip() for s in steps):
-        problems.append("every step needs English and teacher's-language text")
+    for p in dict.fromkeys(p for s in steps for p in step_problems(s)):
+        problems.append(p)
     return problems
 
 
@@ -435,9 +542,10 @@ reading check) and two to three candidate activities.
 
 The children read only what their level allows; a child who cannot read letters cannot read a word, and one who \
 cannot read words cannot read a line. Each candidate's `reads` says what the children read:
-- "letters" (Letter group): the children read only the letters in `material`, one at a time. They never read a \
-word, a line or the rhyme; the teacher says the rhyme and its words aloud and the children listen, repeat, clap, \
-point at letters and write letters.
+- "letters" (Letter group): the children work only with the letter cards in `material`, one at a time, each with \
+a picture word for its sound (`anchors`). There is no rhyme or poem for this group: never ask the teacher to say \
+or read one. The teacher shows a card and says its sound and its word; the children repeat, point at cards, clap \
+for words that start with the sound and write the letters.
 - "words" (Word group): the children read only the single words in `material`, one at a time, never a line or the \
 rhyme; the teacher may say the rhyme aloud while they listen.
 - "text" (Paragraph group): the children read the text itself; it is already short enough for them, or a story \
@@ -455,11 +563,21 @@ words with vowel signs; for a group that guesses from the first letter, words th
 is not in the text.
 - Every example letter or word in the steps is in the group's reading language and its script (a Tamil group gets \
 Tamil letters, never Hindi ones).
-- 3 or 4 steps whose minutes add up to 10. Each step is one or two short sentences a teacher can follow while \
-standing in front of the group, in English (`en`) and in the teacher's language (`local`; `teacher_language` \
-names it: Hindi, Marathi, Kannada, Tamil or Bengali), in plain everyday words and that language's own script. \
-Every `*_local` field (title, materials, steps, watch_for, why) is in that language.
-- `why_en` / `why_local`: one sentence linking the activity and its text to the group's difficulty, in plain words.
+- Exactly 3 steps whose minutes add up to 10. The teacher reads each step at a glance while standing in front of \
+the group, so each step is ONE short sentence of at most 12 words (example letters or words in brackets do not \
+count), with simple everyday words: say what the teacher does and what the children do. Name one letter or word \
+plainly ("Point to s"); put a list of examples in brackets ("Show each card (क, म, स)"). In English (`en`) and in \
+the teacher's language (`local`; `teacher_language` names it: Hindi, Marathi, Kannada, Tamil or Bengali), in that \
+language's own script. Every `*_local` field (title, materials, steps, watch_for, why) is in that language.
+- Each step has an `icon` for what happens in it: listen (children listen), say (they repeat after the teacher), \
+show (the teacher shows cards), point, clap, write (on slates), read (the children read), find (they find a letter \
+or word), sort (they sort cards), ask (questions and answers, retelling), turns (children take turns alone or in \
+pairs), join (breaking words into parts and joining them).
+- Work on the group's mistakes: use the letters or words the children misread first, and choose and adapt the \
+candidate for the group's most common error patterns.
+- `why_en` / `why_local`: one short sentence (at most 20 words) naming the group's main mistake and how this \
+activity helps, in plain words, e.g. "Many children mix up look-alike letters; saying each card's sound helps."
+- `materials`: at most 3 short items. `watch_for`: one short sentence.
 - No children's names, no scores or labels for children, nothing that shames a child, nothing unsafe.
 """
 
@@ -474,6 +592,9 @@ activity is not).
 - fits_level: the children only read what the source activity's `reads` allows: single letters for "letters" \
 (never a word, a line or the rhyme; listening to the teacher say them is fine), single words for "words" (never a \
 line or the rhyme), the text for "text".
+- easy_to_follow: each step is one short, plain sentence a teacher can act on at a glance, with no jargon.
+- targets_gap: the plan works on the group's error patterns or misread letters or words (`group`); true when the \
+group has none recorded yet.
 - issues: short, specific problems (empty if none). Judge only; do not rewrite the activity.
 """
 
@@ -485,9 +606,12 @@ VALIDATION_SCHEMA = {
         "safe": {"type": "boolean"},
         "fits_10_minutes": {"type": "boolean"},
         "fits_level": {"type": "boolean"},
+        "easy_to_follow": {"type": "boolean"},
+        "targets_gap": {"type": "boolean"},
         "issues": {"type": "array", "items": {"type": "string"}},
     },
-    "required": ["faithful_to_source", "age_appropriate", "safe", "fits_10_minutes", "fits_level", "issues"],
+    "required": ["faithful_to_source", "age_appropriate", "safe", "fits_10_minutes", "fits_level", "easy_to_follow",
+                 "targets_gap", "issues"],
     "additionalProperties": False,
 }
 
@@ -503,8 +627,9 @@ def generation_schema(candidate_ids: list[str]) -> dict:
             "materials_en": texts, "materials_local": texts,
             "steps": {"type": "array", "items": {
                 "type": "object",
-                "properties": {"minutes": {"type": "integer"}, "en": text, "local": text},
-                "required": ["minutes", "en", "local"],
+                "properties": {"minutes": {"type": "integer"}, "icon": {"type": "string", "enum": list(STEP_ICONS)},
+                               "en": text, "local": text},
+                "required": ["minutes", "icon", "en", "local"],
                 "additionalProperties": False,
             }},
             "practice_words": texts,
@@ -553,7 +678,8 @@ async def call_generate(messages: list[dict], candidate_ids: list[str], on_usage
 
 
 async def call_validate(source: dict, plan: dict, ctx: dict, on_usage=None) -> dict:
-    payload = {"group": {k: ctx[k] for k in ("cohort", "language", "grade", "group_size")},
+    payload = {"group": {k: ctx[k] for k in ("cohort", "language", "grade", "group_size", "pattern_counts",
+                                             "misread_words") if k in ctx},
                "source_activity": source, "generated_plan": plan}
     try:
         resp = await _get_client().messages.create(
@@ -571,17 +697,20 @@ async def call_validate(source: dict, plan: dict, ctx: dict, on_usage=None) -> d
 
 
 def _passes(v: dict) -> bool:
-    return all(v.get(k) is True for k in ("faithful_to_source", "age_appropriate", "safe", "fits_10_minutes", "fits_level"))
+    return all(v.get(k) is True for k in ("faithful_to_source", "age_appropriate", "safe", "fits_10_minutes", "fits_level",
+                                          "easy_to_follow", "targets_gap"))
 
 
 def _bank_view(a: dict) -> dict:
     view = {k: a[k] for k in ("id", "title", "patterns", "minutes", "materials", "steps", "watch_for")} | {
         "source": source_of(a), "reads": a.get("reads", "text")}
-    t = a.get("text")
+    t = a.get("text") if a.get("reads") != "letters" else None
     if t:
         view["text"] = {k: t[k] for k in ("title", "author", "licence", "lines")} | {"questions": t.get("questions", [])}
     if a.get("material"):
         view["material"] = a["material"]["items"]
+        if a["material"].get("anchors"):
+            view["anchors"] = a["material"]["anchors"]
     return view
 
 
@@ -631,7 +760,9 @@ async def generate(ctx: dict, *, recent: dict | None = None, blocked: str | None
                 problems = verdict.get("issues") or ["rejected by the reviewer"]
         attempts.append({"problems": problems, "review": verdict})
         if not problems:
-            return {"source_activity_id": out["source_activity_id"], "plan": with_text(plan_from_claude(out, local), chosen),
+            plan = with_text(plan_from_claude(out, local), chosen)
+            plan["focus"] = focus_of(ctx, chosen, plan)
+            return {"source_activity_id": out["source_activity_id"], "plan": plan,
                     "validation": {"attempts": attempts}, "accepted": True, "generated_by": settings.claude_model}
         if problems == ["reviewer unavailable"]:
             break

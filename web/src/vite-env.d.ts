@@ -17,7 +17,7 @@ declare module 'virtual:activity-bank' {
     patterns?: string[]
     minutes?: number
     materials?: Record<string, string[]>
-    steps?: { minutes: number; [lang: string]: string | number }[]
+    steps?: { minutes: number; icon?: string; [lang: string]: string | number | undefined }[]
     watch_for?: ByLang
     source?: { ref: string; note: string } & Record<string, string>
   }[]

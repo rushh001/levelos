@@ -2,7 +2,9 @@
  * Every bank in content/items/ is included, with the language settings (tier, speed floors) from languages.json. */
 import activityBank from 'virtual:activity-bank'
 import languageConfig from '../../../content/languages.json'
+import letterWordsConfig from '../../../content/letter_words.json'
 import { clusters } from './graphemes'
+import { picturedWords } from './pictures'
 import type { ActivityMaterial, ActivityText, Bilingual, ItemLevel, ItemPublic } from './types'
 
 interface RawItem {
@@ -83,19 +85,8 @@ export function shelfMaterial(activityId: string, lang: string): ActivityMateria
   const a = ACTIVITIES.find((x) => x.id === activityId)
   const t = a?.uses_text ? textFor(lang, a.uses_text) : null
   if (!a || !t || (a.reads !== 'letters' && a.reads !== 'words')) return null
+  if (a.reads === 'letters') return letterCards(lang)
   const words = wordsOf(t).map((w) => (isAscii(w) ? w.toLowerCase() : w))
-  if (a.reads === 'letters') {
-    const counts = new Map<string, number>()
-    const anchors: Record<string, string> = {}
-    for (const w of words) {
-      const first = [...w]
-      const b = (NUKTA.has(first[1]) ? first[0] + first[1] : first[0]).toLowerCase()
-      counts.set(b, (counts.get(b) ?? 0) + 1)
-      if (!anchors[b] || (clusters(anchors[b]).length < 2 && clusters(w).length >= 2)) anchors[b] = w // "all" for a, not "a"
-    }
-    const items = [...counts.keys()].sort((x, y) => (counts.get(y) ?? 0) - (counts.get(x) ?? 0)).slice(0, 5)
-    return { kind: 'letters', items, anchors: Object.fromEntries(items.map((b) => [b, anchors[b]])) }
-  }
   const simple = (w: string) => (isAscii(w) ? w.length >= 2 && w.length <= 5 : clusters(w).length >= 2 && clusters(w).length <= 3)
   const own = t.words_to_find.map((w) => (isAscii(w) ? w.toLowerCase() : w))
   const items = Array.from(new Set([...own, ...words].filter((w) => simple(w) && words.includes(w)))).slice(0, 8)
@@ -127,6 +118,37 @@ export function rhymeFor(lang: string): Rhyme | null {
   return RHYMES[lang] ?? null
 }
 const BANKS: Record<string, Bank> = Object.fromEntries(Object.values(files).map((m) => [m.default.language, m.default]))
+
+/** The letter a word starts with, without its vowel sign (किसने → क); English in lower case (as the server). */
+export const baseLetter = (w: string) => {
+  const c = [...w]
+  return (NUKTA.has(c[1]) ? c[0] + c[1] : (c[0] ?? '')).toLowerCase()
+}
+
+/**
+ * Letter cards for a Letter group, as the server makes them (api/app/llm/activities.py, letter_cards): no poem, the
+ * language's ASER letters (a different five each `turn`), each with a short word for its sound: one the app has a
+ * picture for first, then a classic alphabet-chart word (content/letter_words.json), then one from the language's
+ * ASER word cards. The letters the children misread are known to the server.
+ */
+export function letterCards(lang: string, turn = 0): ActivityMaterial {
+  const pool = Array.from(new Set((BANKS[lang]?.items ?? []).filter((i) => i.level === 'letter').flatMap((i) => i.units ?? []).map(baseLetter)))
+  const k = pool.length ? (turn * 5) % pool.length : 0
+  const items = [...pool.slice(k), ...pool.slice(0, k)].slice(0, 5)
+  const short = (w: string) => clusters(w).length >= 2 && clusters(w).length <= 3
+  const lower = (w: string) => (isAscii(w) ? w.toLowerCase() : w)
+  const cards = (BANKS[lang]?.items ?? []).filter((i) => i.level === 'word').flatMap((i) => i.units ?? []).map(lower)
+  const chart = (letterWordsConfig as { words: Record<string, Record<string, string>> }).words[lang] ?? {}
+  const anchors: Record<string, string> = {}
+  for (const x of items) {
+    const pictured = picturedWords(lang)
+      .filter((w) => baseLetter(w) === x)
+      .sort((p, q) => Number(!short(p)) - Number(!short(q)) || clusters(p).length - clusters(q).length)
+    const w = pictured[0] ?? chart[x] ?? cards.find((c) => baseLetter(c) === x && short(c))
+    if (w) anchors[x] = w
+  }
+  return { kind: 'letters', items, anchors }
+}
 const LANGUAGES = languageConfig as unknown as Record<string, LanguageConfig>
 const ACTIVITIES = activityBank as unknown as BankActivity[]
 

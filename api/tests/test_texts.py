@@ -81,10 +81,10 @@ def test_another_activity_brings_another_method_and_another_text():
     # every rhyme read: the one read longest ago comes back
     read = ["en-rhyme-rain", "en-rhyme-humpty", "en-rhyme-wind", "en-rhyme-star"]
     assert act.pick_text("en", "rhyme", read)["id"] == "en-rhyme-star"
-    # letter cards: the letters the rhyme's words start with, the most frequent first, English in lower case
+    # letter cards (no poem): the ASER letters, English in lower case, each with a word for its sound
     humpty = next(t for t in texts("en") if t["id"] == "en-rhyme-humpty")
-    letters = act.letters_from(humpty)
-    assert "h" in letters["items"] and letters["anchors"]["h"] == "humpty"
+    letters = act.letter_cards("en")
+    assert letters["items"][:3] == ["s", "m", "t"] and letters["anchors"]["s"] == "sun"
     cards = act.localize(act.entry("rhyme-letter-cards"), "en", humpty, letters)
     assert ", ".join(letters["items"]) in cards["materials"]["en"][0]
 
@@ -118,12 +118,16 @@ def test_each_group_reads_only_what_its_level_allows():
         story = act.candidates("story", {}, k=10, language=lang)  # the Story group
         assert {a["id"] for a in story} >= {"read-and-answer", "story-echo-reading"}, lang
         assert all(a["text"]["kind"] == "story" for a in story if a["id"] != "classic-rhyme-reading"), lang
-    # the letters the children misread come first when the rhyme has them
-    hi = act.candidates("letter", {}, language="hi", misread=["क"])[0]
-    assert hi["material"]["items"][0] == "क" and hi["material"]["anchors"]["क"] == "को"
-    # without Claude the Letter group still gets its letters, not the rhyme
+    # Letter cards: the letters the children misread first, then the language's ASER letters, each with a word for
+    # its sound (one with a picture first); no poem for a group that cannot read letters
+    hi = act.candidates("letter", {}, language="hi", misread=["ग", "ब", "कि", "पानी"])[0]
+    assert hi["material"]["items"][:3] == ["ग", "ब", "क"] and hi["material"]["anchors"]["ग"] == "गाय"
     plan = act.plan_from_bank(hi, {"misread_words": []})
-    assert plan["practice_words"] == hi["material"]["items"] and plan["text"]["read_aloud"]
+    assert plan["practice_words"] == hi["material"]["items"] and "text" not in plan
+    assert not any(w in s[lang].lower() for s in plan["steps"] for lang in ("en", "hi")
+                   for w in ("rhyme", "poem", "कविता"))
+    assert "ग" not in act.candidates("letter", {}, language="ta", misread=["ग"])[0]["material"]["items"]  # other script
+    assert act.letter_cards("hi", turn=1)["items"] != act.letter_cards("hi")["items"]  # another activity, other letters
 
 
 def test_paragraph_and_story_groups_get_homework_not_single_words():
