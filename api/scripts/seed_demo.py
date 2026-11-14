@@ -162,7 +162,7 @@ def run_checkin(db, teacher, student, language: str, target: str, profile: str, 
     c = svc.start(db, teacher, student.id, language, None)
     c.started_at = utcnow() - timedelta(days=days_ago, hours=rng.randint(0, 4))
     while True:
-        outcomes = [s.outcome() for s in svc.scores(c)]
+        outcomes = svc.outcomes(c)
         level = next_item_level(outcomes, c.start_level)
         if level is None:
             break

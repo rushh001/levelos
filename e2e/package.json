@@ -1,0 +1,14 @@
+{
+  "name": "levelos-e2e",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Offline and low-connectivity tests: drive installed Chrome through the DevTools protocol against a local production build",
+  "scripts": {
+    "test": "playwright test",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1",
+    "@types/node": "^20.17.0"
+  }
+}
