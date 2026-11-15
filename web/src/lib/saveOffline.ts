@@ -1,9 +1,9 @@
 /**
- * Everything a class needs with no network, saved on the phone in the background: the recorded activity lines for its
- * languages (first: an activity made on the phone is read aloud from them, and most phones have no voice of their own
- * for Kannada, Tamil or Bengali), the class page in each reading test, every child's page (so any child can be
- * checked offline; it lists each of their checks in full, so any result opens too), each group's activities, and
- * today's activity of each group read aloud by the server's voice. A class is saved when "My classes" or its own page
+ * Everything a class needs with no network, saved on the phone in the background: the class page in each reading
+ * test and every child's page (so any child can be checked offline; it lists each of their checks in full, so any
+ * result opens too), then at once the recorded activity lines for its languages (an activity made on the phone is read
+ * aloud from them, and most phones have no voice of their own for Kannada, Tamil or Bengali), while each group's
+ * activities and today's activity of each group read aloud by the server's voice follow. A class is saved when "My classes" or its own page
  * opens online, at most every 10 minutes (on the free API server, refetching every page on every visit adds up);
  * when it was last saved is kept on the phone, so reopening the app does not save it all again.
  */
@@ -37,20 +37,23 @@ async function inTurns(tasks: (() => Promise<unknown>)[]) {
   await Promise.all(Array.from({ length: AT_ONCE }, worker))
 }
 
-async function saveClass(classId: string, data: Dashboard) {
+/** `pagesSaved`: called once the class's pages are on the phone, before its activities and their recordings (which
+ * take a while), so what comes next (the recorded activity lines) can start then. */
+async function saveClass(classId: string, data: Dashboard, pagesSaved: () => void = () => undefined) {
   if (busy.has(classId) || !navigator.onLine) return
   busy.add(classId) // at once: two calls in the same moment (a page and its refresh) would both save otherwise
   try {
-    await saveClassOnce(classId, data)
+    await saveClassOnce(classId, data, pagesSaved)
   } finally {
     busy.delete(classId)
   }
 }
 
-async function saveClassOnce(classId: string, data: Dashboard) {
+async function saveClassOnce(classId: string, data: Dashboard, pagesSaved: () => void) {
   // Changes still waiting to be sent are only in the phone's copies: the server's pages would wipe them.
   if (await outboxCount()) return
   if (await savedLately(classId)) {
+    pagesSaved() // on the phone from a moment ago
     // Saved a moment ago: only the class page in its other reading tests follows (a change made since, a check or a
     // group, shows there too), one request each.
     await Promise.all(data.class.languages.filter((l) => l !== data.language).map((l) => Api.dashboard(classId, l).catch(() => undefined)))
@@ -62,16 +65,15 @@ async function saveClassOnce(classId: string, data: Dashboard) {
   // together, before the signal goes, instead of one child at a time.
   const packed = await savePack(classId)
   if (packed === 'later') return // a change made meanwhile: saved once it is sent
-  await inTurns([
-    ...(packed === 'saved'
-      ? []
-      : [
-          // a server without the pack: the class page as it asks for itself (once per reading test), each child
-          ...data.class.languages.map((l) => () => Api.dashboard(classId, l)),
-          ...children.map((s) => () => Api.student(s.id)),
-        ]),
-    ...data.class.languages.flatMap((l) => COHORTS.map((c) => async () => groups.push([l, c, await Api.activities(classId, c, l)]))),
-  ])
+  if (packed === 'none') {
+    // A server without the pack: the class page as it asks for itself (once per reading test), each child.
+    await inTurns([
+      ...data.class.languages.map((l) => () => Api.dashboard(classId, l)),
+      ...children.map((s) => () => Api.student(s.id)),
+    ])
+  }
+  pagesSaved() // the pages are on the phone: the recorded lines need not wait for the groups' activities below
+  await inTurns(data.class.languages.flatMap((l) => COHORTS.map((c) => async () => groups.push([l, c, await Api.activities(classId, c, l)]))))
   await db.cache.put({ key: key(classId), value: Date.now(), updatedAt: Date.now() }).catch(() => undefined)
   await keepTodaysRecordings(groups)
 }
@@ -135,14 +137,27 @@ async function keepTodaysRecordings(groups: [string, Cohort, Activity[]][]) {
   }
 }
 
-/** A class page: that class saved for offline in the background, its recorded activity lines first. */
+/** Calls `start` once, however many times the returned function is called. */
+function once(start: () => void): () => void {
+  let done = false
+  return () => {
+    if (done) return
+    done = true
+    start()
+  }
+}
+
+/** A class page: that class saved for offline in the background. */
 export function useSaveForOffline(classId: string, data: Dashboard | null | undefined) {
   useEffect(() => {
     if (!data || !navigator.onLine) return
-    // The pages first (without them a child cannot be opened offline at all), then the recorded activity lines.
-    void saveClass(classId, data)
+    // The pages first (without them a child cannot be opened offline at all), then at once the recorded activity
+    // lines, while the groups' activities and their read-aloud recordings are still being saved (those take a while):
+    // a teacher who goes offline soon after opening the class can still hear an activity made on the phone.
+    const lines = once(() => void saveRecordings(data.class.languages))
+    void saveClass(classId, data, lines)
       .catch(() => undefined)
-      .finally(() => void saveRecordings(data.class.languages))
+      .finally(lines) // the pages could not be saved now (changes waiting, a save running): the lines all the same
   }, [classId, data])
 }
 
@@ -152,14 +167,20 @@ export function useSaveAllForOffline(classes: ClassSummary[] | null | undefined)
   useEffect(() => {
     if (!classes?.length || !navigator.onLine) return
     const mine = [...classes].sort((x, y) => y.students_count - x.students_count).slice(0, MAX_CLASSES)
+    // The recorded lines once the first class's pages are on the phone, not after every class's (twelve classes take
+    // minutes, and a phone-made activity needs the lines to be heard offline in Kannada, Tamil or Bengali).
+    const lines = once(() => void saveRecordings(mine.flatMap((c) => c.languages)))
     void (async () => {
       for (const c of mine) {
         if (!navigator.onLine) break
-        if (await savedLately(c.id)) continue
+        if (await savedLately(c.id)) {
+          lines() // its pages are on the phone already
+          continue
+        }
         const data = await Api.dashboard(c.id).catch(() => null)
-        if (data) await saveClass(c.id, data).catch(() => undefined)
+        if (data) await saveClass(c.id, data, lines).catch(() => undefined)
       }
-      await saveRecordings(mine.flatMap((c) => c.languages)) // after the pages, as on a class page
+      lines() // none saved just now (a save already running, changes waiting): the lines all the same
     })()
   }, [classes])
 }
