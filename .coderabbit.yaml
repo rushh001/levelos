@@ -1,0 +1,52 @@
+# CodeRabbit reviews every pull request to main (free for public repositories).
+# Reference: https://docs.coderabbit.ai/reference/configuration
+language: en-US
+tone_instructions: "Be brief and concrete. Say what breaks, for whom (a teacher, a child, offline or online), and the fix."
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "!**/package-lock.json"
+    - "!eval/vosk/*.json"
+    - "!eval/results/**"
+  path_instructions:
+    - path: "web/src/**"
+      instructions: |
+        LevelOS is an offline-first PWA used by teachers on cheap phones with weak or no network.
+        - Nothing a teacher does may wait on the network: reads fall back to the phone's copy (IndexedDB),
+          writes go to the outbox (web/src/lib/outbox.ts) and are sent later, once.
+        - Every user-facing string goes through i18next; flag any hard-coded English text.
+        - A change made offline must stay visible until the server has it (no server copy may overwrite it).
+    - path: "web/src/locales/*.json"
+      instructions: |
+        The six locales (en, hi, mr, kn, ta, bn) must have the same keys, the same {{placeholders}}, and no
+        English left in the other languages. Plain words a primary-school teacher understands.
+    - path: "{api/app/levels/aser_rules.py,web/src/lib/aser.ts,web/src/lib/rescore.ts}"
+      instructions: |
+        The ASER ladder runs on the phone (aser.ts, rescore.ts) and is replayed on the server (aser_rules.py)
+        when a check is sent: any rule change must be made on both sides identically, or synced checks are
+        refused or land on a different level.
+    - path: "api/app/**"
+      instructions: |
+        FastAPI + SQLAlchemy. Check ownership on every route (a teacher sees only their classes), children's
+        privacy (recordings kept only as long as configured, no names sent to AI services), and AI spending
+        (speech and Claude calls cost money; nothing should call them twice for the same recording).
+    - path: "content/**"
+      instructions: |
+        Reading cards, texts and alphabet-chart words for children aged 6-10, in six languages; much of it is
+        AI-drafted and awaits native-speaker review. Flag words that are wrong, not child-appropriate, or not
+        everyday words in that language.
+    - path: "e2e/**"
+      instructions: |
+        Playwright tests of bad networks and an acceptance run with a synthetic voice and the real AI.
+        Tests must be deterministic (NO_AI=1 in the e2e suite) and never touch the hosted demo.
+
+chat:
+  auto_reply: true
