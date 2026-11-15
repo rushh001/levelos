@@ -128,7 +128,7 @@ export async function queuedChecks(page: Page): Promise<{ localId: string; statu
 
 /** The ⏳ count in the header (checks and changes waiting to be sent), 0 when there is none. */
 export async function pendingCount(page: Page): Promise<number> {
-  const badge = page.locator('header span', { hasText: '⏳' })
+  const badge = page.locator('header').locator('span, button', { hasText: '⏳' }) // a button that lists what waits
   if (!(await badge.count())) return 0
   return Number((await badge.first().innerText()).replace(/\D/g, '')) || 0
 }

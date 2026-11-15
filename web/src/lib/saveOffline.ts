@@ -95,6 +95,13 @@ async function savePack(classId: string): Promise<'saved' | 'none' | 'later'> {
   return 'saved'
 }
 
+/** The class's pages saved again now, in one request (a child was just added: their page is on the phone at once,
+ * not at the next save). Does nothing offline or while changes wait to be sent (the phone's copies have them). */
+export async function saveClassPagesNow(classId: string): Promise<void> {
+  if (!navigator.onLine || classId.startsWith('local-')) return
+  await savePack(classId).catch(() => undefined)
+}
+
 /** Today's activity of each group, read aloud by the server's voice and kept on the phone, so the activity the teacher
  * sees offline can be heard too. In the language of its reading test (the activity page is shown in it); one at a
  * time, as the voice service allows few requests a minute; an activity read from the recorded lines needs none. */

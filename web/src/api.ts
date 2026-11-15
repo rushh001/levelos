@@ -177,6 +177,18 @@ export function setToken(token: string | null) {
 }
 
 export async function api<T>(givenPath: string, init: RequestInit = {}, opts: { timeoutMs?: number } = {}): Promise<T> {
+  const value = await read<T>(givenPath, init, opts)
+  if ((init.method ?? 'GET').toUpperCase() !== 'GET') return value
+  // Checks finished on the phone count on a child's page and the class page at once, whether the page came from the
+  // server or the phone, until the server's own copy has them (lib/fromPhone.ts).
+  const { overlay } = await import('./lib/fromPhone')
+  return overlay(await realPath(givenPath), value).catch((e: unknown) => {
+    console.error('overlay failed', e)
+    return value
+  })
+}
+
+async function read<T>(givenPath: string, init: RequestInit, opts: { timeoutMs?: number }): Promise<T> {
   // A class or child made offline keeps working under its temporary ID once the server has given it a real one.
   const path = await realPath(givenPath)
   const headers = new Headers(init.headers)

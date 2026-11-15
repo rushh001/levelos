@@ -10,6 +10,7 @@ import { mine } from '../lib/outbox'
 import type { Cohort, ItemPublic, Level, StudentSummary } from '../lib/types'
 import { dateLocale, useUiLang } from '../lib/uiLang'
 import { Mascot } from './Mascot'
+import { PendingBadge } from './Pending'
 
 /** Whether the server can be reached (not just whether the phone is on a network): see api.ts. */
 export function useOnline() {
@@ -21,8 +22,8 @@ export function useNetState(): NetState {
   return useSyncExternalStore(watchReachable, netState)
 }
 
-/** A short line at the bottom of the screen when the network goes, turns weak or comes back, and when what was kept
- * on the phone has reached the server (open pages then refresh by themselves: no reload needed). */
+/** A short line at the top of the screen (the buttons are at the bottom) when the network goes, turns weak or comes
+ * back, and when what was kept on the phone has reached the server (open pages then refresh by themselves). */
 export function NetToast() {
   const { t } = useTranslation()
   const net = useNetState()
@@ -51,7 +52,7 @@ export function NetToast() {
     <div
       role="status"
       onClick={() => setMsg(null)}
-      className={`fixed inset-x-0 bottom-4 z-50 mx-auto w-fit max-w-[90%] rounded-2xl px-4 py-2 text-center text-sm font-medium shadow-lg rise ${
+      className={`fixed inset-x-0 top-3 z-50 mx-auto w-fit max-w-[90%] rounded-2xl px-4 py-2 text-center text-sm font-medium shadow-lg rise ${
         msg.good ? 'bg-leaf-deep text-white' : 'bg-sun-soft text-sun-deep'
       }`}
     >
@@ -114,14 +115,7 @@ export function Page({
           <h1 className="truncate font-display text-xl leading-tight text-brand-deep">{title ?? t('appName')}</h1>
           {tag && <div className="truncate text-xs font-medium text-mute">{tag}</div>}
         </div>
-        {pending > 0 && (
-          <span
-            className="rounded-full bg-sun-soft px-2 py-0.5 text-xs font-semibold text-sun-deep"
-            title={t('pendingUploads', { count: pending })}
-          >
-            ⏳ {pending}
-          </span>
-        )}
+        {pending > 0 && <PendingBadge count={pending} online={online} />}
         {net === 'online' && (
           <span className="flex items-center px-2 py-0.5" title={t('online')}>
             <span className="h-2 w-2 rounded-full bg-leaf" aria-hidden />

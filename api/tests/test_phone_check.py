@@ -150,3 +150,5 @@ def test_the_offline_pack_has_every_page_of_the_class(client, script):
     assert pack["students"][st["id"]] == client.get(f"/api/students/{st['id']}", headers=h).json()
     other = login(client, "ravi", "9999")
     assert client.get(f"/api/classes/{cls['id']}/offline", headers=other).status_code == 404
+    zipped = client.get(f"/api/classes/{cls['id']}/offline", headers={**h, "Accept-Encoding": "gzip"})
+    assert zipped.headers.get("content-encoding") == "gzip"  # a slow network carries a tenth of it

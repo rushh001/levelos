@@ -339,3 +339,99 @@ test('12. flaky connection: a child added while requests drop stays on the class
   await expect(page.getByRole('link', { name: /Zoya/ })).toHaveCount(1)
   await snap(page, 'after the connection recovered')
 })
+
+test('13. after a check with no network, the class page shows the child in a group at once, and ⏳ lists it', async ({ page, context }) => {
+  await loginDemo(page)
+  await waitForServiceWorker(page)
+  await waitForWarmUp(page)
+  const id = await classId(page)
+  // A child of their own, not checked yet (other tests check the demo children in the same database).
+  await page.getByRole('button', { name: /Add child/ }).click()
+  await page.getByPlaceholder("Child's first name").fill('Ishaan')
+  await page.getByRole('button', { name: 'Add', exact: true }).click()
+  // The "Not checked yet" row (its heading stays, with a dash when nobody is left).
+  const notChecked = page.getByRole('heading', { name: 'Not checked yet' }).locator('xpath=following-sibling::div[1]')
+  await expect(notChecked.getByRole('link', { name: /Ishaan/ })).toHaveCount(1)
+  // A child added online is on the phone for use with no network straight away, not at the next save.
+  const href = (await notChecked.getByRole('link', { name: /Ishaan/ }).getAttribute('href')) ?? ''
+  await expect.poll(async () => (await cachedKeys(page)).includes(href.replace('/student/', '/students/')), { timeout: 15_000 }).toBe(true)
+
+  await goOffline(context)
+  await openChild(page, 'Ishaan')
+  await startCheck(page)
+  await runCheck(page, 0)
+  await expect(page.getByText('Level from your marks')).toBeVisible()
+  await page.goto(`/class/${id}`)
+  await expect(page.getByRole('heading', { name: 'Reading groups' })).toBeVisible()
+  // Placed in a group straight away, before anything is sent: no longer "not checked yet".
+  await expect(notChecked.getByRole('link', { name: /Ishaan/ })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /Ishaan/ }).first()).toBeVisible()
+  await snap(page, 'class page offline after the check')
+
+  await page.getByRole('button', { name: /waiting to be sent/ }).click()
+  const sheet = page.getByRole('dialog', { name: 'Waiting to be sent' })
+  await expect(sheet.getByText('Reading check: Ishaan')).toBeVisible()
+  await snap(page, 'what is waiting')
+  await sheet.getByRole('button', { name: 'Close' }).click()
+
+  await goOnline(context)
+  await expect.poll(() => pendingCount(page), { timeout: 90_000 }).toBe(0)
+  await page.reload()
+  await expect(notChecked.getByRole('link', { name: /Ishaan/ })).toHaveCount(0)
+})
+
+test('14. the activity made with no network works on the letters the children just misread', async ({ page, context }) => {
+  await loginDemo(page)
+  await waitForServiceWorker(page)
+  await waitForWarmUp(page)
+  const id = await classId(page)
+
+  await goOffline(context)
+  await openChild(page, 'Aarav') // Letter group
+  await startCheck(page)
+  const first = (await cardText(page)).split(' ').slice(0, 3)
+  await runCheck(page, 3, 1) // the first three letters marked wrong
+  await expect(page.getByText('Practise next')).toBeVisible()
+  note('letters marked wrong', first.join(' '))
+
+  await page.goto(`/class/${id}/activity/letter?lang=en`)
+  await expect(page.getByText('Made on this phone (offline)')).toBeVisible({ timeout: 30_000 })
+  const misread = page.getByText(/Misread in their reading check/).first()
+  await expect(misread).toBeVisible()
+  // The misread letters are in "Made for this group" (folded to one line until opened).
+  for (const letter of first) await expect(page.locator('span.bg-coral-soft', { hasText: new RegExp(`^${letter}$`) }).first()).toBeAttached()
+  await snap(page, 'activity made offline on the misread letters')
+})
+
+test('15. the class page says when it is ready for no network', async ({ page, context }) => {
+  await loginDemo(page)
+  await waitForServiceWorker(page)
+  await expect(page.getByText(/Ready offline · saved/)).toBeVisible({ timeout: 60_000 })
+  await goOffline(context)
+  await page.reload()
+  await expect(page.getByText(/Ready offline · saved/)).toBeVisible()
+  await page.goto('/classes')
+  await expect(page.getByText('✓ offline').first()).toBeVisible()
+  await snap(page, 'my classes, ready offline')
+})
+
+test('16. a word tapped while the child reads stays marked after the recording', async ({ page, context }) => {
+  await loginDemo(page)
+  await waitForServiceWorker(page)
+  await waitForWarmUp(page)
+  await goOffline(context)
+  await openChild(page, 'Meena')
+  await startCheck(page)
+  await page.getByRole('button', { name: 'Start recording' }).click()
+  const live = page.locator('section.card').filter({ hasText: 'Listen and tap any word' })
+  await expect(live).toBeVisible()
+  await live.locator('button.rounded-lg').first().click()
+  await page.waitForTimeout(2000)
+  await page.getByRole('button', { name: 'Stop', exact: true }).click()
+  const save = page.getByRole('button', { name: 'Save marks' })
+  await expect(save).toBeVisible({ timeout: 30_000 })
+  const words = page.locator('section.card').filter({ has: save }).locator('button.rounded-lg')
+  await expect(words.first()).toHaveAttribute('aria-pressed', 'true')
+  await expect(words.nth(1)).toHaveAttribute('aria-pressed', 'false')
+  await snap(page, 'marked while reading')
+})

@@ -38,6 +38,8 @@ Every session is recorded to `e2e/lab-sessions/<date-time>/` (git-ignored): `eve
 | Weak signal | API requests held and never answered |
 | Slow 3G | DevTools `Network.emulateNetworkConditions` (2 s latency, 400 kbps) |
 | Flaky connection | the new child's request dropped (`connectionreset`) while pages still load (test 12) |
+
+Tests 13–16 cover working offline: a check moves the child into a group on the class page at once and ⏳ lists it; the activity made on the phone stars the letters just misread; the class page says it is ready offline; a word tapped while the child reads stays marked.
 | Microphone | Chrome's fake device playing `.fixtures/reading.wav` (made by `global-setup.ts`) |
 
 `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1` (set in `playwright.config.ts`) is required: without it, offline mode and blocking do not reach requests the service worker makes, and "offline" tests would still talk to the server. `tests/zz-harness.spec.ts` checks this.

@@ -5,7 +5,8 @@ import { Api } from '../api'
 import { Button, COHORT_STYLE, ChildChip, CohortIcon, ErrorBox, Page, ReadingTestSwitch, Spinner } from '../components/ui'
 import { nameIn } from '../lib/names'
 import { addChild } from '../lib/outbox'
-import { useSaveForOffline } from '../lib/saveOffline'
+import { ReadyLine } from '../components/OfflineReady'
+import { saveClassPagesNow, useSaveForOffline } from '../lib/saveOffline'
 import { patternKey, useReadingLang } from '../lib/readingLang'
 import { useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
@@ -41,6 +42,7 @@ export default function ClassDashboard() {
       setOtherName('')
       setAdding(false)
       await reload()
+      void saveClassPagesNow(id) // the new child opens with no network too, right away
     } catch (err) {
       setAddError(err as Error)
     } finally {
@@ -79,7 +81,8 @@ export default function ClassDashboard() {
               <span className="font-normal text-mute"> · {t(`lang.${data.language}`, { defaultValue: data.language })}</span>
             )}
           </h2>
-          <p className="mb-3 text-xs text-mute">{t('dashboard.groupsHint')}</p>
+          <p className="mb-1 text-xs text-mute">{t('dashboard.groupsHint')}</p>
+          <ReadyLine classId={id} />
           <div className="grid gap-3 md:grid-cols-3 stagger">
             {data.cohorts.map((c) => (
               <section key={c.cohort} className={`rounded-3xl border-2 p-3 shadow-card ${COHORT_STYLE[c.cohort]}`}>

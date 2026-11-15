@@ -1,23 +1,17 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { itemTokens } from '../lib/content'
 import type { ItemPublic } from '../lib/types'
 import { Button } from './ui'
 
-/** Same split as the server (punctuation dropped, letters/marks/digits kept) so tap-marks line up with words. */
-export function tokens(text: string): string[] {
-  return text.normalize('NFC').replace(/[^\p{L}\p{M}\p{N}'’]+/gu, ' ').split(/\s+/).filter(Boolean)
-}
-
-export function itemTokens(item: ItemPublic): string[] {
-  return item.units ? item.units.flatMap(tokens) : tokens((item.sentences ?? []).join(' '))
-}
 
 /**
  * The teacher marks every letter or word the child read wrongly. When the AI has listened to the recording first,
  * its marks are filled in (`initialWrong`) and the words it is unsure of carry a dot (`unsure`): the teacher checks,
  * changes any, and saves. Without the AI (no network, or it was too slow), the teacher marks from scratch.
  * To show the AI's marks after the teacher has opened the card, the parent remounts this with a new `key`; it
- * does that only while the teacher has not tapped anything (`onTouch`).
+ * does that only while the teacher has not tapped anything (`onTouch`). While the child reads (`actions` false), it
+ * has no Save or Cancel: the taps go to `onChange` and carry over to the marking that follows the recording.
  */
 export function TapToMark({
   item,
@@ -28,6 +22,8 @@ export function TapToMark({
   unsure,
   onTouch,
   note,
+  onChange,
+  actions = true,
 }: {
   item: ItemPublic
   onSave: (marks: boolean[]) => void
@@ -37,10 +33,15 @@ export function TapToMark({
   unsure?: ReadonlySet<number>
   onTouch?: () => void
   note?: ReactNode
+  onChange?: (wrong: ReadonlySet<number>) => void
+  actions?: boolean
 }) {
   const { t } = useTranslation()
   const words = useMemo(() => itemTokens(item), [item])
   const [wrong, setWrong] = useState<Set<number>>(() => new Set(initialWrong ?? []))
+  const report = useRef(onChange)
+  report.current = onChange
+  useEffect(() => report.current?.(wrong), [wrong])
   const toggle = (i: number) => {
     onTouch?.()
     setWrong((prev) => {
@@ -73,14 +74,16 @@ export function TapToMark({
           </button>
         ))}
       </div>
-      <div className="flex gap-2">
-        <Button onClick={() => onSave(words.map((_, i) => !wrong.has(i)))} disabled={busy}>
-          {t('checkin.saveMarks')}
-        </Button>
-        <Button kind="secondary" onClick={onCancel}>
-          {t('cancel')}
-        </Button>
-      </div>
+      {actions && (
+        <div className="flex gap-2">
+          <Button onClick={() => onSave(words.map((_, i) => !wrong.has(i)))} disabled={busy}>
+            {t('checkin.saveMarks')}
+          </Button>
+          <Button kind="secondary" onClick={onCancel}>
+            {t('cancel')}
+          </Button>
+        </div>
+      )}
     </section>
   )
 }

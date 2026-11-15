@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { netState, probeNetwork, watchReachable } from './api'
 import { NetToast, Page, Spinner } from './components/ui'
 import { db } from './db'
+import './lib/install' // listens for Chrome's "add to home screen" offer from the start
 import { mine, outboxCount } from './lib/outbox'
 import { AuthProvider, useAuth } from './lib/auth'
 import { syncAll } from './lib/offline'

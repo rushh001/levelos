@@ -7,6 +7,7 @@ import { Button, ErrorBox, Page, Spinner } from '../components/ui'
 import { bankLanguages, isBeta } from '../lib/content'
 import { nameIn } from '../lib/names'
 import { createClass, deleteClass } from '../lib/outbox'
+import { InstallCard, ReadyTag } from '../components/OfflineReady'
 import { useSaveAllForOffline } from '../lib/saveOffline'
 import { useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
@@ -64,6 +65,7 @@ export default function Classes({ list }: { list?: boolean }) {
       <div className="mb-3">
         <LangPicker withTest />
       </div>
+      <InstallCard />
       <ErrorBox error={error} onRetry={reload} />
       <ErrorBox error={deleteError} />
       {data?.length === 0 && <p className="text-mute">{t('classes.empty')}</p>}
@@ -80,6 +82,7 @@ export default function Classes({ list }: { list?: boolean }) {
                   <span className="block text-sm text-mute">
                     {t('classes.students', { count: c.students_count })} · {t(`lang.${c.language}`, { defaultValue: c.language })}
                     {isBeta(c.language) ? ` (${t('classes.beta')})` : ''}
+                    <ReadyTag classId={c.id} />
                   </span>
                 </span>
                 <span className="text-mute/60">›</span>

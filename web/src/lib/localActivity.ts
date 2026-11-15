@@ -11,7 +11,7 @@ import bank, { homework, sources } from 'virtual:activity-bank'
 import { db } from '../db'
 import { aliases } from './idmap'
 import { UI_LANGS } from '../i18n'
-import { isAscii, isLatinScript, letterCards, textFor as bundledText, textsFor, wordsOf, type BundledText } from './content'
+import { baseLetter, isAscii, isLatinScript, letterCards, textFor as bundledText, textsFor, wordsOf, type BundledText } from './content'
 import { clusters } from './graphemes'
 import type { Activity, ActivityFocus, ActivityMaterial, ActivityPlan, Cohort } from './types'
 
@@ -32,20 +32,23 @@ const tamilFragment = (w: string) => {
 const simpleWord = (w: string) =>
   isAscii(w) ? w.length >= 2 && w.length <= 5 && /^[a-z]+$/i.test(w) : clusters(w).length >= 2 && clusters(w).length <= 3 && !tamilFragment(w)
 
-/** Words for a Word group: the rhyme's own words to find first, then its other short words, simple ones first. */
-function wordsFrom(t: BundledText): ActivityMaterial {
+const lower = (w: string) => (isAscii(w) ? w.toLowerCase() : w)
+
+/** Words for a Word group: any word of the rhyme the children misread first (`prefer`), then the rhyme's own words to
+ * find, then its other short words, simple ones first. */
+function wordsFrom(t: BundledText, prefer: readonly string[] = []): ActivityMaterial {
   const tokens = wordsOf(t).map((w) => (isAscii(w) && w !== 'I' ? w.toLowerCase() : w))
   const inner = (w: string) => [...w.slice(0, -1)].some((c) => VIRAMA.has(c))
-  const own = t.words_to_find.map((w) => (isAscii(w) ? w.toLowerCase() : w)).filter((w) => tokens.includes(w))
+  const own = [...prefer.map(lower), ...t.words_to_find.map(lower)].filter((w) => tokens.includes(w))
   const plain = tokens.filter((w) => simpleWord(w) && !inner(w))
   const items: string[] = []
   for (const w of [...own, ...plain, ...tokens]) if (simpleWord(w) && !items.includes(w)) items.push(w)
   return { kind: 'words', items: items.slice(0, 8) }
 }
 
-function materialFor(a: BankEntry, t: BundledText): ActivityMaterial | null {
+function materialFor(a: BankEntry, t: BundledText, prefer: readonly string[] = []): ActivityMaterial | null {
   if (a.reads === 'words') {
-    const m = wordsFrom(t)
+    const m = wordsFrom(t, prefer)
     return m.items.length >= 4 ? m : null
   }
   return null
@@ -59,17 +62,24 @@ function pickText(lang: string, kind: string, used: string[], fits?: (t: Bundled
   return pool.reduce((a, b) => (used.indexOf(a.id) >= used.indexOf(b.id) ? a : b))
 }
 
-function textFor(a: BankEntry, lang: string, cohort: Cohort, used: string[], turn: number): [BundledText | null, ActivityMaterial | null] {
+function textFor(
+  a: BankEntry,
+  lang: string,
+  cohort: Cohort,
+  used: string[],
+  turn: number,
+  misread: readonly string[],
+): [BundledText | null, ActivityMaterial | null] {
   const kind = a.uses_text as string
   if (a.reads === 'letters') {
     // Letter cards with picture words, no poem; the text only keeps the activity on offer (as on the server).
-    const cards = letterCards(lang, turn)
+    const cards = letterCards(lang, turn, misread)
     return [pickText(lang, kind, used), cards.items.length >= 3 ? cards : null]
   }
   if (a.reads === 'words') {
     for (const short of [true, false]) {
-      const t = pickText(lang, kind, used, (x) => (!short || isShort(x)) && !!materialFor(a, x))
-      if (t) return [t, materialFor(a, t)]
+      const t = pickText(lang, kind, used, (x) => (!short || isShort(x)) && !!materialFor(a, x, misread))
+      if (t) return [t, materialFor(a, t, misread)]
     }
     return [null, null]
   }
@@ -135,22 +145,36 @@ function recentOf(list: Activity[]) {
   return { activities: list.map((x) => x.source_activity_id), texts: list.map((x) => x.plan.text?.id).filter((x): x is string => !!x) }
 }
 
-/** The group as the phone's copy of the class page knows it: how many children, and their mistakes per pattern. */
+/** The group as the phone knows it: how many children, their mistakes per pattern (from the class page), and the
+ * letters and words they misread in their latest checks, most common first (lib/fromPhone.ts groupMisread). */
 export interface GroupInfo {
   children: number
   pattern_counts: Record<string, number>
+  misread?: string[]
 }
 
-/** What the activity is for (as the server's focus_of): the group's most common mistakes and whether it works on them.
- * The letters or words the children misread are known only to the server. */
-function focusOf(group: GroupInfo | undefined, a: BankEntry): ActivityFocus | null {
+/** What the activity is for (as the server's focus_of): the group's most common mistakes, whether it works on them,
+ * and the letters or words it uses that the children misread (starred on the cards). */
+function focusOf(group: GroupInfo | undefined, a: BankEntry, p: ActivityPlan): ActivityFocus | null {
   if (!group) return null
   const ranked = Object.entries(group.pattern_counts)
     .filter(([, n]) => n > 0)
     .sort((x, y) => y[1] - x[1])
     .slice(0, 3)
   const works = new Set(a.patterns ?? [])
-  return { children: group.children, patterns: ranked.map(([pattern, children]) => ({ pattern, children, targeted: works.has(pattern) })), misread: [] }
+  const mis = group.misread ?? []
+  let used: string[] = []
+  if (p.material?.kind === 'letters') {
+    const letters = new Set(mis.filter((w) => clusters(w).length === 1).map(baseLetter))
+    used = p.material.items.filter((x) => letters.has(x))
+  } else if (p.material) {
+    const words = new Set(mis.map(lower))
+    used = p.material.items.filter((x) => words.has(x))
+  } else if (p.text) {
+    const have = new Set(p.text.lines.join(' ').split(/[^\p{L}\p{M}']+/u).filter(Boolean).map(lower))
+    used = mis.filter((w) => have.has(lower(w))).slice(0, 6)
+  }
+  return { children: group.children, patterns: ranked.map(([pattern, children]) => ({ pattern, children, targeted: works.has(pattern) })), misread: used }
 }
 
 /** A 10-minute activity for the group, made on the phone: the book-based activity for its level that works on most
@@ -160,7 +184,7 @@ export function makeLocalActivity(cohort: Cohort, lang: string, earlier: Activit
   const recent = recentOf(earlier)
   const script = isLatinScript(lang) ? 'latin' : 'indic'
   const usable = bank.filter((a) => a.uses_text && a.cohorts.includes(cohort) && (a.script ?? script) === script && (a.readers ?? [cohort]).includes(cohort))
-  const picked = usable.map((a) => [a, ...textFor(a, lang, cohort, recent.texts, earlier.length)] as const).filter(([x, t, m]) => t && (x.reads !== 'letters' || m))
+  const picked = usable.map((a) => [a, ...textFor(a, lang, cohort, recent.texts, earlier.length, group?.misread ?? [])] as const).filter(([x, t, m]) => t && (x.reads !== 'letters' || m))
   const pool = picked.length > 2 ? picked.filter(([a]) => a.id !== recent.activities[0]) : picked
   const counts = group?.pattern_counts ?? {}
   const overlap = (a: BankEntry) => (a.patterns ?? []).reduce((n, p) => n + (counts[p] ?? 0), 0)
@@ -169,7 +193,7 @@ export function makeLocalActivity(cohort: Cohort, lang: string, earlier: Activit
   if (!chosen) return null
   const [a, t, m] = chosen
   const made = plan(a, t as BundledText, m)
-  made.focus = focusOf(group, a)
+  made.focus = focusOf(group, a, made)
   return {
     id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     cohort,

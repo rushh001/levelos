@@ -16,6 +16,7 @@ import { db } from '../db'
 import { itemPassed, outcomeFromMarks, placedLevel } from '../lib/aser'
 import { type ClipCheck, checkClip } from '../lib/audioCheck'
 import { getItem } from '../lib/content'
+import { misreadOf } from '../lib/fromPhone'
 import { abandonOffline, addItem, addMeaning, addSkip, finishOffline, nextItem, outcomes, retryOffline, syncAll } from '../lib/offline'
 import { useUiFollows } from '../lib/readingLang'
 import type { Level } from '../lib/types'
@@ -52,6 +53,42 @@ const canAiMark = (): Promise<boolean | null> =>
     },
   ))
 
+const MARK_HELP_KEY = 'levelos.markHelpSeen'
+
+/** What counts as a mistake, as an ASER assessor marks it: shown until the teacher says they have it. */
+function MarkHelp() {
+  const { t } = useTranslation()
+  const [seen, setSeen] = useState(() => {
+    try {
+      return localStorage.getItem(MARK_HELP_KEY) === '1'
+    } catch {
+      return false
+    }
+  })
+  if (seen) return null
+  const done = () => {
+    setSeen(true)
+    try {
+      localStorage.setItem(MARK_HELP_KEY, '1')
+    } catch {
+      /* shown again next time */
+    }
+  }
+  return (
+    <section className="mt-4 rounded-2xl bg-brand-soft px-4 py-3 text-sm text-ink">
+      <div className="font-semibold text-brand-deep">{t('markHelp.title')}</div>
+      <ul className="mt-1 list-disc space-y-0.5 pl-5">
+        <li>{t('markHelp.wrong')}</li>
+        <li>{t('markHelp.selfCorrect')}</li>
+        <li>{t('markHelp.pauses')}</li>
+      </ul>
+      <button onClick={done} className="mt-2 font-semibold text-brand underline underline-offset-4">
+        {t('markHelp.gotIt')}
+      </button>
+    </section>
+  )
+}
+
 /**
  * Every reading check runs here, on the phone, with or without network: the ladder, the cards and the level are
  * worked out on the phone, so a weak or vanishing signal never stops a check. Per card:
@@ -77,6 +114,7 @@ export default function PhoneCheck() {
   const [checking, setChecking] = useState(false) // measuring the recording (well under a second)
   const [ai, setAi] = useState<AiState>({ kind: 'off' })
   const touched = useRef(false) // the teacher has tapped a word: the AI's marks no longer replace theirs
+  const [liveWrong, setLiveWrong] = useState<ReadonlySet<number>>(new Set()) // tapped while the child read
   const aiCall = useRef<AbortController | null>(null)
   const [busy, setBusy] = useState(false)
   const [celebrate, setCelebrate] = useState<number | null>(null) // the card number being cheered
@@ -141,6 +179,21 @@ export default function PhoneCheck() {
                 >
                   {t('offlineCheck.remove')}
                 </Button>
+              </div>
+            </div>
+          )}
+          {misreadOf(c).length > 0 && (
+            <div className="mt-3 rounded-2xl bg-brand-soft px-3 py-2">
+              <div className="flex items-center justify-between gap-2 text-xs font-medium text-brand-deep">
+                <span>{t('phoneCheck.practise')}</span>
+                <span className="text-mute">{t('phoneCheck.fromMarks')}</span>
+              </div>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {misreadOf(c).slice(0, 8).map((w) => (
+                  <span key={w} className="rounded-lg bg-white px-2 py-0.5 text-base text-ink shadow-card">
+                    {w}
+                  </span>
+                ))}
               </div>
             </div>
           )}
@@ -222,6 +275,7 @@ export default function PhoneCheck() {
     aiCall.current?.abort()
     aiCall.current = null
     touched.current = false
+    setLiveWrong(new Set())
     setClip(null)
     setMeasured(null)
     setMarking(false)
@@ -261,8 +315,11 @@ export default function PhoneCheck() {
       .finally(() => window.clearTimeout(lateTimer))
   }
 
+  // The teacher may tap mistakes while the child reads; those taps carry over and the AI's marks never replace them.
   const record = async () => {
     setNotice(null)
+    touched.current = false
+    setLiveWrong(new Set())
     const got = await recorder.start()
     if (!got) return
     setChecking(true)
@@ -270,9 +327,10 @@ export default function PhoneCheck() {
     setChecking(false)
     if (m?.problem) {
       setNotice(t(`checkin.rerecord.${m.problem}`))
+      touched.current = false
+      setLiveWrong(new Set())
       return // the same card: record again
     }
-    touched.current = false
     setClip(got)
     setMeasured(m)
     setMarking(true)
@@ -395,11 +453,12 @@ export default function PhoneCheck() {
           {playUrl && (
             <audio className="mt-2 h-9 w-full" src={playUrl} controls preload="metadata" aria-label={t('phoneCheck.listen')} />
           )}
+          <MarkHelp />
           <TapToMark
             key={`${item.id}:${ai.kind === 'marked' ? 'ai' : 'own'}`}
             item={item}
             busy={busy}
-            initialWrong={ai.kind === 'marked' ? ai.wrong : undefined}
+            initialWrong={ai.kind === 'marked' ? ai.wrong : liveWrong}
             unsure={ai.kind === 'marked' ? ai.unsure : undefined}
             onTouch={() => {
               touched.current = true
@@ -425,6 +484,24 @@ export default function PhoneCheck() {
             hint={t('offlineCheck.recordThenMark')}
             tapLabel={t('offlineCheck.skipRecording')}
           />
+          {recorder.state === 'recording' && (
+            <>
+              <MarkHelp />
+              <TapToMark
+                key={`${item.id}:live`}
+                item={item}
+                busy={false}
+                actions={false}
+                onTouch={() => {
+                  touched.current = true
+                }}
+                onChange={setLiveWrong}
+                note={<p className="text-sm text-ink">{t('phoneCheck.markWhileReading')}</p>}
+                onSave={() => undefined}
+                onCancel={() => undefined}
+              />
+            </>
+          )}
         </>
       )}
       {!marking && !busy && !checking && <SkipCard onSkip={() => void skip()} />}

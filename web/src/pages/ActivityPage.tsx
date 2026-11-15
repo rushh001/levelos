@@ -10,6 +10,7 @@ import { SCREEN_ICON, ShowClass, hasShowScreen, screenKind } from '../components
 import { Button, COHORT_STYLE, ErrorBox, Page, Spinner } from '../components/ui'
 import { activityExamples, bankActivities, fillExamples } from '../lib/content'
 import { adaptWithLmStudio, lmStudioModel } from '../lib/lmstudio'
+import { groupMisread } from '../lib/fromPhone'
 import { fitsGroup, localActivities, makeLocalActivity, saveLocalActivity, todaysActivity } from '../lib/localActivity'
 import { rateActivity } from '../lib/outbox'
 import { sound } from '../lib/sound'
@@ -54,7 +55,10 @@ export default function ActivityPage() {
         const earlier = history ?? [current, ...previous].filter((x): x is Activity => !!x)
         // The group's mistakes from the phone's copy of the class page, so the activity still works on them.
         const card = noServer(e) ? (await Api.dashboard(id, lang).catch(() => null))?.cohorts.find((c) => c.cohort === cohort) : undefined
-        const group = card ? { children: card.students.length, pattern_counts: card.pattern_counts } : undefined
+        // …and the letters and words its children misread in their latest checks (the teacher's marks on the phone,
+        // or the checks on their saved pages), so the activity works on today's mistakes as online.
+        const misread = card ? await groupMisread(card.students.map((s) => s.id), lang) : []
+        const group = card ? { children: card.students.length, pattern_counts: card.pattern_counts, misread } : undefined
         const local = noServer(e) ? makeLocalActivity(cohort as Cohort, lang, earlier, group) : null
         if (!local) throw e
         a = local
