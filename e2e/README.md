@@ -47,3 +47,13 @@ Tests 13–16 cover working offline: a check moves the child into a group on the
 Every check runs on the phone (`/check/<id>`), so scenarios with and without network go through the same screen. Test 10 checks that the app *asks* the browser to keep its data; Chrome itself says yes only to an app added to the home screen (or used often), and always no in a fresh test browser.
 
 Known gap: DevTools throttling applies to the page's own requests, not to API reads that go through the service worker, so the slow-3G timings for reading pages are optimistic.
+
+## Acceptance run: a teacher's day, watched tap by tap
+
+```bash
+cd e2e && npm run lab                                  # the lab's API and app (or let the run start them)
+npx playwright test -c playwright.uat.config.ts        # all 11 scenarios, in a visible window
+npx playwright test -c playwright.uat.config.ts -g "S7 "   # one
+```
+
+`uat/uat.spec.ts` drives the app's screens like a teacher. For every card shown, Azure's voice (`uat_say.py`, the keys in `api/.env`) reads it into the microphone (and the speakers), with mistakes planted where the scenario wants them, and the **real AI** marks the cards when there is network. Buttons are found by the app's own words in any of its six languages, so a Hindi check (shown in Hindi) runs too. Scenarios: online in English (Level found, one more card, the result) and Hindi; slow 3G; weak signal; flaky; Wi-Fi with no internet; airplane mode (checks, groups moving at once, ⏳, the activity, the sync); the network dropping mid-check; mistakes of every kind (left out, vowel slips, self-corrections, halting, silence, the wrong text); activities made on the phone for every group in both languages, held to the app's own quality rules; the question bank with no internet. The report, with a screenshot of every step and the AI's marks word by word against the planted mistakes, is written to `e2e/uat-reports/<date>/report.html` (git-ignored); `UAT_APPEND=<earlier folders>` merges earlier runs' scenarios into it.

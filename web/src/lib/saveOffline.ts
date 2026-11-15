@@ -12,7 +12,7 @@ import { Api, ApiError, isReachable } from '../api'
 import { db } from '../db'
 import i18n from '../i18n'
 import { todaysActivity } from './localActivity'
-import { outboxCount } from './outbox'
+import { changesSent, outboxCount } from './outbox'
 import { bookClips, keepRecording, saveRecordings, speechParts } from './speech'
 import type { Activity, ClassSummary, Cohort, Dashboard } from './types'
 
@@ -76,6 +76,10 @@ async function saveClass(classId: string, data: Dashboard) {
  * server has no pack (an older one), the pages are then read one by one; 'later': a change was made on the phone
  * meanwhile, so the server's pages would wipe it. */
 async function savePack(classId: string): Promise<'saved' | 'none' | 'later'> {
+  // A change waiting, or sent while the pack was on its way: the pack may be from before it and would wipe it from
+  // the phone's pages (a child added on a flaky network vanished so). Saved next time.
+  if (await outboxCount()) return 'later'
+  const sentBefore = changesSent()
   let pack
   try {
     pack = await Api.offlinePack(classId)
@@ -83,7 +87,7 @@ async function savePack(classId: string): Promise<'saved' | 'none' | 'later'> {
     if (e instanceof ApiError && e.status === 404) return 'none'
     throw e
   }
-  if (await outboxCount()) return 'later'
+  if ((await outboxCount()) || changesSent() !== sentBefore) return 'later'
   const now = Date.now()
   const rows = [
     ...Object.entries(pack.dashboards).map(([l, board]) => ({ key: `/classes/${classId}/dashboard?language=${l}`, value: board, updatedAt: now })),

@@ -3,6 +3,7 @@
   "tagline": "A 3-minute reading check that shows each child's real level and what to do next.",
   "online": "Online",
   "offline": "Offline",
+  "slowNetwork": "Slow network",
   "pendingUploads_one": "{{count}} reading check waiting to be sent",
   "pendingUploads_other": "{{count}} reading checks waiting to be sent",
   "back": "Back",

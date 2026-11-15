@@ -141,6 +141,9 @@ export function watchReachable(onChange: () => void): () => void {
 /** Fired when changes or checks kept on the phone have reached the server (detail: how many), so open pages show
  * the server's copy again, and the teacher is told. */
 export const SYNCED_EVENT = 'levelos:synced'
+/** Fired when the server's answer to a page read arrives after the page was shown from the phone's copy, and differs
+ * from it (detail: the page's address): that page refreshes to it. */
+export const FRESH_EVENT = 'levelos:fresh'
 export const announceSynced = (count: number) => {
   if (count > 0) window.dispatchEvent(new CustomEvent(SYNCED_EVENT, { detail: count }))
 }
@@ -256,7 +259,13 @@ async function read<T>(givenPath: string, init: RequestInit, opts: { timeoutMs?:
     sleep(netState() === 'online' ? READ_WAIT_MS : READ_WAIT_WEAK_MS),
   ])
   if (first === null) {
-    server.catch(() => undefined)
+    // The server's answer, when it comes, is the newer copy: open pages that show this one refresh to it.
+    server.then(
+      (v) => {
+        if (JSON.stringify(v) !== JSON.stringify(copy.v)) window.dispatchEvent(new CustomEvent(FRESH_EVENT, { detail: path }))
+      },
+      () => undefined,
+    )
     return copy.v
   }
   if ('v' in first) return first.v
@@ -329,7 +338,7 @@ async function fromServer<T>(
   }
   if (method === 'GET') {
     // Keep the last good copy of every page's data, so the app still opens offline.
-    void db.cache.put({ key: path, value: data, updatedAt: Date.now() }).catch(() => undefined)
+    await db.cache.put({ key: path, value: data, updatedAt: Date.now() }).catch(() => undefined) // before it is read again
     if (/^\/students\/[^/?]+$/.test(path)) void refreshCheckCopies((data as StudentDetail).checkins_list)
   } else if (path.startsWith('/checkins')) {
     // A check changed online (a card, a correction, the level): the phone's copy of its result follows.

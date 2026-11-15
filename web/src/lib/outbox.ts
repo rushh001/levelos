@@ -298,10 +298,18 @@ export function flushOutbox(): Promise<void> {
   return flushing
 }
 
+let sentInAll = 0
+
+/** How many changes this page has sent so far: a server page read across a change being sent may predate it. */
+export const changesSent = () => sentInAll
+
 async function send(): Promise<void> {
   let sent = 0
   try {
-    await sendAll(() => (sent += 1))
+    await sendAll(() => {
+      sent += 1
+      sentInAll += 1
+    })
   } finally {
     announceSynced(sent) // open pages show the server's copy; the teacher is told
   }

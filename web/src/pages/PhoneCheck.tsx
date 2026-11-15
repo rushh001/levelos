@@ -14,7 +14,7 @@ import { TapToMark } from '../components/TapToMark'
 import { Button, ErrorBox, LevelBadge, Page, ReadingCard, Spinner, useNetState } from '../components/ui'
 import { db } from '../db'
 import { itemPassed, outcomeFromMarks, placedLevel } from '../lib/aser'
-import { type ClipCheck, checkClip } from '../lib/audioCheck'
+import { type ClipCheck, MIN_DURATION_MS, checkClip } from '../lib/audioCheck'
 import { getItem } from '../lib/content'
 import { misreadOf } from '../lib/fromPhone'
 import {
@@ -377,8 +377,10 @@ export default function PhoneCheck() {
     setChecking(true)
     const m = await checkClip(got.blob)
     setChecking(false)
-    if (m?.problem) {
-      setNotice(t(`checkin.rerecord.${m.problem}`))
+    // A clip too short for the phone to decode gives no measure: the recorder's own length still says it is too short.
+    const problem = m ? m.problem : got.durationMs < MIN_DURATION_MS ? 'too_short' : null
+    if (problem) {
+      setNotice(t(`checkin.rerecord.${problem}`))
       touched.current = false
       setLiveWrong(new Set())
       return // the same card: record again

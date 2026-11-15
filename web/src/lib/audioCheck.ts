@@ -12,7 +12,7 @@ const FRAME_MS = 30
 const BELOW_PEAK_DB = 30 // a frame within 30 dB of the loudest frame counts as speech…
 const FLOOR_DBFS = -50 // …if it is also above this
 const SILENCE_DBFS = -50 // the whole clip quieter than this: silent (scorer.SILENCE_DBFS)
-const MIN_DURATION_MS = 600 // scorer.MIN_DURATION_MS
+export const MIN_DURATION_MS = 600 // scorer.MIN_DURATION_MS
 const MAX_DURATION_MS = 180_000 // scorer.MAX_DURATION_MS
 export const HESITATION_MS = 3000 // aser_rules.Thresholds.hesitation_ms
 
