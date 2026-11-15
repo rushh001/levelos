@@ -97,6 +97,7 @@ export interface ItemScore {
   needs_review: boolean
   primary: string | null
   ai_scored?: boolean
+  retry?: boolean // one more card the teacher gave at a level just failed: it replaces that card on the ladder
 }
 
 export interface ItemResult {

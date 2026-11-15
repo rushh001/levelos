@@ -223,6 +223,12 @@ export async function runCheck(page: Page, wrong = 0, maxCards = 5): Promise<Car
   for (let guard = 0; guard < 30 && cards.length < maxCards; guard++) {
     if (/\/result\//.test(page.url())) break
     if (await page.getByText('Level from your marks').isVisible().catch(() => false)) break
+    // The ladder ended on a fail: "Level found", with one more card on offer. The tests take the ASER default.
+    const finish = page.getByRole('button', { name: 'Finish the check' })
+    if (await finish.isVisible().catch(() => false)) {
+      await finish.click()
+      continue
+    }
     const meaning = page.getByRole('button', { name: 'Skip', exact: true })
     if (await meaning.isVisible().catch(() => false)) {
       await meaning.click()

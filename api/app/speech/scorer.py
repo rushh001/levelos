@@ -69,6 +69,7 @@ class ItemScore:
     # Tap-marked offline: set once the synced recording has been AI-scored (or why it could not be).
     ai_scored: bool = False
     audio_note: str | None = None
+    retry: bool = False  # one more card the teacher gave at a level just failed (aser_rules.one_more_level)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -90,7 +91,7 @@ class ItemScore:
         if self.level in ("paragraph", "story") and self.reading_ms:
             wcpm = round(correct * 60_000 / self.reading_ms, 1)
         return ItemOutcome(self.level, total, correct, total - correct, self.hesitations, wcpm,
-                           wcpm_floor=wcpm_floor(self.lang, self.level))
+                           wcpm_floor=wcpm_floor(self.lang, self.level), retry=self.retry)
 
     def evaluate(self, thresholds: Thresholds = DEFAULT_THRESHOLDS) -> ItemScore:
         """(Re)compute counts and pass/fail from the words, honouring any teacher taps. Call after each tap."""

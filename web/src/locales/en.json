@@ -447,5 +447,13 @@
     "sendNow": "Send now",
     "sending": "Sending…",
     "close": "Close"
+  },
+  "oneMore": {
+    "found": "Level found",
+    "finish": "Finish the check",
+    "button": "One more card: {{level}}",
+    "why": "A nervous child or a bad moment? Give one more card at the level just failed. If the child reads it, the check goes on; if not, this level stands.",
+    "banner": "One more card: if the child reads it, the check goes on.",
+    "skip": "Finish without it"
   }
 }

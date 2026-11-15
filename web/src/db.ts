@@ -19,6 +19,8 @@ export interface OfflineItem {
   /** The AI marked this card while the teacher waited and the teacher confirmed or changed its marks: the server's
    * signed result, sent back with the marks so the recording is not scored again. */
   ai?: { scoreJson: string; sig: string }
+  /** One more card the teacher gave at a level the child had just failed: it replaces that card on the ladder. */
+  retry?: boolean
   /** The picture step after a word card, sent with the marks on sync. */
   meaning?: { word: string; correct: boolean }[]
 }
@@ -41,6 +43,8 @@ export interface QueuedCheckin {
   /** The teacher who did the check: sent only while they are logged in. */
   owner?: string | null
   startedAt: number
+  /** The teacher asked for one more card at this level (the ladder had ended on a fail there): the next card. */
+  oneMore?: ItemLevel
   items: OfflineItem[]
   status: 'in_progress' | 'queued' | 'failed' | 'synced'
   provisionalLevel?: Level | null

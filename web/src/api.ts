@@ -437,7 +437,8 @@ export const Api = {
     form.append('audio', new File([blob], clipName(mime), { type: mime.split(';')[0] }))
     return api<UploadResult>(`/checkins/${id}/items`, { method: 'POST', body: form })
   },
-  /** `hesitations`: long pauses the phone measured; `ai`: the AI's signed result the teacher confirmed. */
+  /** `hesitations`: long pauses the phone measured; `ai`: the AI's signed result the teacher confirmed; `oneMore`: the
+   * one more card the teacher gave after the ladder ended on a fail. */
   markItem: (
     id: string,
     itemId: string,
@@ -445,6 +446,7 @@ export const Api = {
     durationMs?: number,
     hesitations?: number,
     ai?: { scoreJson: string; sig: string },
+    oneMore = false,
   ) =>
     post<UploadResult>(`/checkins/${id}/marks`, {
       item_id: itemId,
@@ -453,6 +455,7 @@ export const Api = {
       hesitations: hesitations ?? null,
       ai_score: ai?.scoreJson ?? null,
       ai_sig: ai?.sig ?? null,
+      one_more: oneMore,
     }),
   /** The AI marks one card of a check running on the phone; nothing is stored on the server. */
   scoreCard: (itemId: string, blob: Blob, mime: string, signal: AbortSignal, timeoutMs: number) => {

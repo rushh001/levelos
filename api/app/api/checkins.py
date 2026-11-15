@@ -37,6 +37,7 @@ class MarksIn(BaseModel):
     # The AI's result for this card from POST /checkins/score, shown on the phone and confirmed by the teacher.
     ai_score: str | None = Field(default=None, max_length=200_000)
     ai_sig: str | None = Field(default=None, max_length=128)
+    one_more: bool = False  # the one more card the teacher gave after the ladder ended on a fail
 
 
 class SkipIn(BaseModel):
@@ -133,7 +134,8 @@ async def upload_item(checkin_id: str, item_id: str = Form(...), audio: UploadFi
 def mark_item(checkin_id: str, body: MarksIn, teacher: Teacher = Depends(current_teacher),
               db: Session = Depends(get_db)) -> dict:
     c = svc.owned_checkin(db, teacher, checkin_id)
-    ir = svc.add_marks(db, c, body.item_id, body.marks, body.duration_ms, body.hesitations, body.ai_score, body.ai_sig)
+    ir = svc.add_marks(db, c, body.item_id, body.marks, body.duration_ms, body.hesitations, body.ai_score, body.ai_sig,
+                       body.one_more)
     return {"status": "scored", "reason": None, "item_result": item_result_out(ir),
             "checkin": checkin_out(c, svc.next_item(db, c))}
 

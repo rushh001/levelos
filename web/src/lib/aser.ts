@@ -25,6 +25,7 @@ export interface Outcome {
   wcpm: number | null
   wcpmFloor: number | null // the text's language's own speed floor (longer words than Hindi), else the default
   skipped?: boolean // the teacher skipped the card: not read, it counts for nothing (neither a pass nor a fail)
+  retry?: boolean // one more card the teacher gave at a level just failed (oneMoreLevel): it replaces that card
 }
 
 /** A card the teacher skipped instead of having it read: it counts for nothing in the level. */
@@ -95,10 +96,38 @@ export function startLevel(_grade: number | null, lastLevel: Level | null, group
   return 'letter'
 }
 
+/** The cards as the ladder counts them (the server's effective_outcomes): one more card at a level replaces the card
+ * read there before it, so a pass on it lets the ladder go on up and a fail leaves the level where it was. */
+export function effectiveOutcomes(outcomes: Outcome[]): Outcome[] {
+  const kept: (Outcome | null)[] = [...outcomes]
+  outcomes.forEach((o, k) => {
+    if (!o.retry) return
+    for (let j = k - 1; j >= 0; j--) {
+      const prev = kept[j]
+      if (prev && prev.level === o.level && !prev.skipped) {
+        kept[j] = null
+        break
+      }
+    }
+  })
+  return kept.filter((o): o is Outcome => o !== null)
+}
+
+/** The server's one_more_level: once the ladder has ended on a card the child failed, the teacher may give one more
+ * card at that level (a nervous child, a bad moment). Once per level; not after a skip or a pass. */
+export function oneMoreLevel(outcomes: Outcome[], start: ItemLevel, fixed = false): ItemLevel | null {
+  if (!outcomes.length || nextItemLevel(outcomes, start, fixed) !== null) return null
+  const last = outcomes[outcomes.length - 1]
+  if (last.skipped || last.retry || itemPassed(last)) return null
+  if (outcomes.some((o) => o.retry && o.level === last.level)) return null
+  return last.level
+}
+
 /** Same rule as the server's next_item_level: up on a pass, down on a fail; after a skip the nearest card not tried
  * yet, an easier one first. Never a card already tried (read or skipped), never past a card read. */
-export function nextItemLevel(outcomes: Outcome[], start: ItemLevel, fixed = false): ItemLevel | null {
-  if (!outcomes.length) return start
+export function nextItemLevel(given: Outcome[], start: ItemLevel, fixed = false): ItemLevel | null {
+  if (!given.length) return start
+  const outcomes = effectiveOutcomes(given)
   if (fixed) return outcomes.some((o) => o.level === start) ? null : start // the group's card only, until tried
   const read = readOnly(outcomes)
   if (read.length >= MAX_ITEMS_PER_CHECKIN) return null // only cards read count

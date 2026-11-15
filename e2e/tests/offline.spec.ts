@@ -18,6 +18,7 @@ import {
   openChild,
   pendingCount,
   queuedChecks,
+  readCard,
   runCheck,
   snap,
   startCheck,
@@ -391,6 +392,7 @@ test('14. the activity made with no network works on the letters the children ju
   await startCheck(page)
   const first = (await cardText(page)).split(' ').slice(0, 3)
   await runCheck(page, 3, 1) // the first three letters marked wrong
+  await page.getByRole('button', { name: 'Finish the check' }).click() // no one more card
   await expect(page.getByText('Practise next')).toBeVisible()
   note('letters marked wrong', first.join(' '))
 
@@ -434,4 +436,54 @@ test('16. a word tapped while the child reads stays marked after the recording',
   await expect(words.first()).toHaveAttribute('aria-pressed', 'true')
   await expect(words.nth(1)).toHaveAttribute('aria-pressed', 'false')
   await snap(page, 'marked while reading')
+})
+
+test('17. when the level is found, the teacher may finish or give one more card, and the server agrees', async ({ page, context }) => {
+  await loginDemo(page)
+  await waitForServiceWorker(page)
+  await waitForWarmUp(page)
+  // A child of their own, not checked yet: the check starts at letters.
+  await page.getByRole('button', { name: /Add child/ }).click()
+  await page.getByPlaceholder("Child's first name").fill('Tanvi')
+  await page.getByRole('button', { name: 'Add', exact: true }).click()
+  const link = page.getByRole('link', { name: /Tanvi/ }).first()
+  const href = (await link.getAttribute('href')) ?? ''
+  await expect.poll(async () => (await cachedKeys(page)).includes(href.replace('/student/', '/students/')), { timeout: 15_000 }).toBe(true)
+
+  // After a word card comes the picture step (what the word means): skipped here.
+  const skipMeaning = () =>
+    page.getByRole('button', { name: 'Skip', exact: true }).waitFor({ timeout: 4_000 }).then(
+      () => page.getByRole('button', { name: 'Skip', exact: true }).click(),
+      () => undefined,
+    )
+
+  await goOffline(context)
+  await openChild(page, 'Tanvi')
+  await startCheck(page)
+  await readCard(page, 1, 0) // letters: passed
+  const firstWords = await cardText(page)
+  await readCard(page, 2, 3) // words: 2 of 5, failed: the level is found (Letter)
+  await skipMeaning()
+  await expect(page.getByText('Level found')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Finish the check' })).toBeVisible()
+  await snap(page, 'level found: finish or one more card')
+
+  await page.getByRole('button', { name: 'One more card: Words' }).click()
+  const again = await cardText(page)
+  note('words card, then the one more', `${firstWords} → ${again}`)
+  expect(again, 'a fresh card').not.toBe(firstWords)
+  await expect(page.getByText(/One more card: if the child reads it/)).toBeVisible()
+  await readCard(page, 3, 0) // read this time: the ladder goes on up
+  await skipMeaning()
+  await expect(page.getByRole('heading', { name: /Card 4/ })).toBeVisible()
+  const cards = await runCheck(page, 0)
+  note('cards after the one more', cards.map((c) => c.text.slice(0, 30)).join(' | '))
+  await expect(page.getByText('Level from your marks')).toBeVisible()
+
+  // The server replays the same ladder, the one more card included.
+  await goOnline(context)
+  await expect.poll(() => pendingCount(page), { timeout: 90_000 }).toBe(0)
+  const sent = (await queuedChecks(page)).map((c) => c.status)
+  note('the check on the server', sent.join(', '))
+  expect(sent).not.toContain('failed')
 })

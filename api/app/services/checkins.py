@@ -27,6 +27,7 @@ from ..levels.aser_rules import (
     ItemOutcome,
     level_from_outcomes,
     next_item_level,
+    one_more_level,
     skipped_outcome,
     start_level,
     update_levels,
@@ -113,10 +114,13 @@ def placed_level(outcomes: list[ItemOutcome]) -> str | None:
     return level
 
 
-def next_item(db: Session, checkin: Checkin) -> Item | None:
+def next_item(db: Session, checkin: Checkin, one_more: bool = False) -> Item | None:
+    """The card the ladder asks for next; `one_more`: the one more card the teacher may give after the ladder ended
+    on a fail (aser_rules.one_more_level)."""
     if checkin.status != "in_progress" or awaiting_review(checkin):
         return None
-    level = next_item_level(outcomes(checkin), checkin.start_level, fixed=bool(checkin.fixed_level))
+    rule = one_more_level if one_more else next_item_level
+    level = rule(outcomes(checkin), checkin.start_level, fixed=bool(checkin.fixed_level))
     if not level:
         return None
     # Seeded by the check and its position: asked again, the check gets the same card back.
@@ -189,7 +193,7 @@ def start(db: Session, teacher: Teacher, student_id: str, language: str | None, 
     return c
 
 
-def _expect_item(db: Session, checkin: Checkin, item_id: str) -> Item:
+def _expect_item(db: Session, checkin: Checkin, item_id: str, one_more: bool = False) -> Item:
     if checkin.status != "in_progress":
         raise HTTPException(409, f"check-in is {checkin.status}")
     if awaiting_review(checkin):
@@ -198,9 +202,10 @@ def _expect_item(db: Session, checkin: Checkin, item_id: str) -> Item:
         item = get_item(item_id)
     except KeyError:
         raise HTTPException(422, f"unknown item {item_id!r}") from None
-    expected = next_item(db, checkin)
+    expected = next_item(db, checkin, one_more)
     if expected is None:
-        raise HTTPException(409, "the ladder is complete; finish the check-in")
+        raise HTTPException(409, "no more card to give; finish the check-in" if one_more
+                            else "the ladder is complete; finish the check-in")
     if item.lang != checkin.language or item.level != expected.level:
         raise HTTPException(409, f"expected a {expected.level} item in {checkin.language}")
     return item
@@ -296,7 +301,8 @@ def _verified_ai(teacher_id: str, item_id: str, score_json: str | None, sig: str
 
 
 def add_marks(db: Session, checkin: Checkin, item_id: str, marks: list[bool], duration_ms: int | None,
-              hesitations: int | None = None, ai_json: str | None = None, ai_sig: str | None = None) -> ItemResult:
+              hesitations: int | None = None, ai_json: str | None = None, ai_sig: str | None = None,
+              one_more: bool = False) -> ItemResult:
     """Teacher tap-to-mark (offline or when the speech services are down): one boolean per letter/word.
     `duration_ms` and `hesitations` come from the phone's own measure of the recording (reading time and long
     pauses, the same rules as `speech.audio`), so the server's ladder lands where the phone's did.
@@ -305,7 +311,7 @@ def add_marks(db: Session, checkin: Checkin, item_id: str, marks: list[bool], du
     confirmed or changed each word before saving. The AI result is kept (what was heard, word timings) with the
     teacher's mark settling every word, and the card is stored as AI-scored: its recording, uploaded after, is kept
     for replay but not scored again."""
-    item = _expect_item(db, checkin, item_id)
+    item = _expect_item(db, checkin, item_id, one_more)
     ref = tokenize(item.text, item.lang)
     if len(marks) != len(ref):
         raise HTTPException(422, f"expected {len(ref)} marks for {item.id}, got {len(marks)}")
@@ -325,6 +331,7 @@ def add_marks(db: Session, checkin: Checkin, item_id: str, marks: list[bool], du
         if hesitations is not None:
             ai.hesitations, ai.hesitation_source = hesitations, "phone"
         ai.ai_scored = True
+        ai.retry = one_more
         ir = _store(db, checkin, item, ai.evaluate(), "ai", offline_marks=list(marks))
         db.commit()
         return ir
@@ -333,8 +340,8 @@ def add_marks(db: Session, checkin: Checkin, item_id: str, marks: list[bool], du
              for i, (r, m) in enumerate(zip(ref, marks))]
     score = ItemScore(item_id=item.id, level=item.level, lang=item.lang, status="scored",
                       duration_ms=duration_ms or 0, reading_ms=duration_ms, words=words,
-                      hesitations=hesitations, hesitation_source="phone" if hesitations is not None else None
-                      ).evaluate()
+                      hesitations=hesitations, hesitation_source="phone" if hesitations is not None else None,
+                      retry=one_more).evaluate()
     ir = _store(db, checkin, item, score, "offline_marks", offline_marks=list(marks))
     db.commit()
     return ir

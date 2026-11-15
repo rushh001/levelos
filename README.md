@@ -122,6 +122,7 @@
 - ✂️ **Network drops mid-check:** the check simply carries on. A check left unfinished on the server is taken over from the cards already read; it is never counted twice.
 - 👥 **Groups move at once:** a check finished with no network puts the child in their new group on the class page straight away; the server confirms it when the check is sent.
 - 🎯 **Today's mistakes, offline too:** after a check the phone lists what to practise next (from the teacher's marks), and an activity made on the phone puts the letters and words the group just misread first (⭐ on the cards).
+- 🔁 **Level found, or one more card:** when the ladder ends on a failed card, the teacher can finish (the ASER default) or give one more card at that level; read, and the check goes on.
 - ✍️ **Mark while the child reads:** the card's words are under the microphone while it records; a word tapped then stays marked. The first time, a short card says what counts as a mistake.
 - ✅ **Ready offline:** each class says when it was last saved on the phone ("✓ Ready offline · saved 5 minutes ago"); a child added online is saved at once. "Add to home screen" is offered, which also keeps waiting checks safe from the browser's clean-ups. Tapping ⏳ lists everything waiting, with "Send now".
 - 📶 **Weak or flaky signal:** the header says "Slow network". Pages show the phone's copy after 5 s (1.5 s once the signal is known to be weak) and refresh in the background; changes wait on the phone and stay on screen. A ping notices when the network carries again: what waited is sent, pages refresh themselves and a message says so.
@@ -146,7 +147,7 @@
 | ✅ Card pass / fail correct | **9 / 9** |
 
 - 👧 Also tried with children in a school.
-- 🧪 210 automated API tests, plus 16 browser tests of bad networks and of working offline (no network, no internet, weak, slow 3G, flaky, network lost mid-check: [e2e/README.md](e2e/README.md)) and a network lab to try them by hand (`cd e2e && npm run lab`).
+- 🧪 210 automated API tests, plus 17 browser tests of bad networks and of working offline (no network, no internet, weak, slow 3G, flaky, network lost mid-check: [e2e/README.md](e2e/README.md)) and a network lab to try them by hand (`cd e2e && npm run lab`).
 - ➡️ [eval/README.md](eval/README.md)
 
 ---

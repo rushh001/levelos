@@ -11,7 +11,7 @@ import { Api, ApiError, announceSynced, currentTeacherId, noServer } from '../ap
 import { db, type OfflineItem, type QueuedCheckin } from '../db'
 import type { ClipCheck } from './audioCheck'
 import i18n from '../i18n'
-import { itemPassed, nextItemLevel, outcomeFromMarks, placedLevel, skippedOutcome, startLevel } from './aser'
+import { itemPassed, nextItemLevel, oneMoreLevel, outcomeFromMarks, placedLevel, skippedOutcome, startLevel } from './aser'
 import { flushOutbox, mine, waitsForChild } from './outbox'
 import { getItem, pickItem } from './content'
 import { nameIn } from './names'
@@ -33,6 +33,7 @@ function carried(r: Checkin['items'][number]): OfflineItem {
     level: r.item_level,
     marks: r.result.words.map(wordCorrect),
     durationMs: r.result.reading_ms || null,
+    retry: r.result.retry || undefined,
     meaning: r.meaning?.length ? r.meaning : undefined,
   }
 }
@@ -91,8 +92,31 @@ export async function startOffline(s: StudentDetail, language: string, from?: Ch
 
 export function outcomes(c: QueuedCheckin) {
   return c.items.map((it) =>
-    it.skipped ? skippedOutcome(it.level) : outcomeFromMarks(it.level, it.marks, it.durationMs, c.language, it.hesitations ?? null),
+    it.skipped
+      ? skippedOutcome(it.level)
+      : { ...outcomeFromMarks(it.level, it.marks, it.durationMs, c.language, it.hesitations ?? null), retry: !!it.retry },
   )
+}
+
+/** The level the teacher may give one more card at now (the ladder ended on a fail there), or null. */
+export function oneMoreFor(c: QueuedCheckin): ItemLevel | null {
+  return c.status === 'in_progress' ? oneMoreLevel(outcomes(c), c.startLevel, !!c.fixedLevel) : null
+}
+
+/** The teacher asks for one more card at the level the child just failed. */
+export async function giveOneMore(localId: string) {
+  await db.checkins
+    .where('localId')
+    .equals(localId)
+    .modify((c) => {
+      const level = oneMoreFor(c)
+      if (level) c.oneMore = level
+    })
+}
+
+/** The teacher changes their mind about the one more card: the check ends as the ladder had it. */
+export async function noOneMore(localId: string) {
+  await db.checkins.update(localId, { oneMore: undefined })
 }
 
 /** The next card, by the server's rule: seeded by the check and its position, so the check shows the same card if
@@ -100,7 +124,7 @@ export function outcomes(c: QueuedCheckin) {
  * one was not read). */
 export function nextItem(c: QueuedCheckin): ItemPublic | null {
   if (c.status !== 'in_progress') return null
-  const level = nextItemLevel(outcomes(c), c.startLevel, !!c.fixedLevel)
+  const level = c.oneMore && c.oneMore === oneMoreFor(c) ? c.oneMore : nextItemLevel(outcomes(c), c.startLevel, !!c.fixedLevel)
   if (!level) return null
   const read = c.items.filter((i) => !i.skipped).map((i) => i.itemId)
   const units = read.flatMap((id) => getItem(id)?.units ?? [])
@@ -125,9 +149,12 @@ export async function addItem(
     .where('localId')
     .equals(localId)
     .modify((c) => {
+      const retry = c.oneMore === item.level
+      c.oneMore = undefined
       c.items.push({
         itemId: item.id,
         level: item.level,
+        retry: retry || undefined,
         marks,
         durationMs: clip ? (measured?.readingMs || clip.durationMs) : null,
         hesitations: clip && measured ? measured.hesitations : undefined,
@@ -140,7 +167,8 @@ export async function addItem(
 /** A card's marks to the server, with the AI's signed result when the teacher confirmed one. If the server will not
  * take that result (made with another key, say), the marks go alone: the recording is then scored on upload. */
 async function sendMarks(serverId: string, it: OfflineItem) {
-  const send = (ai?: OfflineItem['ai']) => Api.markItem(serverId, it.itemId, it.marks, it.durationMs ?? undefined, it.hesitations, ai)
+  const send = (ai?: OfflineItem['ai']) =>
+    Api.markItem(serverId, it.itemId, it.marks, it.durationMs ?? undefined, it.hesitations, ai, !!it.retry)
   if (!it.ai) return send()
   try {
     return await send(it.ai)
@@ -156,7 +184,9 @@ export async function addSkip(localId: string, item: { id: string; level: ItemLe
     .where('localId')
     .equals(localId)
     .modify((c) => {
-      c.items.push({ itemId: item.id, level: item.level, marks: [], durationMs: null, skipped: true })
+      // Skipping the one more card: it is simply not given, and the check ends as the ladder had it.
+      if (c.oneMore) c.oneMore = undefined
+      else c.items.push({ itemId: item.id, level: item.level, marks: [], durationMs: null, skipped: true })
     })
 }
 

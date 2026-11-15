@@ -17,7 +17,20 @@ import { itemPassed, outcomeFromMarks, placedLevel } from '../lib/aser'
 import { type ClipCheck, checkClip } from '../lib/audioCheck'
 import { getItem } from '../lib/content'
 import { misreadOf } from '../lib/fromPhone'
-import { abandonOffline, addItem, addMeaning, addSkip, finishOffline, nextItem, outcomes, retryOffline, syncAll } from '../lib/offline'
+import {
+  abandonOffline,
+  addItem,
+  addMeaning,
+  addSkip,
+  finishOffline,
+  giveOneMore,
+  nextItem,
+  noOneMore,
+  oneMoreFor,
+  outcomes,
+  retryOffline,
+  syncAll,
+} from '../lib/offline'
 import { useUiFollows } from '../lib/readingLang'
 import type { Level } from '../lib/types'
 import { type Clip, useRecorder } from '../lib/useRecorder'
@@ -126,7 +139,9 @@ export default function PhoneCheck() {
   const placed = c ? placedLevel(outcomes(c)) : null
   // The ladder is complete and places the child: save the provisional level and show the summary (after the cheer
   // and the meaning step), and send it at once if there is network.
-  const autoFinish = !!c && c.status === 'in_progress' && !item && placed !== null
+  // The ladder ended on a card the child failed: the teacher may give one more card at that level before finishing.
+  const oneMore = c && !item ? oneMoreFor(c) : null
+  const autoFinish = !!c && c.status === 'in_progress' && !item && placed !== null && !oneMore
   useEffect(() => {
     if (autoFinish && celebrate === null && !meaning) void finishOffline(localId).then(() => syncAll())
   }, [autoFinish, localId, celebrate, meaning])
@@ -247,6 +262,42 @@ export default function PhoneCheck() {
   }
 
   if (!item) {
+    const oneMoreButton = oneMore && (
+      <Button kind="secondary" onClick={() => void giveOneMore(c.localId)} className="w-full">
+        {t('oneMore.button', { level: t(`itemLevel.${oneMore}`) })}
+      </Button>
+    )
+    if (oneMore && placed !== null) {
+      // The level is found. Finishing is the ASER default; one more card at the level just failed is the option.
+      return (
+        <Page title={`${c.avatar} ${c.studentName}`} back={back}>
+          {celebrate !== null && <Celebration lang={c.language} n={celebrate} onDone={() => setCelebrate(null)} />}
+          <section className="card space-y-4">
+            <div>
+              <div className="text-sm text-mute">{t('oneMore.found')}</div>
+              <div className="mt-1">
+                <LevelBadge level={placed} confirmed={false} large />
+              </div>
+            </div>
+            <ul className="space-y-1.5">
+              {outcomes(c).map((o, k) => (
+                <li key={k} className="flex justify-between rounded-xl bg-paper px-3 py-1.5 text-sm">
+                  <span>{t(`itemLevel.${o.level}`)}</span>
+                  <span className={o.skipped ? 'text-mute' : itemPassed(o) ? 'text-leaf-deep' : 'text-coral-deep'}>
+                    {o.skipped ? t('result.skipped') : `${o.correct}/${o.total} ${itemPassed(o) ? '✓' : '✗'}`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <Button onClick={() => void finishOffline(c.localId).then(() => syncAll())} className="w-full py-3 text-lg">
+              {t('oneMore.finish')}
+            </Button>
+            {oneMoreButton}
+            <p className="text-xs text-mute">{t('oneMore.why')}</p>
+          </section>
+        </Page>
+      )
+    }
     if (autoFinish) {
       return (
         <Page>
@@ -266,6 +317,7 @@ export default function PhoneCheck() {
               </Button>
             ))}
           </div>
+          {oneMoreButton}
         </section>
       </Page>
     )
@@ -504,7 +556,18 @@ export default function PhoneCheck() {
           )}
         </>
       )}
-      {!marking && !busy && !checking && <SkipCard onSkip={() => void skip()} />}
+      {c.oneMore ? (
+        !marking && (
+          <p className="mt-4 text-center text-sm text-mute">
+            {t('oneMore.banner')}{' '}
+            <button onClick={() => void noOneMore(c.localId)} className="font-semibold text-brand underline underline-offset-2">
+              {t('oneMore.skip')}
+            </button>
+          </p>
+        )
+      ) : (
+        !marking && !busy && !checking && <SkipCard onSkip={() => void skip()} />
+      )}
 
       <div className="mt-8 text-center">
         <Button kind="danger" onClick={() => void stop()}>
