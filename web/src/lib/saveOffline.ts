@@ -65,19 +65,16 @@ async function saveClassOnce(classId: string, data: Dashboard, pagesSaved: () =>
   // together, before the signal goes, instead of one child at a time.
   const packed = await savePack(classId)
   if (packed === 'later') return // a change made meanwhile: saved once it is sent
-  if (packed === 'saved') pagesSaved()
-  await inTurns([
-    ...(packed === 'saved'
-      ? []
-      : [
-          // a server without the pack: the class page as it asks for itself (once per reading test), each child
-          ...data.class.languages.map((l) => () => Api.dashboard(classId, l)),
-          ...children.map((s) => () => Api.student(s.id)),
-        ]),
-    ...data.class.languages.flatMap((l) => COHORTS.map((c) => async () => groups.push([l, c, await Api.activities(classId, c, l)]))),
-  ])
+  if (packed === 'none') {
+    // A server without the pack: the class page as it asks for itself (once per reading test), each child.
+    await inTurns([
+      ...data.class.languages.map((l) => () => Api.dashboard(classId, l)),
+      ...children.map((s) => () => Api.student(s.id)),
+    ])
+  }
+  pagesSaved() // the pages are on the phone: the recorded lines need not wait for the groups' activities below
+  await inTurns(data.class.languages.flatMap((l) => COHORTS.map((c) => async () => groups.push([l, c, await Api.activities(classId, c, l)]))))
   await db.cache.put({ key: key(classId), value: Date.now(), updatedAt: Date.now() }).catch(() => undefined)
-  pagesSaved() // a server without the pack: the pages came one by one above (called once only by the caller)
   await keepTodaysRecordings(groups)
 }
 
