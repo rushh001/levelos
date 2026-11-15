@@ -1,8 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useSyncExternalStore, type ReactNode } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { ApiError, OfflineError, isReachable, watchReachable } from '../api'
+import { ApiError, OfflineError, SYNCED_EVENT, isReachable, netState, watchReachable, type NetState } from '../api'
 import { db } from '../db'
 import { useAuth } from '../lib/auth'
 import { nameIn } from '../lib/names'
@@ -14,6 +14,51 @@ import { Mascot } from './Mascot'
 /** Whether the server can be reached (not just whether the phone is on a network): see api.ts. */
 export function useOnline() {
   return useSyncExternalStore(watchReachable, isReachable)
+}
+
+/** Online, slow (a weak or flaky signal: the app works from the phone and sends when it can) or offline. */
+export function useNetState(): NetState {
+  return useSyncExternalStore(watchReachable, netState)
+}
+
+/** A short line at the bottom of the screen when the network goes, turns weak or comes back, and when what was kept
+ * on the phone has reached the server (open pages then refresh by themselves: no reload needed). */
+export function NetToast() {
+  const { t } = useTranslation()
+  const net = useNetState()
+  const prev = useRef(net)
+  const [msg, setMsg] = useState<{ text: string; good: boolean } | null>(null)
+  useEffect(() => {
+    const was = prev.current
+    prev.current = net
+    if (was === net) return
+    if (net === 'online') setMsg({ text: t('net.back'), good: true })
+    else if (net === 'offline') setMsg({ text: t('net.down'), good: false })
+    else if (was === 'online') setMsg({ text: t('net.weak'), good: false })
+  }, [net, t])
+  useEffect(() => {
+    const on = (e: Event) => setMsg({ text: t('net.sent', { count: (e as CustomEvent<number>).detail }), good: true })
+    window.addEventListener(SYNCED_EVENT, on)
+    return () => window.removeEventListener(SYNCED_EVENT, on)
+  }, [t])
+  useEffect(() => {
+    if (!msg) return
+    const timer = window.setTimeout(() => setMsg(null), 5_000)
+    return () => window.clearTimeout(timer)
+  }, [msg])
+  if (!msg) return null
+  return (
+    <div
+      role="status"
+      onClick={() => setMsg(null)}
+      className={`fixed inset-x-0 bottom-4 z-50 mx-auto w-fit max-w-[90%] rounded-2xl px-4 py-2 text-center text-sm font-medium shadow-lg rise ${
+        msg.good ? 'bg-leaf-deep text-white' : 'bg-sun-soft text-sun-deep'
+      }`}
+    >
+      {msg.good ? '✓ ' : ''}
+      {msg.text}
+    </div>
+  )
 }
 
 /** `tag`: a short line under the title (which reading test this is), so the title itself keeps the room. The
@@ -32,7 +77,8 @@ export function Page({
   wide?: boolean
 }) {
   const { t } = useTranslation()
-  const online = useOnline()
+  const net = useNetState()
+  const online = net !== 'offline'
   const { teacher, logout } = useAuth()
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -76,7 +122,7 @@ export function Page({
             ⏳ {pending}
           </span>
         )}
-        {online && (
+        {net === 'online' && (
           <span className="flex items-center px-2 py-0.5" title={t('online')}>
             <span className="h-2 w-2 rounded-full bg-leaf" aria-hidden />
             <span className="sr-only">{t('online')}</span>
@@ -89,10 +135,15 @@ export function Page({
         )}
       </header>
       {/* Offline gets its own row, so it is plain to see and a long word for it never squeezes the page title. */}
-      {!online && (
-        <div className="mt-2 flex items-center gap-1.5 self-start rounded-full bg-sun-soft px-2.5 py-1 text-xs font-medium text-sun-deep" title={t('offline')} role="status">
-          <span className="h-2 w-2 rounded-full bg-sun" aria-hidden />
-          {t('offline')}
+      {/* A weak or flaky signal too: the app then works from the phone and sends when it can. */}
+      {net !== 'online' && (
+        <div
+          className="mt-2 flex items-center gap-1.5 self-start rounded-full bg-sun-soft px-2.5 py-1 text-xs font-medium text-sun-deep"
+          title={t(online ? 'slowNetwork' : 'offline')}
+          role="status"
+        >
+          <span className={`h-2 w-2 rounded-full bg-sun ${online ? 'animate-pulse' : ''}`} aria-hidden />
+          {t(online ? 'slowNetwork' : 'offline')}
         </div>
       )}
       <main key={pathname} className="mt-4 flex-1 rise">

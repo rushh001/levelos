@@ -50,7 +50,7 @@ export default function Checkin() {
     setMoveError(null)
     try {
       const child = await Api.student(checkin.student_id)
-      navigate(`/offline/${await startOffline(child, checkin.language, checkin)}`, { replace: true })
+      navigate(`/check/${await startOffline(child, checkin.language, checkin)}`, { replace: true })
     } catch (e) {
       setMoveError(e as Error)
     }

@@ -7,8 +7,9 @@
  * wherever the AI disagrees with a tap, that word becomes uncertain for the teacher to confirm.
  * Every step is idempotent (local_id, item count, per-clip flag), so an interrupted sync simply resumes.
  */
-import { Api, ApiError, currentTeacherId, noServer } from '../api'
+import { Api, ApiError, announceSynced, currentTeacherId, noServer } from '../api'
 import { db, type OfflineItem, type QueuedCheckin } from '../db'
+import type { ClipCheck } from './audioCheck'
 import i18n from '../i18n'
 import { itemPassed, nextItemLevel, outcomeFromMarks, placedLevel, skippedOutcome, startLevel } from './aser'
 import { flushOutbox, mine, waitsForChild } from './outbox'
@@ -90,7 +91,7 @@ export async function startOffline(s: StudentDetail, language: string, from?: Ch
 
 export function outcomes(c: QueuedCheckin) {
   return c.items.map((it) =>
-    it.skipped ? skippedOutcome(it.level) : outcomeFromMarks(it.level, it.marks, it.durationMs, c.language),
+    it.skipped ? skippedOutcome(it.level) : outcomeFromMarks(it.level, it.marks, it.durationMs, c.language, it.hesitations ?? null),
   )
 }
 
@@ -106,11 +107,16 @@ export function nextItem(c: QueuedCheckin): ItemPublic | null {
   return pickItem(c.language, level, read, `${c.localId}:${c.items.length}`, units)
 }
 
+/** A card marked. `measured`: the phone's measure of the recording (reading time and long pauses, lib/audioCheck),
+ * which the ladder uses here and the server on sync; without one, the clip's length. `ai`: the AI's signed result
+ * the teacher saw and confirmed (or changed) before saving. */
 export async function addItem(
   localId: string,
   item: { id: string; level: ItemLevel },
   marks: boolean[],
   clip: { blob: Blob; mime: string; durationMs: number } | null,
+  measured: ClipCheck | null = null,
+  ai: { scoreJson: string; sig: string } | null = null,
 ) {
   const clipId = clip
     ? await db.clips.add({ checkinLocalId: localId, itemId: item.id, ...clip, recordedAt: Date.now() })
@@ -119,8 +125,29 @@ export async function addItem(
     .where('localId')
     .equals(localId)
     .modify((c) => {
-      c.items.push({ itemId: item.id, level: item.level, marks, durationMs: clip?.durationMs ?? null, clipId })
+      c.items.push({
+        itemId: item.id,
+        level: item.level,
+        marks,
+        durationMs: clip ? (measured?.readingMs || clip.durationMs) : null,
+        hesitations: clip && measured ? measured.hesitations : undefined,
+        ai: ai ?? undefined,
+        clipId,
+      })
     })
+}
+
+/** A card's marks to the server, with the AI's signed result when the teacher confirmed one. If the server will not
+ * take that result (made with another key, say), the marks go alone: the recording is then scored on upload. */
+async function sendMarks(serverId: string, it: OfflineItem) {
+  const send = (ai?: OfflineItem['ai']) => Api.markItem(serverId, it.itemId, it.marks, it.durationMs ?? undefined, it.hesitations, ai)
+  if (!it.ai) return send()
+  try {
+    return await send(it.ai)
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 422) return send()
+    throw e
+  }
 }
 
 /** The teacher skips the card instead of having it read: it counts for nothing; the ladder moves to a card not tried. */
@@ -196,7 +223,7 @@ async function syncOne(c: QueuedCheckin) {
       server = (
         it.skipped
           ? await Api.skipItem(server.id, it.itemId)
-          : await Api.markItem(server.id, it.itemId, it.marks, it.durationMs ?? undefined)
+          : await sendMarks(server.id, it)
       ).checkin
     }
     server = c.teacherLevel ? await Api.override(server.id, c.teacherLevel) : await Api.finish(server.id)
@@ -257,6 +284,7 @@ export async function syncAll(): Promise<number> {
     await db.checkins.where('status').equals('synced').filter((c) => c.startedAt < dayAgo).delete()
   } finally {
     running = false
+    announceSynced(synced)
   }
   return synced
 }

@@ -113,8 +113,21 @@ class FusedWord:
 # ---------------------------------------------------------------- normalisation
 
 
+# Viramas that join two consonants into one conjunct letter (Unicode 15.1 Indic_Conjunct_Break=Linker: Devanagari,
+# Bengali, Gujarati, Oriya, Telugu, Malayalam). Releases of the `regex` module differ on this rule, so it is applied
+# here: क्ष stays one letter whichever release is installed, as it does in the browser (Intl.Segmenter).
+_LINKERS = "\u094d\u09cd\u0acd\u0b4d\u0c4d\u0d4d"
+
+
 def graphemes(s: str) -> list[str]:
-    return _GRAPHEME.findall(s)
+    out: list[str] = []
+    for g in _GRAPHEME.findall(s):
+        tail = out[-1].rstrip("\u200d") if out else ""
+        if tail and tail[-1] in _LINKERS and g[:1].isalpha() and ord(g[0]) >> 7 == ord(tail[-1]) >> 7:
+            out[-1] += g  # a consonant after a virama of its own script: one conjunct
+        else:
+            out.append(g)
+    return out
 
 
 def normalize(word: str, lang: str) -> str:

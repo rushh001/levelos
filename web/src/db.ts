@@ -6,12 +6,19 @@ export interface OfflineItem {
   itemId: string
   level: ItemLevel
   marks: boolean[]
+  /** How long the child read: the speech in the recording as measured on the phone (lib/audioCheck), else the
+   * clip's length; null without a recording. */
   durationMs: number | null
+  /** Long pauses inside the reading, measured on the phone; undefined without a recording that could be measured. */
+  hesitations?: number
   /** The teacher skipped this card instead of having it read (no marks): it counts for nothing. Older versions
    * stored a reason here; any value means skipped. */
   skipped?: boolean
   clipId?: number
   audioUploaded?: boolean
+  /** The AI marked this card while the teacher waited and the teacher confirmed or changed its marks: the server's
+   * signed result, sent back with the marks so the recording is not scored again. */
+  ai?: { scoreJson: string; sig: string }
   /** The picture step after a word card, sent with the marks on sync. */
   meaning?: { word: string; correct: boolean }[]
 }

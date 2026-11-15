@@ -35,12 +35,20 @@ export function skippedOutcome(level: ItemLevel): Outcome {
 /** The cards the child actually read (skipped cards left out). */
 const readOnly = (outcomes: Outcome[]) => outcomes.filter((o) => !o.skipped)
 
-export function outcomeFromMarks(level: ItemLevel, marks: boolean[], durationMs: number | null, lang: string): Outcome {
+/** `readingMs`: how long the child read (the speech in the recording, measured on the phone; older checks stored the
+ * whole clip). `hesitations`: long pauses counted in the recording, null when there was none to measure. */
+export function outcomeFromMarks(
+  level: ItemLevel,
+  marks: boolean[],
+  readingMs: number | null,
+  lang: string,
+  hesitations: number | null = null,
+): Outcome {
   const correct = marks.filter(Boolean).length
   const passage = level === 'paragraph' || level === 'story'
   // Same rounding as the server (one decimal) so a borderline reading lands on the same side.
-  const wcpm = passage && durationMs ? Math.round((correct * 600_000) / durationMs) / 10 : null
-  return { level, total: marks.length, correct, hesitations: null, wcpm, wcpmFloor: wcpmFloor(lang, level) }
+  const wcpm = passage && readingMs ? Math.round((correct * 600_000) / readingMs) / 10 : null
+  return { level, total: marks.length, correct, hesitations, wcpm, wcpmFloor: wcpmFloor(lang, level) }
 }
 
 export function itemPassed(o: Outcome): boolean {

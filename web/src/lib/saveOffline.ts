@@ -8,10 +8,11 @@
  * when it was last saved is kept on the phone, so reopening the app does not save it all again.
  */
 import { useEffect } from 'react'
-import { Api, isReachable } from '../api'
+import { Api, ApiError, isReachable } from '../api'
 import { db } from '../db'
 import i18n from '../i18n'
 import { todaysActivity } from './localActivity'
+import { outboxCount } from './outbox'
 import { bookClips, keepRecording, saveRecordings, speechParts } from './speech'
 import type { Activity, ClassSummary, Cohort, Dashboard } from './types'
 
@@ -38,6 +39,8 @@ async function inTurns(tasks: (() => Promise<unknown>)[]) {
 
 async function saveClass(classId: string, data: Dashboard) {
   if (busy.has(classId) || !navigator.onLine) return
+  // Changes still waiting to be sent are only in the phone's copies: the server's pages would wipe them.
+  if (await outboxCount()) return
   if (await savedLately(classId)) {
     // Saved a moment ago: only the class page in its other reading tests follows (a change made since, a check or a
     // group, shows there too), one request each.
@@ -48,10 +51,18 @@ async function saveClass(classId: string, data: Dashboard) {
   try {
     const children = [...data.cohorts.flatMap((c) => c.students), ...data.not_assessed]
     const groups: [string, Cohort, Activity[]][] = []
+    // The class page and every child's page first, in one request: on a slow network the whole class arrives
+    // together, before the signal goes, instead of one child at a time.
+    const packed = await savePack(classId)
+    if (packed === 'later') return // a change made meanwhile: saved once it is sent
     await inTurns([
-      // the class page as it asks for itself: once per reading test, the language in the address
-      ...data.class.languages.map((l) => () => Api.dashboard(classId, l)),
-      ...children.map((s) => () => Api.student(s.id)),
+      ...(packed === 'saved'
+        ? []
+        : [
+            // a server without the pack: the class page as it asks for itself (once per reading test), each child
+            ...data.class.languages.map((l) => () => Api.dashboard(classId, l)),
+            ...children.map((s) => () => Api.student(s.id)),
+          ]),
       ...data.class.languages.flatMap((l) => COHORTS.map((c) => async () => groups.push([l, c, await Api.activities(classId, c, l)]))),
     ])
     await db.cache.put({ key: key(classId), value: Date.now(), updatedAt: Date.now() }).catch(() => undefined)
@@ -59,6 +70,29 @@ async function saveClass(classId: string, data: Dashboard) {
   } finally {
     busy.delete(classId)
   }
+}
+
+/** The class's pages from GET /classes/{id}/offline, each filed under the address the app reads it from. 'none': the
+ * server has no pack (an older one), the pages are then read one by one; 'later': a change was made on the phone
+ * meanwhile, so the server's pages would wipe it. */
+async function savePack(classId: string): Promise<'saved' | 'none' | 'later'> {
+  let pack
+  try {
+    pack = await Api.offlinePack(classId)
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) return 'none'
+    throw e
+  }
+  if (await outboxCount()) return 'later'
+  const now = Date.now()
+  const rows = [
+    ...Object.entries(pack.dashboards).map(([l, board]) => ({ key: `/classes/${classId}/dashboard?language=${l}`, value: board, updatedAt: now })),
+    ...Object.entries(pack.students).map(([id, page]) => ({ key: `/students/${id}`, value: page, updatedAt: now })),
+  ]
+  const own = pack.dashboards[pack.default_language]
+  if (own) rows.push({ key: `/classes/${classId}/dashboard`, value: own, updatedAt: now })
+  await db.cache.bulkPut(rows)
+  return 'saved'
 }
 
 /** Today's activity of each group, read aloud by the server's voice and kept on the phone, so the activity the teacher
@@ -77,8 +111,10 @@ async function keepTodaysRecordings(groups: [string, Cohort, Activity[]][]) {
 export function useSaveForOffline(classId: string, data: Dashboard | null | undefined) {
   useEffect(() => {
     if (!data || !navigator.onLine) return
-    void saveRecordings(data.class.languages)
+    // The pages first (without them a child cannot be opened offline at all), then the recorded activity lines.
     void saveClass(classId, data)
+      .catch(() => undefined)
+      .finally(() => void saveRecordings(data.class.languages))
   }, [classId, data])
 }
 
@@ -88,14 +124,14 @@ export function useSaveAllForOffline(classes: ClassSummary[] | null | undefined)
   useEffect(() => {
     if (!classes?.length || !navigator.onLine) return
     const mine = [...classes].sort((x, y) => y.students_count - x.students_count).slice(0, MAX_CLASSES)
-    void saveRecordings(mine.flatMap((c) => c.languages))
     void (async () => {
       for (const c of mine) {
-        if (!navigator.onLine) return
+        if (!navigator.onLine) break
         if (await savedLately(c.id)) continue
         const data = await Api.dashboard(c.id).catch(() => null)
-        if (data) await saveClass(c.id, data)
+        if (data) await saveClass(c.id, data).catch(() => undefined)
       }
+      await saveRecordings(mine.flatMap((c) => c.languages)) // after the pages, as on a class page
     })()
   }, [classes])
 }

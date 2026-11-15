@@ -17,7 +17,7 @@ export default function ClassDashboard() {
   const { t } = useTranslation()
   const ui = useUiLang()
   const [lang, setLang] = useReadingLang()
-  const { data, error, loading, reload } = useAsync(() => Api.dashboard(id, lang), [id, lang])
+  const { data, error, loading, reload } = useAsync(() => Api.dashboard(id, lang), [id, lang], { refreshOnSync: true })
   const [adding, setAdding] = useState(false)
   const [saving, setSaving] = useState(false) // a double tap adds the child once
   const [addError, setAddError] = useState<Error | null>(null)

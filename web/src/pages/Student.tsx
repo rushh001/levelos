@@ -2,14 +2,14 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Api, isReachable, noServer } from '../api'
+import { Api } from '../api'
 import { db } from '../db'
 import { hasBank } from '../lib/content'
 import { aliases } from '../lib/idmap'
 import { nameIn, withName } from '../lib/names'
 import { startOffline } from '../lib/offline'
 import { patternKey, useReadingLang } from '../lib/readingLang'
-import { Button, ErrorBox, LevelBadge, Page, ReadingTestSwitch, Spinner, formatDate, useOnline } from '../components/ui'
+import { Button, ErrorBox, LevelBadge, Page, ReadingTestSwitch, Spinner, formatDate } from '../components/ui'
 import type { Checkin, Cohort } from '../lib/types'
 import { changeGroup } from '../lib/outbox'
 import { pick, useUiLang } from '../lib/uiLang'
@@ -32,12 +32,11 @@ export default function Student() {
   const { id = '' } = useParams()
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { data: s, error, loading, reload } = useAsync(() => Api.student(id), [id])
+  const { data: s, error, loading, reload } = useAsync(() => Api.student(id), [id], { refreshOnSync: true })
   const [lang, setLang] = useReadingLang(s?.languages)
   const [starting, setStarting] = useState(false)
   const [startError, setStartError] = useState<Error | null>(null)
   const uiLang = useUiLang()
-  const online = useOnline()
   // Checks on this phone for the child (under their temporary ID too, if they were added offline).
   const local = useLiveQuery(
     async () => db.checkins.where('studentId').anyOf(await aliases(id)).reverse().sortBy('startedAt'),
@@ -56,19 +55,21 @@ export default function Student() {
   const unfinished = s.checkins_list.find(
     (c) => c.status === 'in_progress' && c.language === lang && !c.local_id && !local?.some((l) => l.replaces === c.id),
   )
-  // With no network, a check left unfinished on the server is taken over by one on the phone, from the cards read.
+  // A check on this phone left unfinished for this reading test: Start goes on with it.
+  const unfinishedHere = local?.find((c) => c.status === 'in_progress' && c.language === lang)
+  // Every check runs on the phone (pages/PhoneCheck.tsx), with or without network: the AI marks the cards while there
+  // is network, and the check is sent when it can be. A check left unfinished on the server is taken over from the
+  // cards already read. Only a reading test with no cards on the phone runs on the server.
   const start = async () => {
     setStarting(true)
     setStartError(null)
-    const offline = async () => navigate(`/offline/${await startOffline(s, lang, unfinished)}`)
     try {
-      // No network (or the server not answering): straight to a check on the phone, without waiting on the network.
-      if ((!navigator.onLine || !isReachable()) && hasBank(lang)) return await offline()
+      if (unfinishedHere) return navigate(`/check/${unfinishedHere.localId}`)
+      if (hasBank(lang)) return navigate(`/check/${await startOffline(s, lang, unfinished)}`)
       const c = await Api.startCheckin(s.id, lang)
       navigate(`/checkin/${c.id}`)
     } catch (e) {
-      if (noServer(e) && hasBank(lang)) await offline()
-      else setStartError(e as Error)
+      setStartError(e as Error)
     } finally {
       setStarting(false)
     }
@@ -113,15 +114,10 @@ export default function Student() {
 
       <div className="mt-4 space-y-2">
         <ReadingTestSwitch languages={s.languages} value={lang} onChange={setLang} />
-        {unfinished && online ? (
-          <Button onClick={() => navigate(`/checkin/${unfinished.id}`)} className="w-full text-lg">
-            {t('readingTest.start', { language: langName })} ({t('student.inProgress')})
-          </Button>
-        ) : (
-          <Button onClick={start} disabled={starting} className="w-full py-4 text-lg">
-            🎤 {t('readingTest.start', { language: langName })}
-          </Button>
-        )}
+        <Button onClick={start} disabled={starting} className="w-full py-4 text-lg">
+          🎤 {t('readingTest.start', { language: langName })}
+          {unfinishedHere || unfinished ? ` (${t('student.inProgress')})` : ''}
+        </Button>
       </div>
       <div className="mt-2">
         <ErrorBox error={startError} />
@@ -186,7 +182,7 @@ export default function Student() {
               .filter((c) => c.status !== 'synced')
               .map((c) => (
                 <li key={c.localId}>
-                  <Link to={`/offline/${c.localId}`} className="flex items-center justify-between gap-3 px-4 py-3">
+                  <Link to={`/check/${c.localId}`} className="flex items-center justify-between gap-3 px-4 py-3">
                     <span className="flex items-center gap-2 text-sm text-mute">
                       {formatDate(new Date(c.startedAt).toISOString(), uiLang)} <LangTag lang={c.language} />
                     </span>

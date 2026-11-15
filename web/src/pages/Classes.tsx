@@ -15,7 +15,7 @@ import { useAsync } from '../lib/useAsync'
 export default function Classes({ list }: { list?: boolean }) {
   const { t } = useTranslation()
   const ui = useUiLang()
-  const { data, error, loading, reload } = useAsync(() => Api.classes())
+  const { data, error, loading, reload } = useAsync(() => Api.classes(), [], { refreshOnSync: true })
   useSaveAllForOffline(data) // every class, for use with no network
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')

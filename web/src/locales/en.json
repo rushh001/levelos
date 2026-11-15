@@ -369,7 +369,8 @@
     "notSent": "The server did not accept this check.",
     "sendAgain": "Send again",
     "remove": "Remove from this phone",
-    "removeConfirm": "Remove this check from the phone? It was not sent, so it will be lost."
+    "removeConfirm": "Remove this check from the phone? It was not sent, so it will be lost.",
+    "measured": "Measured on the phone: read for {{s}} s · long pauses: {{n}}"
   },
   "errors": {
     "offline": "No network. Check the connection and try again.",
@@ -380,5 +381,29 @@
     "nothingRead": "No card has been read yet.",
     "checkMoved": "This reading check has moved on. Go back to the child's page and open it again.",
     "notSaved": "No network, and this page is not saved on this phone yet. Open it once with internet."
+  },
+  "phoneCheck": {
+    "aiListening": "The AI is listening to the recording… you can start marking.",
+    "aiMarked": "The AI crossed out the words it heard read wrongly. Check them, change any, then save.",
+    "aiUnsure": "A dot means the AI is not sure: listen again and decide.",
+    "aiLate": "The network is slow: mark it yourself. If the AI's marks arrive before you tap, they will appear here.",
+    "aiRerecord": "The AI could not hear it clearly. Mark it yourself, or press Cancel and record again.",
+    "unsureWord": "The AI is not sure about this word",
+    "listen": "Listen again",
+    "seeResult": "See the full result",
+    "sending": "Sending… the AI check will follow.",
+    "slowBanner": "Slow network: the check carries on on this phone and is sent when it can be.",
+    "checkingRecording": "Checking the recording…",
+    "ai_notSetUp": "AI marking is not set up yet. Tap every letter or word read wrongly.",
+    "ai_unavailable": "AI marking is not available right now. Tap every letter or word read wrongly.",
+    "ai_couldNot": "The AI could not mark this recording. Tap every letter or word read wrongly.",
+    "ai_noAnswer": "The AI’s marks did not arrive (network). Tap every letter or word read wrongly."
+  },
+  "net": {
+    "back": "Connection back.",
+    "down": "No network. Keep working: everything is kept on this phone.",
+    "weak": "Weak network. The app works from this phone and sends when it can.",
+    "sent_one": "Saved on the server: {{count}} change from this phone.",
+    "sent_other": "Saved on the server: {{count}} changes from this phone."
   }
 }

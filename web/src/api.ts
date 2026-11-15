@@ -6,7 +6,9 @@ import type {
   MeaningAnswer,
   ClassSummary,
   Dashboard,
+  CardScore,
   Health,
+  OfflinePack,
   Level,
   StudentDetail,
   StudentSummary,
@@ -23,43 +25,127 @@ export function wakeServer(): void {
   if (navigator.onLine) fetch(`${BASE}/api/ping`).catch(() => {})
 }
 
-// ---------------------------------------------------------------- can the server be reached?
+// ---------------------------------------------------------------- how good the network is
 //
-// The browser's online flag says only that the phone is on some network: a Wi-Fi with no internet counts as online.
-// So the status in the header follows what the server says: every request that reaches it (or fails to), a quick
-// ping every 30 seconds while the app is on screen, and at once when the network comes or goes.
+// The browser's online flag says only that the phone is on some network: a Wi-Fi with no internet counts as online,
+// and a weak signal sends requests that are never answered. So the header follows what the server does:
+//   offline: no network, or several requests in a row did not reach the server;
+//   slow:    the server answers, but some requests fail or run past their time (a flaky or weak signal): pages open
+//            from the phone's copy almost at once and refresh in the background, checks never wait on the AI;
+//   online:  a few quick answers in a row.
+// A ping every 30 seconds while the app is on screen (every 10 while the network is not good), and at once when the
+// network comes or goes, finds out when it changes.
+
+export type NetState = 'online' | 'slow' | 'offline'
 
 const PROBE_MS = 30_000
+const PROBE_WHEN_BAD_MS = 10_000
+const SLOW_FOR_MS = 60_000 // a failure or a slow answer counts this long
+const FAST_MS = 3_000 // an answer within this counts as quick
+const GOOD_IN_A_ROW = 3 // a flaky network answers now and then: this many quick answers before it counts as good
+const BAD_IN_A_ROW = 3 // this many failures in a row (and no answer between) count as no server
+
 let reachable = navigator.onLine
+let slowUntil = 0
+let slowTimer: number | undefined
+let goodInARow = 0
+let badInARow = 0
 const watchers = new Set<() => void>()
 
-function setReachable(ok: boolean) {
-  const now = ok && navigator.onLine
-  if (now === reachable) return
-  reachable = now
+export function netState(): NetState {
+  if (!navigator.onLine || !reachable) return 'offline'
+  return Date.now() < slowUntil ? 'slow' : 'online'
+}
+
+let lastState = netState()
+function changed() {
+  const now = netState()
+  if (now === lastState) return
+  lastState = now
   watchers.forEach((w) => w())
 }
 
-async function probe() {
-  if (!navigator.onLine) return setReachable(false)
-  try {
-    setReachable((await fetch(`${BASE}/api/ping`, { cache: 'no-store' })).ok)
-  } catch {
-    setReachable(false)
+/** The server answered. `ms`: how fast, for a page or a ping; null for a change or a recording, whose time is the
+ * server's work (scoring a card takes seconds), not the network's. */
+function answered(ms: number | null) {
+  badInARow = 0
+  reachable = true
+  if (ms === null) {
+    // says the server is there, nothing about how good the signal is
+  } else if (ms < FAST_MS) {
+    goodInARow += 1
+    if (goodInARow >= GOOD_IN_A_ROW) slowUntil = 0
+  } else {
+    goodInARow = 0
+    slowUntil = Date.now() + SLOW_FOR_MS
   }
+  changed()
 }
 
-window.addEventListener('online', () => void probe())
-window.addEventListener('offline', () => setReachable(false))
-window.setInterval(() => document.visibilityState === 'visible' && void probe(), PROBE_MS)
+/** A request did not reach the server, or ran past its time. */
+function missed() {
+  goodInARow = 0
+  badInARow += 1
+  if (badInARow >= BAD_IN_A_ROW || !navigator.onLine) reachable = false
+  slowUntil = Date.now() + SLOW_FOR_MS
+  window.clearTimeout(slowTimer)
+  slowTimer = window.setTimeout(changed, SLOW_FOR_MS + 50)
+  changed()
+}
 
-/** For useSyncExternalStore: whether the server answers, and a way to hear when that changes. */
-export const isReachable = () => reachable
+/** Asks the server for a tiny answer: whether the network carries requests, and how well. */
+export async function probeNetwork(): Promise<boolean> {
+  if (!navigator.onLine) {
+    reachable = false
+    changed()
+    return false
+  }
+  // While the network counts as weak, a few quick answers in a row to clear it.
+  for (let i = 0; i < GOOD_IN_A_ROW; i++) {
+    const ctl = new AbortController()
+    const timer = window.setTimeout(() => ctl.abort(), 6_000)
+    const t0 = Date.now()
+    try {
+      const res = await fetch(`${BASE}/api/ping`, { cache: 'no-store', signal: ctl.signal })
+      if (!res.ok) throw new Error(String(res.status))
+      answered(Date.now() - t0)
+    } catch {
+      missed()
+      return false
+    } finally {
+      window.clearTimeout(timer)
+    }
+    if (netState() === 'online') return true
+  }
+  return netState() !== 'offline'
+}
+
+window.addEventListener('online', () => void probeNetwork())
+window.addEventListener('offline', () => {
+  reachable = false
+  changed()
+})
+window.setInterval(() => {
+  if (document.visibilityState !== 'visible') return
+  if (netState() !== 'online' || Date.now() % PROBE_MS < PROBE_WHEN_BAD_MS) void probeNetwork()
+}, PROBE_WHEN_BAD_MS)
+
+/** For useSyncExternalStore: whether the server answers, and a way to hear when that (or the network state) changes. */
+export const isReachable = () => netState() !== 'offline'
 export function watchReachable(onChange: () => void): () => void {
   watchers.add(onChange)
-  if (watchers.size === 1) void probe()
+  if (watchers.size === 1) void probeNetwork()
   return () => watchers.delete(onChange)
 }
+
+/** Fired when changes or checks kept on the phone have reached the server (detail: how many), so open pages show
+ * the server's copy again, and the teacher is told. */
+export const SYNCED_EVENT = 'levelos:synced'
+export const announceSynced = (count: number) => {
+  if (count > 0) window.dispatchEvent(new CustomEvent(SYNCED_EVENT, { detail: count }))
+}
+
+const sleep = (ms: number) => new Promise<null>((r) => window.setTimeout(() => r(null), ms))
 
 /** The request never reached the server (no network). Reads fall back to the phone's cache before this is thrown. */
 export class OfflineError extends Error {}
@@ -90,7 +176,7 @@ export function setToken(token: string | null) {
   }
 }
 
-export async function api<T>(givenPath: string, init: RequestInit = {}): Promise<T> {
+export async function api<T>(givenPath: string, init: RequestInit = {}, opts: { timeoutMs?: number } = {}): Promise<T> {
   // A class or child made offline keeps working under its temporary ID once the server has given it a real one.
   const path = await realPath(givenPath)
   const headers = new Headers(init.headers)
@@ -125,29 +211,80 @@ export async function api<T>(givenPath: string, init: RequestInit = {}): Promise
   }
   // No network: read the phone's copy straight away (a change made offline is in it), write nothing.
   if (!navigator.onLine) {
-    setReachable(false)
+    reachable = false
+    changed()
     return fromPhone()
   }
-  // Back online: changes made offline go to the server before anything is read again, so a fresh read has them.
   if (method === 'GET' && !path.startsWith('/auth/')) {
-    const { flushOutbox } = await import('./lib/outbox')
-    await flushOutbox()
+    // Back online: changes made offline go to the server before anything is read again, so a fresh read has them.
+    // On a weak network that could take long: the page does not wait more than a moment for it.
+    const { flushOutbox, outboxCount } = await import('./lib/outbox')
+    await Promise.race([flushOutbox(), sleep(3_000)])
+    // Changes still waiting: the phone's copy has them and the server's answer would not (a child added on a flaky
+    // network would vanish from the class page). The page refreshes once they are sent (SYNCED_EVENT).
+    if (await outboxCount()) {
+      const copy = await fromPhone().catch(() => undefined)
+      if (copy !== undefined) return copy
+    }
   }
+  const server = fromServer<T>(path, { ...init, headers }, method, fromPhone, opts.timeoutMs)
+  if (method !== 'GET' || path.startsWith('/auth/')) return server
+  // A page with a copy on the phone: the server's answer if it comes quickly, else the copy at once while the request
+  // goes on in the background and refreshes the copy for next time.
+  const copy = await fromPhone().then(
+    (v) => ({ v }),
+    () => null,
+  )
+  if (!copy) return server
+  const first = await Promise.race([
+    server.then(
+      (v) => ({ v }),
+      (e: unknown) => ({ e }),
+    ),
+    sleep(netState() === 'online' ? READ_WAIT_MS : READ_WAIT_WEAK_MS),
+  ])
+  if (first === null) {
+    server.catch(() => undefined)
+    return copy.v
+  }
+  if ('v' in first) return first.v
+  throw first.e
+}
+
+async function fromServer<T>(
+  path: string,
+  init: RequestInit,
+  method: string,
+  fromPhone: () => Promise<T>,
+  timeoutMs?: number,
+): Promise<T> {
   // A request that hangs (a weak signal, a server not answering) is given up after a while, as with no network.
   const ctl = new AbortController()
-  const ms = method === 'GET' ? (reachable ? READ_MS : READ_WHEN_DOWN_MS) : init.body instanceof FormData ? UPLOAD_MS : WRITE_MS
-  const timer = window.setTimeout(() => ctl.abort(), ms)
+  const outer = init.signal
+  const onOuter = () => ctl.abort()
+  outer?.addEventListener('abort', onOuter)
+  const ms =
+    timeoutMs ??
+    (method === 'GET' ? (netState() === 'online' ? READ_MS : READ_WHEN_DOWN_MS) : init.body instanceof FormData ? UPLOAD_MS : WRITE_MS)
+  let timedOut = false
+  const timer = window.setTimeout(() => {
+    timedOut = true
+    ctl.abort()
+  }, ms)
+  const t0 = Date.now()
   let res: Response
   let data: T
   try {
     try {
-      res = await fetch(`${BASE}/api${path}`, { ...init, headers, signal: ctl.signal })
-      setReachable(true)
-    } catch {
-      setReachable(false)
+      res = await fetch(`${BASE}/api${path}`, { ...init, signal: ctl.signal })
+    } catch (e) {
+      if (outer?.aborted && !timedOut) throw e // the caller stopped waiting: not a network problem
+      missed()
       return await fromPhone()
     }
     // The server is up but failing (starting up, restarting): a page opens from the phone's copy as with no network.
+    if (res.status >= 500) missed()
+    else answered(method === 'GET' ? Date.now() - t0 : null)
     if (res.status >= 500 && method === 'GET') {
       const copy = await fromPhone().catch(() => undefined)
       if (copy !== undefined) return copy
@@ -168,13 +305,15 @@ export async function api<T>(givenPath: string, init: RequestInit = {}): Promise
     }
     try {
       data = res.status === 204 ? (undefined as T) : ((await res.json()) as T)
-    } catch {
-      setReachable(false)
+    } catch (e) {
+      if (outer?.aborted && !timedOut) throw e
+      missed()
       if (method === 'GET') return await fromPhone()
       throw new OfflineError('offline') // the answer was cut off on the way
     }
   } finally {
     window.clearTimeout(timer)
+    outer?.removeEventListener('abort', onOuter)
   }
   if (method === 'GET') {
     // Keep the last good copy of every page's data, so the app still opens offline.
@@ -188,9 +327,11 @@ export async function api<T>(givenPath: string, init: RequestInit = {}): Promise
   return data
 }
 
-const READ_MS = 30_000 // a page (the free server can take a while to wake)
-const READ_WHEN_DOWN_MS = 6_000 // a page while the server is not answering: the phone's copy sooner
-const WRITE_MS = 60_000
+const READ_MS = 30_000 // a page with no copy on the phone (the free server can take a while to wake)
+const READ_WHEN_DOWN_MS = 6_000 // …while the network is weak or the server not answering
+const READ_WAIT_MS = 5_000 // a page with a copy on the phone waits this long for the server before showing the copy…
+const READ_WAIT_WEAK_MS = 1_500 // …or this long once the network is known to be weak
+const WRITE_MS = 20_000 // past this a change is kept on the phone and sent later (it carries an ID: never made twice)
 const UPLOAD_MS = 120_000 // a recording, scored by the speech services before the answer comes
 
 /** A check as listed on a saved child's page (which lists every check in full). */
@@ -251,16 +392,18 @@ export const Api = {
   me: () => api<Teacher>('/me'),
 
   classes: () => api<ClassSummary[]>('/classes'),
-  createClass: (body: { name: string; grade: number; language: string }) => post<ClassSummary>('/classes', body),
+  createClass: (body: { name: string; grade: number; language: string; local_id?: string }) => post<ClassSummary>('/classes', body),
   /** An activity read aloud: the parts joined into one MP3 (base64) with the second each part starts at. */
   speech: (language: string, parts: string[]) =>
     post<{ mime: string; audio: string; starts: number[]; duration: number }>('/speech', { language, parts }),
   deleteClass: (classId: string) => api<{ ok: boolean }>(`/classes/${classId}`, { method: 'DELETE' }),
   dashboard: (classId: string, language?: string) =>
     api<Dashboard>(`/classes/${classId}/dashboard${language ? `?language=${language}` : ''}`),
-  addStudent: (classId: string, body: { first_name: string; avatar: string; names?: Record<string, string> }) =>
+  addStudent: (classId: string, body: { first_name: string; avatar: string; names?: Record<string, string>; local_id?: string }) =>
     post<StudentSummary>(`/classes/${classId}/students`, body),
 
+  /** The class page in each reading test and every child's page, in one request (lib/saveOffline.ts files them). */
+  offlinePack: (classId: string) => api<OfflinePack>(`/classes/${classId}/offline`),
   student: (id: string) => api<StudentDetail>(`/students/${id}`),
   patchStudent: (id: string, body: { cohort_override?: string; clear_cohort_override?: boolean; language?: string }) =>
     patch<StudentSummary>(`/students/${id}`, body),
@@ -282,8 +425,30 @@ export const Api = {
     form.append('audio', new File([blob], clipName(mime), { type: mime.split(';')[0] }))
     return api<UploadResult>(`/checkins/${id}/items`, { method: 'POST', body: form })
   },
-  markItem: (id: string, itemId: string, marks: boolean[], durationMs?: number) =>
-    post<UploadResult>(`/checkins/${id}/marks`, { item_id: itemId, marks, duration_ms: durationMs ?? null }),
+  /** `hesitations`: long pauses the phone measured; `ai`: the AI's signed result the teacher confirmed. */
+  markItem: (
+    id: string,
+    itemId: string,
+    marks: boolean[],
+    durationMs?: number,
+    hesitations?: number,
+    ai?: { scoreJson: string; sig: string },
+  ) =>
+    post<UploadResult>(`/checkins/${id}/marks`, {
+      item_id: itemId,
+      marks,
+      duration_ms: durationMs ?? null,
+      hesitations: hesitations ?? null,
+      ai_score: ai?.scoreJson ?? null,
+      ai_sig: ai?.sig ?? null,
+    }),
+  /** The AI marks one card of a check running on the phone; nothing is stored on the server. */
+  scoreCard: (itemId: string, blob: Blob, mime: string, signal: AbortSignal, timeoutMs: number) => {
+    const form = new FormData()
+    form.append('item_id', itemId)
+    form.append('audio', new File([blob], clipName(mime), { type: mime.split(';')[0] }))
+    return api<CardScore>('/checkins/score', { method: 'POST', body: form, signal }, { timeoutMs })
+  },
   skipItem: (id: string, itemId: string) =>
     post<UploadResult>(`/checkins/${id}/skip`, { item_id: itemId }),
   attachAudio: (id: string, itemResultId: string, blob: Blob, mime: string) => {

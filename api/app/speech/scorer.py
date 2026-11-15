@@ -58,7 +58,7 @@ class ItemScore:
     extras: list[dict] = field(default_factory=list)  # inserted / repeated words (primary path)
     counts: dict = field(default_factory=dict)
     hesitations: int | None = None
-    hesitation_source: str | None = None  # azure_pa | audio
+    hesitation_source: str | None = None  # azure_pa | audio | phone (counted on the phone, offline)
     wcpm: float | None = None
     passed: bool | None = None
     passed_best: bool | None = None  # every open uncertain word read correctly
