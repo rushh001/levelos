@@ -60,11 +60,19 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         // App shell + item banks + instruction audio are precached so a check-in works with no network.
         globPatterns: ['**/*.{js,css,html,svg,json,mp3,ogg,woff2}'],
+        // The activities read aloud (public/audio/activity, about 2 MB a language) are not part of the install: they
+        // are downloaded in the background for the class's languages and kept (runtime cache below).
+        globIgnores: ['**/audio/activity/**'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallback: '/index.html',
         runtimeCaching: [
           // API calls are never served from cache; the app's own IndexedDB queue handles offline.
           { urlPattern: ({ url }) => url.pathname.startsWith('/api/'), handler: 'NetworkOnly' },
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/audio/activity/'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'activity-audio', expiration: { maxEntries: 1000 } },
+          },
         ],
       },
       devOptions: { enabled: false },

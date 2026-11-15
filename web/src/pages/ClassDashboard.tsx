@@ -1,16 +1,14 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 import { Api } from '../api'
 import { Button, COHORT_STYLE, ChildChip, CohortIcon, ErrorBox, Page, ReadingTestSwitch, Spinner } from '../components/ui'
 import { nameIn } from '../lib/names'
 import { addChild } from '../lib/outbox'
+import { useSaveForOffline } from '../lib/saveOffline'
 import { patternKey, useReadingLang } from '../lib/readingLang'
 import { useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
-
-const WARM_EVERY_MS = 10 * 60_000
-const warmedAt = new Map<string, number>() // class id -> when its children's pages were last cached
 
 const AVATARS = ['🙂', '🦁', '🐰', '🐯', '🦋', '🌻', '🐘', '🐢', '🐦', '🐬', '🌈', '🐼', '🦅', '🌙', '🐆', '🌸', '⭐', '🐝']
 
@@ -21,35 +19,33 @@ export default function ClassDashboard() {
   const [lang, setLang] = useReadingLang()
   const { data, error, loading, reload } = useAsync(() => Api.dashboard(id, lang), [id, lang])
   const [adding, setAdding] = useState(false)
+  const [saving, setSaving] = useState(false) // a double tap adds the child once
+  const [addError, setAddError] = useState<Error | null>(null)
   const [name, setName] = useState('')
   const [otherName, setOtherName] = useState('')
   const [avatar, setAvatar] = useState(AVATARS[0])
-
-  // Load every child's page (and the groups in the class's other reading test) while online, so any child can be
-  // opened and checked offline later. At most once per class every 10 minutes: on the free API server, refetching
-  // 30 pages on every dashboard visit adds up.
-  useEffect(() => {
-    if (!data || !navigator.onLine || Date.now() - (warmedAt.get(id) ?? 0) < WARM_EVERY_MS) return
-    warmedAt.set(id, Date.now())
-    const ids = data.cohorts.flatMap((c) => c.students.map((s) => s.id)).concat(data.not_assessed.map((s) => s.id))
-    const others = data.class.languages.filter((l) => l !== data.language)
-    void (async () => {
-      for (const l of others) await Api.dashboard(id, l).catch(() => undefined)
-      for (const sid of ids) await Api.student(sid).catch(() => undefined)
-    })()
-  }, [data])
+  useSaveForOffline(id, data) // every child, both reading tests and the groups' activities, for use with no network
 
   // The name's second spelling: in the class's language when the app is in English, else in English.
   const other = ui === 'en' ? (data?.class.language ?? 'hi') : 'en'
   const add = async (e: FormEvent) => {
     e.preventDefault()
+    if (saving) return
     const first = name.trim()
     const second = otherName.trim()
-    await addChild(id, { first_name: first, avatar, names: second ? { [ui]: first, [other]: second } : undefined }) // offline too
-    setName('')
-    setOtherName('')
-    setAdding(false)
-    await reload()
+    setSaving(true)
+    setAddError(null)
+    try {
+      await addChild(id, { first_name: first, avatar, names: second ? { [ui]: first, [other]: second } : undefined }) // offline too
+      setName('')
+      setOtherName('')
+      setAdding(false)
+      await reload()
+    } catch (err) {
+      setAddError(err as Error)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading && !data) return <Page back="/classes"><Spinner label={t('loading')} /></Page>
@@ -137,6 +133,7 @@ export default function ClassDashboard() {
 
           {adding ? (
             <form onSubmit={add} className="mt-6 space-y-3 card">
+              <ErrorBox error={addError} />
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -168,7 +165,7 @@ export default function ClassDashboard() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button type="submit">{t('dashboard.add')}</Button>
+                <Button type="submit" disabled={saving}>{t('dashboard.add')}</Button>
                 <Button kind="secondary" onClick={() => setAdding(false)}>
                   {t('cancel')}
                 </Button>

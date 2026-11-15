@@ -40,13 +40,14 @@
 | | |
 |---|---|
 | 🪜 **Adaptive ASER check** | letters → words → paragraph → story; up on a pass, down on a fail · ⏭️ **Skip** a card and it never counts |
+| 🔀 **Fresh cards** | each check draws its own letter and word card from a pool (~25 letters, 60 words per language); 10 paragraphs and 8 stories per language · never a card the child read in their last 3 checks or the one the child before them just read · offline too |
 | 🙈 **Fair scoring** | 2 speech recognisers transcribe **without seeing the text**, so they can't "auto-correct" the child; code marks each word ✅ right · ❌ wrong · ⏭️ skipped · 🔁 self-corrected |
 | 👂 **Honest uncertainty** | recognisers disagree → the teacher listens 🔊 and confirms |
 | 📐 **Rules decide the level** | ASER rules in code, not AI · 2 agreeing checks confirm · teacher can override |
 | 🧠 **Diagnosis** | Claude names the error pattern (matras, conjuncts, blending, guessing…) with the exact words as evidence |
 | 👥 **4 groups** | Letter · Word · Paragraph · Story, with each group's main difficulty |
 | 📚 **10-minute activity** | matched to the level: 🔤 Letter group: letter cards with picture words (ग → गाय 🐄), no poem · Word, Paragraph, Story: built on a free, credited poem or story · 🎯 starts with the group's own mistakes (children per mistake, letters or words they misread ⭐) · 3 short steps, each with a picture · 📝 homework for Paragraph and Story |
-| 🔊 **Listen** | the whole activity read aloud in the teacher's language, with a slider and Step 1/2/3 chips to jump to any part · offline: the phone's own voice |
+| 🔊 **Listen** | the whole activity read aloud in the teacher's language, with a slider and Step 1/2/3 chips to jump to any part · offline too, in every language: an activity seen online, and each group's activity of the day, keep their recording; one made on the phone plays the book activity's recorded lines, saved on the phone as soon as a class opens online |
 | ⏱ **Step by step** | **Start the 10 minutes**: one step at a time, big text, a timer, the letters or words on screen, then a rating |
 | 🌏 **2 tests per child** | English + regional language, each with its own level and group |
 | 🧒 **Child-friendly** | 🦜 parrot mascot, ladder on screen, ⭐ "शाबाश!" after every card, picture meaning check |
@@ -103,10 +104,12 @@
 
 | ✅ Works offline | 🌐 Needs the network |
 |---|---|
-| 📱 Open the app, classes, children, groups | 🔑 Sign-up and login |
+| 📱 Open the app, classes, children, groups (every class saved on the phone in the background) | 🔑 Sign-up and login |
 | 🪜 Reading check (teacher taps the mistakes) + provisional level | 🗣️ AI scoring of recordings (sent when back online) |
 | 📚 10-minute activity, made on the phone from the book bank | 🧠 Claude diagnosis (when back online) |
 | 🗂️ New class · new child · group change · rating · delete a class | |
+| ✍️ Corrections on a result: tap a word, confirm, change the level | |
+| 📜 Every past result of every child | |
 | 🔊 Cards, pictures, spoken instructions | |
 
 **⚙️ How it works**
@@ -114,8 +117,10 @@
 - 📦 **PWA:** the app, cards, pictures and audio are stored on the phone.
 - 💾 **Data:** every page opened is kept in the phone's database (IndexedDB).
 - 🪜 **Same rules:** the ASER ladder runs on the phone too (a test keeps it in step with the server).
-- 📤 **Outbox:** changes wait on the phone (⏳ badge). A class or child made offline gets a temporary ID and is created only once.
-- 🔄 **Back online:** changes are sent first, then the checks. Recordings get AI-scored, and any word where the AI ≠ the teacher comes back to confirm. A level never changes silently.
+- 📤 **Outbox:** changes wait on the phone (⏳ badge). A class or child made offline gets a temporary ID and is created only once. Corrections are worked out on the phone by the server's own rules.
+- ✂️ **Network drops mid-check:** "Continue offline" goes on from the cards already read; it is never counted twice.
+- 👥 **Shared phone:** each teacher's waiting work is sent only under their own login.
+- 🔄 **Back online:** changes are sent first, then the checks (dated when they were done). Recordings get AI-scored, and any word where the AI ≠ the teacher comes back to confirm. A level never changes silently.
 
 **💻 LM Studio: offline AI on a laptop (optional)**
 
@@ -135,7 +140,7 @@
 | ✅ Card pass / fail correct | **9 / 9** |
 
 - 👧 Also tried with children in a school.
-- 🧪 186 automated API tests, plus browser runs: online check, activity, offline round trip, replay.
+- 🧪 201 automated API tests, plus browser runs: online check, activity, offline round trip, replay.
 - ➡️ [eval/README.md](eval/README.md)
 
 ---
@@ -180,7 +185,7 @@ npm run dev:https                   # HTTPS, to test the microphone from a phone
 
 ## 📚 Content and sources
 
-- 📝 **Reading cards:** original texts written to the ASER 2024 spec (test-enforced).
+- 📝 **Reading cards:** original texts written to the ASER 2024 spec. New paragraphs, stories and word pools were drafted with Claude and held in code to that spec and to the difficulty of the reviewed cards (`api/scripts/draft_cards.py`, test-enforced).
 - 📖 **28 free, credited texts:** public domain in India, CC0 or CC BY-SA. Authors include Premchand, Subhadra Kumari Chauhan, Bharathiyar, Sukumar Ray and Aesop.
 - 🎯 **Goals:** NCERT NCF-FS (foundational stage). 🚫 No textbook text is copied (copyright).
 - 🧩 **Methods:** Pratham / TaRL Africa (2021) · StoryWeaver · ASER 2024.

@@ -27,6 +27,12 @@ export interface QueuedCheckin {
   startLevel: ItemLevel
   /** The teacher chose the group: the check reads only that level's card. */
   fixedLevel?: boolean
+  /** An unfinished check on the server this one replaces (started online, then the network went): closed on sync. */
+  replaces?: string
+  /** How many of its cards were read in that check (carried over to go on from). */
+  carried?: number
+  /** The teacher who did the check: sent only while they are logged in. */
+  owner?: string | null
   startedAt: number
   items: OfflineItem[]
   status: 'in_progress' | 'queued' | 'failed' | 'synced'

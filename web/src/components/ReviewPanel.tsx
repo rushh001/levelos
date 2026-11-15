@@ -105,8 +105,10 @@ function ItemReview({
         {open.map((w) => {
           const k = keyOf(item, w)
           return (
-            <li key={k} className="flex items-center justify-between gap-2 rounded-xl bg-white p-3">
-              <div className="flex min-w-0 items-center gap-2">
+            // The word on its own line (the full width, so a long word never breaks letter by letter), the two
+            // buttons under it.
+            <li key={k} className="space-y-2 rounded-xl bg-white p-3">
+              <div className="flex items-center gap-2">
                 {item.has_audio && (
                   <button
                     onClick={() => playWord(w)}
@@ -116,14 +118,14 @@ function ItemReview({
                     🔊
                   </button>
                 )}
-                <div className="min-w-0">
-                  <div className="text-2xl font-semibold">{w.ref}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-2xl font-semibold [overflow-wrap:anywhere]">{w.ref}</div>
                   <div className="truncate text-xs text-mute">
                     {t('checkin.heard', { heard: heardForms(w, letters).join(' · ') })}
                   </div>
                 </div>
               </div>
-              <div className="flex shrink-0 gap-2">
+              <div className="flex justify-end gap-2">
                 {[true, false].map((v) => (
                   <button
                     key={String(v)}

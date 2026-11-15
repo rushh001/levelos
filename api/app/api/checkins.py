@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Response, UploadFile
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -24,6 +26,7 @@ class StartIn(BaseModel):
     local_id: str | None = Field(default=None, max_length=64)
     start_level: str | None = None  # offline check-ins only: the rung the phone's ladder started on
     fixed_level: bool = False  # offline check-ins only: the phone's check read only that level (a group was chosen)
+    started_at: datetime | None = None  # offline check-ins only: when it was done on the phone (sent later)
 
 
 class MarksIn(BaseModel):
@@ -78,7 +81,8 @@ def _suffix(upload: UploadFile) -> str:
 
 @router.post("", status_code=201)
 def start(body: StartIn, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
-    c = svc.start(db, teacher, body.student_id, body.language, body.local_id, body.start_level, body.fixed_level)
+    c = svc.start(db, teacher, body.student_id, body.language, body.local_id, body.start_level, body.fixed_level,
+                  body.started_at)
     return checkin_out(c, svc.next_item(db, c))
 
 

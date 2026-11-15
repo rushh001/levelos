@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Api, ApiError } from '../api'
+import { Api, ApiError, OfflineError } from '../api'
 import { Celebration } from '../components/Celebration'
 import { Ladder } from '../components/Ladder'
 import { MeaningCheck, meaningWords } from '../components/MeaningCheck'
@@ -11,8 +11,9 @@ import { SayToChild } from '../components/SayToChild'
 import { SkipCard } from '../components/SkipCard'
 import { SoundToggle } from '../components/SoundToggle'
 import { TapToMark } from '../components/TapToMark'
-import { Button, ErrorBox, Page, ReadingCard, Spinner } from '../components/ui'
+import { Button, ErrorBox, Page, ReadingCard, Spinner, useOnline } from '../components/ui'
 import type { Checkin as CheckinT, ItemPublic, Level, UploadResult } from '../lib/types'
+import { startOffline } from '../lib/offline'
 import { useUiFollows } from '../lib/readingLang'
 import { useAsync } from '../lib/useAsync'
 import { useRecorder } from '../lib/useRecorder'
@@ -27,6 +28,7 @@ export default function Checkin() {
   const navigate = useNavigate()
   const { data: checkin, setData: setCheckin, error, reload } = useAsync(() => Api.checkin(id), [id])
   useUiFollows(checkin?.language) // the interface is in the language of the test on screen
+  const online = useOnline()
   const recorder = useRecorder()
   const [busy, setBusy] = useState<null | 'upload' | 'finish' | 'save'>(null)
   const [notice, setNotice] = useState<Notice>(null)
@@ -38,6 +40,32 @@ export default function Checkin() {
 
   const item = checkin?.next_item ?? null
   const position = (checkin?.items.length ?? 0) + 1
+
+  // The network went in the middle of this check: it goes on as a check on the phone from the cards already read,
+  // and this one is closed when that one is sent.
+  const [moveError, setMoveError] = useState<Error | null>(null)
+  const continueOffline = async () => {
+    if (!checkin) return
+    recorder.cancel()
+    setMoveError(null)
+    try {
+      const child = await Api.student(checkin.student_id)
+      navigate(`/offline/${await startOffline(child, checkin.language, checkin)}`, { replace: true })
+    } catch (e) {
+      setMoveError(e as Error)
+    }
+  }
+  const lost = actionError instanceof OfflineError || (!checkin && error instanceof OfflineError)
+  // The network back (a short drop): the check goes on here, with the AI listening, from where the server has it.
+  const tryAgain = async () => {
+    setActionError(null)
+    setMoveError(null)
+    await reload()
+  }
+  useEffect(() => {
+    if (online && actionError instanceof OfflineError) void tryAgain()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [online])
 
   // A finished check-in goes to its result; a completed ladder is finished automatically — after the cheer and
   // the meaning step.
@@ -156,18 +184,42 @@ export default function Checkin() {
   const stopCheck = async () => {
     if (!checkin || !window.confirm(t('checkin.stopConfirm'))) return
     recorder.cancel()
-    await Api.abandon(checkin.id)
-    navigate(`/student/${checkin.student_id}`, { replace: true })
+    try {
+      await Api.abandon(checkin.id)
+      navigate(`/student/${checkin.student_id}`, { replace: true })
+    } catch (e) {
+      setActionError(e as Error)
+    }
   }
 
   const setLevel = async (level: Level) => {
     if (!checkin) return
-    const done = await Api.override(checkin.id, level)
-    navigate(`/result/${done.id}`, { replace: true })
+    try {
+      const done = await Api.override(checkin.id, level)
+      navigate(`/result/${done.id}`, { replace: true })
+    } catch (e) {
+      setActionError(e as Error)
+    }
   }
 
   if (!checkin) {
     return <Page back>{error ? <ErrorBox error={error} onRetry={reload} /> : <Spinner label={t('loading')} />}</Page>
+  }
+  if ((!online || lost) && checkin.status === 'in_progress') {
+    return (
+      <Page back={`/student/${checkin.student_id}`}>
+        <div className="space-y-3 card">
+          <p className="text-ink">{t('checkin.lostNetwork')}</p>
+          <Button onClick={() => void continueOffline()} className="w-full text-lg">
+            📴 {t('checkin.continueOffline')}
+          </Button>
+          <Button kind="secondary" onClick={() => void tryAgain()} className="w-full">
+            {t('retry')}
+          </Button>
+          <ErrorBox error={moveError} />
+        </div>
+      </Page>
+    )
   }
 
   return (

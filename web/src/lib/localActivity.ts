@@ -9,8 +9,9 @@
  */
 import bank, { homework, sources } from 'virtual:activity-bank'
 import { db } from '../db'
+import { aliases } from './idmap'
 import { UI_LANGS } from '../i18n'
-import { isAscii, isLatinScript, letterCards, textsFor, wordsOf, type BundledText } from './content'
+import { isAscii, isLatinScript, letterCards, textFor as bundledText, textsFor, wordsOf, type BundledText } from './content'
 import { clusters } from './graphemes'
 import type { Activity, ActivityFocus, ActivityMaterial, ActivityPlan, Cohort } from './types'
 
@@ -186,9 +187,30 @@ export function makeLocalActivity(cohort: Cohort, lang: string, earlier: Activit
 // The activities made on this phone, kept per class, group and language (newest first).
 const key = (classId: string, cohort: string, lang: string) => `local-activities/${classId}/${cohort}/${lang}`
 
+/** The group's activities made on this phone, newest first: under the class's temporary ID too, if it was made
+ * offline (an activity made before the class reached the server). */
+/** Whether an activity suits the group under the current rules: letter cards (no poem) for a Letter group, words for a
+ * Word group, a text for a Paragraph or Story group. Any, in a language the bundled books have no text for. */
+export function fitsGroup(a: Activity, cohort: string, lang: string): boolean {
+  if (!bundledText(lang, 'rhyme')) return true
+  return cohort === 'letter' ? !!a.plan.material && !a.plan.text : cohort === 'word' ? !!a.plan.material : !!a.plan.text
+}
+
+/** The group's activity for today, as the activity page shows it: the newest one made today that suits the group. */
+export function todaysActivity(list: Activity[], cohort: string, lang: string): Activity | undefined {
+  const today = new Date().toDateString()
+  return [...list]
+    .sort((x, y) => y.created_at.localeCompare(x.created_at))
+    .find((a) => new Date(a.created_at).toDateString() === today && fitsGroup(a, cohort, lang))
+}
+
 export async function localActivities(classId: string, cohort: string, lang: string): Promise<Activity[]> {
-  const row = await db.cache.get(key(classId, cohort, lang)).catch(() => undefined)
-  return (row?.value as Activity[] | undefined) ?? []
+  const rows = await db.cache.bulkGet((await aliases(classId)).map((id) => key(id, cohort, lang))).catch(() => [])
+  const all = rows.flatMap((r) => (r?.value as Activity[] | undefined) ?? [])
+  const seen = new Set<string>()
+  return all
+    .filter((a) => !seen.has(a.id) && !!seen.add(a.id))
+    .sort((x, y) => y.created_at.localeCompare(x.created_at))
 }
 
 export async function saveLocalActivity(classId: string, a: Activity): Promise<void> {

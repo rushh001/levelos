@@ -15,8 +15,6 @@ body,
 body {
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
-  /* a word wider than its box (long Tamil and Kannada words on a small phone) breaks rather than spilling off */
-  overflow-wrap: break-word;
 }
 
 /* Child-facing reading text: large, high-contrast, generous line height for Indic scripts — and always the plain

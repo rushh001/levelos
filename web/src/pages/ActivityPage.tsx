@@ -2,18 +2,18 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Api, OfflineError } from '../api'
+import { Api, OfflineError, isReachable, noServer } from '../api'
 import { ListenBar, type ListenHandle } from '../components/activity/ListenBar'
 import { FocusCard, MaterialTiles, stepIcon } from '../components/activity/pieces'
 import { RunActivity } from '../components/activity/RunActivity'
 import { SCREEN_ICON, ShowClass, hasShowScreen, screenKind } from '../components/show/ShowClass'
 import { Button, COHORT_STYLE, ErrorBox, Page, Spinner } from '../components/ui'
-import { activityExamples, bankActivities, fillExamples, textFor } from '../lib/content'
+import { activityExamples, bankActivities, fillExamples } from '../lib/content'
 import { adaptWithLmStudio, lmStudioModel } from '../lib/lmstudio'
-import { localActivities, makeLocalActivity, saveLocalActivity } from '../lib/localActivity'
+import { fitsGroup, localActivities, makeLocalActivity, saveLocalActivity, todaysActivity } from '../lib/localActivity'
 import { rateActivity } from '../lib/outbox'
 import { sound } from '../lib/sound'
-import { speechParts, stepText } from '../lib/speech'
+import { bookClips, keepRecording, saveRecordings, speechParts, stepText } from '../lib/speech'
 import { useReadingLang, useUiFollows } from '../lib/readingLang'
 import type { Activity, Cohort } from '../lib/types'
 import { pick, useUiLang } from '../lib/uiLang'
@@ -45,14 +45,17 @@ export default function ActivityPage() {
     try {
       let a: Activity
       try {
+        // The header says Offline: no wait on the network, the phone makes it.
+        if (!navigator.onLine || !isReachable()) throw new OfflineError('offline')
         a = await Api.generateActivity(id, cohort, lang)
       } catch (e) {
-        // No network: the phone puts the activity together itself, by the same rules, from the bundled books.
+        // No network (or the server failing for now): the phone puts the activity together itself, by the same
+        // rules, from the bundled books.
         const earlier = history ?? [current, ...previous].filter((x): x is Activity => !!x)
         // The group's mistakes from the phone's copy of the class page, so the activity still works on them.
-        const card = e instanceof OfflineError ? (await Api.dashboard(id, lang).catch(() => null))?.cohorts.find((c) => c.cohort === cohort) : undefined
+        const card = noServer(e) ? (await Api.dashboard(id, lang).catch(() => null))?.cohorts.find((c) => c.cohort === cohort) : undefined
         const group = card ? { children: card.students.length, pattern_counts: card.pattern_counts } : undefined
-        const local = e instanceof OfflineError ? makeLocalActivity(cohort as Cohort, lang, earlier, group) : null
+        const local = noServer(e) ? makeLocalActivity(cohort as Cohort, lang, earlier, group) : null
         if (!local) throw e
         a = local
         // On a computer running LM Studio, its local model adapts the wording; otherwise the phone-made one stays.
@@ -79,23 +82,17 @@ export default function ActivityPage() {
     // copy on the phone when offline) with those made on this phone without network.
     Promise.all([
       Api.activities(id, cohort, lang).catch((e) => {
-        if (e instanceof OfflineError) return [] as Activity[]
+        if (noServer(e)) return [] as Activity[]
         throw e
       }),
       localActivities(id, cohort, lang),
     ])
       .then(([server, local]) => [...local, ...server].sort((x, y) => y.created_at.localeCompare(x.created_at)))
       .then((list) => {
-        // Today's activity, if it fits the group's level: letter cards (no poem) for a Letter group, words for a
-        // Word group, a text for the Paragraph group (one made earlier under the old rules is replaced).
-        const books = !!textFor(lang, 'rhyme')
-        const fits = (a: Activity) =>
-          cohort === 'letter' ? !!a.plan.material && !a.plan.text : cohort === 'word' ? !!a.plan.material : !!a.plan.text
-        const today = list.find(
-          (a) => new Date(a.created_at).toDateString() === new Date().toDateString() && (fits(a) || !books),
-        )
+        // Today's activity, if it fits the group's level (one made earlier under the old rules is replaced).
+        const today = todaysActivity(list, cohort, lang)
         // Earlier ones made under the old rules (a poem for a Letter group, say) are not offered again.
-        const earlier = list.filter((a) => a.id !== today?.id && (fits(a) || !books))
+        const earlier = list.filter((a) => a.id !== today?.id && fitsGroup(a, cohort, lang))
         if (today) {
           setCurrent(today)
           setPrevious(earlier)
@@ -107,6 +104,8 @@ export default function ActivityPage() {
       .catch((e) => setError(e as Error))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, cohort, lang])
+  // The recorded lines for this language, should the phone not have them yet (a look at the cache when it has).
+  useEffect(() => void saveRecordings([lang]), [lang])
 
   return (
     <Page
@@ -206,6 +205,9 @@ function ActivityCard({ a, classId, cohort, lang, onRated }: { a: Activity; clas
   const [reading, setReading] = useState<string | null>(null) // the part being read aloud
   const listen = useRef<ListenHandle>(null)
   const parts = useMemo(() => speechParts(a, ui, lang, t), [a, ui, lang, t])
+  const clips = useMemo(() => bookClips(a, ui), [a, ui])
+  // Seen online, the activity's recording is kept on the phone, so it can be heard offline later.
+  useEffect(() => void keepRecording(ui, parts), [parts, ui])
   const hear = (step: number) => listen.current?.playPart(parts.findIndex((x) => x.key === `step-${step}`))
 
   // An activity made on this phone is rated on the phone; the others on the server.
@@ -228,7 +230,7 @@ function ActivityCard({ a, classId, cohort, lang, onRated }: { a: Activity; clas
       </div>
 
       <FocusCard focus={p.focus} cohort={cohort} lang={lang} why={pick(p.why, ui)} />
-      <ListenBar key={`${a.id}-${ui}`} ref={listen} parts={parts} ui={ui} onPart={setReading} />
+      <ListenBar key={`${a.id}-${ui}`} ref={listen} parts={parts} ui={ui} onPart={setReading} clips={clips} />
 
       {/* A Letter or Word group reads only these letters or words; the rhyme below is for the teacher to say. */}
       {p.material && p.material.items.length > 0 && <MaterialTiles material={p.material} misread={misread} lang={lang} />}

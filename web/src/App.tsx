@@ -27,6 +27,9 @@ function SyncRunner() {
   const { teacher } = useAuth()
   useEffect(() => {
     if (!teacher) return
+    // What waits on the phone (checks, recordings, changes, saved pages) is kept even when the phone runs low on
+    // space: the browser may otherwise clear it.
+    void navigator.storage?.persist?.().catch(() => undefined)
     const run = () => void syncAll()
     run()
     window.addEventListener('online', run)

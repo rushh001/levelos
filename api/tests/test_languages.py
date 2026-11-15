@@ -274,9 +274,10 @@ def test_the_meaning_step_is_kept_and_shown_to_the_diagnosis(client, db, script)
     h = login(client)
     _, st = make_student(client, h, grade=2)
     c = start_at(client, h, st["id"], "word")
-    c = upload(client, h, c)["checkin"]  # the word card
+    words = c["next_item"]["units"]  # the word card drawn for this check
+    c = upload(client, h, c)["checkin"]
     ir = c["items"][0]
-    answers = [{"word": "गाय", "correct": True}, {"word": "पानी", "correct": False}]
+    answers = [{"word": words[0], "correct": True}, {"word": words[1], "correct": False}]
     r = client.post(f"/api/checkins/{c['id']}/items/{ir['id']}/meaning", json={"answers": answers}, headers=h)
     assert r.status_code == 200, r.text
     assert r.json()["items"][0]["meaning"] == answers

@@ -9,7 +9,7 @@ only the English level.
 from __future__ import annotations
 
 import asyncio
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import HTTPException
@@ -59,20 +59,40 @@ def outcomes(checkin: Checkin) -> list[ItemOutcome]:
             else ItemScore.from_dict(r.result).outcome() for r in checkin.items]
 
 
-def _recent_item_ids(db: Session, checkin: Checkin) -> set[str]:
-    """Items from this check-in and the student's previous one in the same language, so the child does not re-read
-    the same text (a card that was skipped was never read, so it may come up again)."""
+RECENT_CHECKS = 3  # a child does not get a card (or a letter or word) they read in their last three checks
+
+
+def _recent_reads(db: Session, checkin: Checkin, level: str) -> tuple[set[str], set[str]]:
+    """What the child should not get at this rung: the cards they read in this check and their last three in this
+    language (a skipped card was never read, so it may come back), the letters or words on those cards, and the card
+    the child checked just before them in the class read at this level (they may have heard it)."""
     prev = db.scalars(
         select(Checkin)
         .where(Checkin.student_id == checkin.student_id, Checkin.id != checkin.id, Checkin.status.in_(FINISHED),
                Checkin.language == checkin.language)
         .order_by(Checkin.started_at.desc())
+        .limit(RECENT_CHECKS)
+    ).all()
+    read = [r for c in (checkin, *prev) for r in c.items if r.source != "skipped"]
+    ids = {r.item_id for r in read}
+    units: set[str] = set()
+    for r in read:
+        if r.item_level == level:
+            try:
+                units |= set(get_item(r.item_id).units or ())
+            except KeyError:
+                pass  # a card no longer in the bank
+    neighbour = db.scalar(
+        select(ItemResult.item_id).join(Checkin, ItemResult.checkin_id == Checkin.id).join(Student)
+        .where(Student.classroom_id == checkin.student.classroom_id, Checkin.student_id != checkin.student_id,
+               Checkin.language == checkin.language, ItemResult.item_level == level,
+               Checkin.started_at <= checkin.started_at)
+        .order_by(Checkin.started_at.desc(), ItemResult.position.desc())
         .limit(1)
-    ).first()
-    ids = {r.item_id for r in checkin.items if r.source != "skipped"}
-    if prev:
-        ids |= {r.item_id for r in prev.items if r.source != "skipped"}
-    return ids
+    )
+    if neighbour:
+        ids.add(neighbour)
+    return ids, units
 
 
 def awaiting_review(checkin: Checkin) -> bool:
@@ -94,7 +114,11 @@ def next_item(db: Session, checkin: Checkin) -> Item | None:
     if checkin.status != "in_progress" or awaiting_review(checkin):
         return None
     level = next_item_level(outcomes(checkin), checkin.start_level, fixed=bool(checkin.fixed_level))
-    return pick_item(checkin.language, level, _recent_item_ids(db, checkin)) if level else None
+    if not level:
+        return None
+    # Seeded by the check and its position: asked again, the check gets the same card back.
+    ids, units = _recent_reads(db, checkin, level)
+    return pick_item(checkin.language, level, ids, seed=f"{checkin.id}:{len(checkin.items)}", avoid_units=units)
 
 
 def _start_for(student, lang: str) -> tuple[str, bool]:
@@ -134,9 +158,11 @@ def refresh_start(db: Session, checkin: Checkin) -> None:
 
 
 def start(db: Session, teacher: Teacher, student_id: str, language: str | None, local_id: str | None,
-          ladder_start: str | None = None, fixed_level: bool = False) -> Checkin:
+          ladder_start: str | None = None, fixed_level: bool = False, started_at: datetime | None = None) -> Checkin:
     """`ladder_start` (and `fixed_level`) come from a check-in run offline on the phone: the server keeps the phone's
-    starting rung so the uploaded items line up with the same ladder."""
+    starting rung so the uploaded items line up with the same ladder. `started_at` (offline too): when the check was
+    done on the phone, so it is dated that day and counts in its place among the child's checks, not when it was sent
+    (never later than now, and a year at most)."""
     student = owned_student(db, teacher, student_id)
     if local_id:
         existing = db.scalar(select(Checkin).where(Checkin.local_id == local_id))
@@ -148,8 +174,13 @@ def start(db: Session, teacher: Teacher, student_id: str, language: str | None, 
     if ladder_start is not None and (local_id is None or ladder_start not in ITEM_LEVELS):
         raise HTTPException(422, "start_level is only for offline check-ins and must be an item level")
     level, fixed = (ladder_start, fixed_level) if ladder_start else _start_for(student, lang)
+    when = None
+    if local_id and started_at is not None:
+        started_at = started_at if started_at.tzinfo else started_at.replace(tzinfo=timezone.utc)
+        if started_at > utcnow() - timedelta(days=365):
+            when = min(started_at, utcnow())
     c = Checkin(student_id=student.id, language=lang, local_id=local_id, status="in_progress",
-                start_level=level, fixed_level=fixed)
+                start_level=level, fixed_level=fixed, **({"started_at": when} if when else {}))
     db.add(c)
     db.commit()
     return c

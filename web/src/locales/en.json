@@ -12,6 +12,7 @@
   "retry": "Try again",
   "error": "Something went wrong.",
   "logout": "Log out",
+  "logoutPending": "Some work is not sent yet. It stays on this phone and is sent the next time you log in here. Log out?",
   "next": "Next",
   "login": {
     "title": "Teacher login",
@@ -188,7 +189,9 @@
     "listenAll": "Listen to the recording",
     "listenWord": "Listen to this word",
     "skipCard": "Skip this card",
-    "skipped": "{{level}} skipped — it does not count"
+    "skipped": "{{level}} skipped — it does not count",
+    "lostNetwork": "No network. This check can go on here on the phone, and it is sent when the network is back.",
+    "continueOffline": "Continue offline"
   },
   "result": {
     "skipped": "Skipped — not counted",
@@ -362,7 +365,11 @@
     "failed": "Could not be sent yet. It will be tried again.",
     "onPhone": "Saved on this phone",
     "waiting": "Waiting to send",
-    "failedShort": "Will retry"
+    "failedShort": "Will retry",
+    "notSent": "The server did not accept this check.",
+    "sendAgain": "Send again",
+    "remove": "Remove from this phone",
+    "removeConfirm": "Remove this check from the phone? It was not sent, so it will be lost."
   },
   "errors": {
     "offline": "No network. Check the connection and try again.",
@@ -371,6 +378,7 @@
     "tooLong": "The recording is too long. Please record again.",
     "confirmFirst": "First confirm the words the app was not sure about.",
     "nothingRead": "No card has been read yet.",
-    "checkMoved": "This reading check has moved on. Go back to the child's page and open it again."
+    "checkMoved": "This reading check has moved on. Go back to the child's page and open it again.",
+    "notSaved": "No network, and this page is not saved on this phone yet. Open it once with internet."
   }
 }

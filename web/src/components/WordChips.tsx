@@ -1,10 +1,8 @@
 import { useTranslation } from 'react-i18next'
+import { wordCorrect } from '../lib/rescore'
 import type { Word } from '../lib/types'
 
-export function wordCorrect(w: Word): boolean {
-  if (w.teacher_correct !== null && w.teacher_correct !== undefined) return w.teacher_correct
-  return w.label === 'correct' || w.label === 'self_correct'
-}
+export { wordCorrect }
 
 export function heardAs(w: Word): string | null {
   const agreeing = Object.entries(w.labels).filter(([, l]) => l === w.label).map(([p]) => p)

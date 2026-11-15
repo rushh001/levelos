@@ -7,14 +7,15 @@
  * wherever the AI disagrees with a tap, that word becomes uncertain for the teacher to confirm.
  * Every step is idempotent (local_id, item count, per-clip flag), so an interrupted sync simply resumes.
  */
-import { Api, ApiError, OfflineError } from '../api'
-import { db, type QueuedCheckin } from '../db'
+import { Api, ApiError, currentTeacherId, noServer } from '../api'
+import { db, type OfflineItem, type QueuedCheckin } from '../db'
 import i18n from '../i18n'
-import { nextItemLevel, outcomeFromMarks, placedLevel, skippedOutcome, startLevel } from './aser'
-import { flushOutbox, waitsForChild } from './outbox'
-import { pickItem } from './content'
+import { itemPassed, nextItemLevel, outcomeFromMarks, placedLevel, skippedOutcome, startLevel } from './aser'
+import { flushOutbox, mine, waitsForChild } from './outbox'
+import { getItem, pickItem } from './content'
 import { nameIn } from './names'
-import type { ItemLevel, ItemPublic, Level, StudentDetail } from './types'
+import { wordCorrect } from './rescore'
+import type { Checkin, ItemLevel, ItemPublic, Level, StudentDetail } from './types'
 
 export function newLocalId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -22,9 +23,42 @@ export function newLocalId(): string {
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-export async function startOffline(s: StudentDetail, language: string): Promise<string> {
+/** A card read on the server, as the phone keeps it: what the child got right (the teacher's taps, else the speech
+ * services'), so the ladder goes on from it. */
+function carried(r: Checkin['items'][number]): OfflineItem {
+  if (r.source === 'skipped') return { itemId: r.item_id, level: r.item_level, marks: [], durationMs: null, skipped: true }
+  return {
+    itemId: r.item_id,
+    level: r.item_level,
+    marks: r.result.words.map(wordCorrect),
+    durationMs: r.result.reading_ms || null,
+    meaning: r.meaning?.length ? r.meaning : undefined,
+  }
+}
+
+/** The cards of a check on the server the phone can go on from, so the server replays the same ladder when the
+ * check is sent: each one up to the first that is not the card the ladder asks for at that point (the starting card
+ * changed since: a group was chosen in between), or that would count differently from marks alone (a passage the
+ * AI failed for its long pauses, which marks do not carry). The child reads from there again. */
+function carriedItems(from: Checkin, language: string): OfflineItem[] {
+  const out: OfflineItem[] = []
+  for (const r of from.items) {
+    const it = carried(r)
+    const sofar = out.map((x) => (x.skipped ? skippedOutcome(x.level) : outcomeFromMarks(x.level, x.marks, x.durationMs, language)))
+    if (nextItemLevel(sofar, from.start_level, !!from.fixed_level) !== it.level) break
+    if (!it.skipped && itemPassed(outcomeFromMarks(it.level, it.marks, it.durationMs, language)) !== !!r.passed) break
+    out.push(it)
+  }
+  return out
+}
+
+/** A reading check run on the phone. `from`: the unfinished check on the server it takes over (the network went in
+ * the middle of it, or it was started online and is opened again with no network): it goes on from the cards
+ * already read, from the same starting card, and the server's one is closed on sync. */
+export async function startOffline(s: StudentDetail, language: string, from?: Checkin): Promise<string> {
   const localId = newLocalId()
   const level = s.levels[language]
+  const items = from ? carriedItems(from, language) : []
   await db.checkins.put({
     localId,
     studentId: s.id,
@@ -32,18 +66,23 @@ export async function startOffline(s: StudentDetail, language: string): Promise<
     studentName: nameIn(s, s.first_name, i18n.language),
     avatar: s.avatar,
     language,
-    startLevel: startLevel(
-      s.grade,
-      level?.confirmed_level ?? level?.provisional_level ?? null,
-      level?.cohort_override ?? null,
-      Object.entries(s.levels)
-        .filter(([l]) => l !== language)
-        .map(([, lv]) => lv.confirmed_level ?? lv.provisional_level)
-        .filter((lv): lv is NonNullable<typeof lv> => lv !== null),
-    ),
-    fixedLevel: !!level?.cohort_override,
+    startLevel:
+      from?.start_level ??
+      startLevel(
+        s.grade,
+        level?.confirmed_level ?? level?.provisional_level ?? null,
+        level?.cohort_override ?? null,
+        Object.entries(s.levels)
+          .filter(([l]) => l !== language)
+          .map(([, lv]) => lv.confirmed_level ?? lv.provisional_level)
+          .filter((lv): lv is NonNullable<typeof lv> => lv !== null),
+      ),
+    fixedLevel: from ? !!from.fixed_level : !!level?.cohort_override,
+    replaces: from?.id,
+    carried: items.length,
+    owner: currentTeacherId(),
     startedAt: Date.now(),
-    items: [],
+    items,
     status: 'in_progress',
   })
   return localId
@@ -55,10 +94,16 @@ export function outcomes(c: QueuedCheckin) {
   )
 }
 
+/** The next card, by the server's rule: seeded by the check and its position, so the check shows the same card if
+ * the page is opened again and every check (every child) gets its own; never a card read in this check (a skipped
+ * one was not read). */
 export function nextItem(c: QueuedCheckin): ItemPublic | null {
   if (c.status !== 'in_progress') return null
   const level = nextItemLevel(outcomes(c), c.startLevel, !!c.fixedLevel)
-  return level ? pickItem(c.language, level, c.items.map((i) => i.itemId)) : null
+  if (!level) return null
+  const read = c.items.filter((i) => !i.skipped).map((i) => i.itemId)
+  const units = read.flatMap((id) => getItem(id)?.units ?? [])
+  return pickItem(c.language, level, read, `${c.localId}:${c.items.length}`, units)
 }
 
 export async function addItem(
@@ -110,6 +155,12 @@ export async function finishOffline(localId: string, teacherLevel?: Level): Prom
   })
 }
 
+/** A check the server refused, sent again (the teacher asked). */
+export async function retryOffline(localId: string) {
+  await db.checkins.update(localId, { status: 'queued', attempts: 0, error: undefined })
+  void syncAll()
+}
+
 export async function abandonOffline(localId: string) {
   await db.clips.where('checkinLocalId').equals(localId).delete()
   await db.checkins.delete(localId)
@@ -119,8 +170,26 @@ export async function abandonOffline(localId: string) {
 
 let running = false
 
+/** The check could not be sent as it is: tried again a few times, then left for the teacher to see. */
+class NotSendable extends Error {}
+
 async function syncOne(c: QueuedCheckin) {
-  let server = await Api.startCheckin(c.studentId, c.language, c.localId, c.startLevel, !!c.fixedLevel)
+  // The unfinished check on the server this one took over is closed first. If it had finished after all (its last
+  // answer was lost on the way back) and nothing was read on the phone since, this one only repeats it: let go.
+  if (c.replaces && !c.serverId) {
+    const old = await Api.abandon(c.replaces).catch((e) => {
+      if (e instanceof ApiError && e.status === 404) return null // removed in the meantime
+      throw e
+    })
+    if (old && (old.status === 'scored' || old.status === 'needs_review') && c.items.length <= (c.carried ?? 0) && !c.teacherLevel) {
+      await db.clips.where('checkinLocalId').equals(c.localId).delete()
+      await db.checkins.update(c.localId, { status: 'synced', serverId: old.id, error: undefined })
+      return
+    }
+  }
+  let server = await Api.startCheckin(c.studentId, c.language, c.localId, c.startLevel, !!c.fixedLevel, c.startedAt)
+  await db.checkins.update(c.localId, { serverId: server.id })
+  if (server.status === 'abandoned') throw new NotSendable('stopped on the server while it was being sent')
   if (server.status === 'in_progress') {
     for (let k = server.items.length; k < c.items.length; k++) {
       const it = c.items[k]
@@ -132,13 +201,13 @@ async function syncOne(c: QueuedCheckin) {
     }
     server = c.teacherLevel ? await Api.override(server.id, c.teacherLevel) : await Api.finish(server.id)
   }
+  if (server.items.length < c.items.length) throw new NotSendable(`the server has ${server.items.length} of its ${c.items.length} cards`)
   // The picture step's answers, for any card the server does not have them for yet (a sync may have broken off
   // between a card's marks and its answers).
   for (let k = 0; k < Math.min(server.items.length, c.items.length); k++) {
     const it = c.items[k]
     if (it.meaning?.length && !server.items[k].meaning) server = await Api.meaning(server.id, server.items[k].id, it.meaning)
   }
-  await db.checkins.update(c.localId, { serverId: server.id })
   for (let k = 0; k < c.items.length; k++) {
     const it = c.items[k]
     if (!it.clipId || it.audioUploaded) continue
@@ -155,21 +224,26 @@ async function syncOne(c: QueuedCheckin) {
   await db.checkins.update(c.localId, { status: 'synced', error: undefined })
 }
 
-/** Push every finished offline check-in. Stops quietly at the first sign of no network. */
+const MAX_ATTEMPTS = 3 // a check the server refuses is tried this often, then left for the teacher (send again, or remove)
+
+/** Push every finished offline check-in of the teacher logged in. Stops quietly at the first sign of no network (or
+ * a server failing for now): those are sent next time. A check the server refuses is tried a few times only. */
 export async function syncAll(): Promise<number> {
   if (running || !navigator.onLine) return 0
   running = true
   let synced = 0
   try {
     await flushOutbox() // classes, children and group changes made offline go first: the checks may need them
-    const pending = await db.checkins.where('status').anyOf('queued', 'failed').sortBy('startedAt')
+    const pending = (await db.checkins.where('status').anyOf('queued', 'failed').sortBy('startedAt')).filter(
+      (c) => mine(c) && (c.status === 'queued' || (c.attempts ?? 0) < MAX_ATTEMPTS),
+    )
     for (const c of pending) {
-      if (waitsForChild(c.studentId)) continue // the child made offline is not on the server yet
+      if (await waitsForChild(c)) continue // the child made offline is not on the server yet
       try {
         await syncOne(c)
         synced += 1
       } catch (e) {
-        if (e instanceof OfflineError) break
+        if (noServer(e)) break // no network, or the server failing for now: sent next time
         if (e instanceof ApiError && e.status === 401) break // logged out: retry after the next login
         await db.checkins.update(c.localId, {
           status: 'failed',

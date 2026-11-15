@@ -10,11 +10,11 @@ import { SayToChild } from '../components/SayToChild'
 import { SkipCard } from '../components/SkipCard'
 import { SoundToggle } from '../components/SoundToggle'
 import { TapToMark } from '../components/TapToMark'
-import { Button, LevelBadge, Page, ReadingCard, Spinner } from '../components/ui'
+import { Button, ErrorBox, LevelBadge, Page, ReadingCard, Spinner } from '../components/ui'
 import { db } from '../db'
 import { itemPassed, outcomeFromMarks, placedLevel } from '../lib/aser'
 import { getItem } from '../lib/content'
-import { abandonOffline, addItem, addMeaning, addSkip, finishOffline, nextItem, outcomes } from '../lib/offline'
+import { abandonOffline, addItem, addMeaning, addSkip, finishOffline, nextItem, outcomes, retryOffline } from '../lib/offline'
 import { useUiFollows } from '../lib/readingLang'
 import type { Level } from '../lib/types'
 import { type Clip, useRecorder } from '../lib/useRecorder'
@@ -34,6 +34,7 @@ export default function OfflineCheckin() {
   const [busy, setBusy] = useState(false)
   const [celebrate, setCelebrate] = useState<number | null>(null) // the card number being cheered
   const [meaning, setMeaning] = useState<string[] | null>(null) // the picture step's words, after a word card
+  const [saveError, setSaveError] = useState<Error | null>(null) // the phone could not save (its storage full)
 
   const item = c && c.status === 'in_progress' ? nextItem(c) : null
   const placed = c ? placedLevel(outcomes(c)) : null
@@ -59,8 +60,27 @@ export default function OfflineCheckin() {
             <LevelBadge level={c.provisionalLevel ?? null} confirmed={false} large />
           </div>
           <p className="mt-3 text-sm text-ink">
-            {c.status === 'synced' ? t('offlineCheck.synced') : c.status === 'failed' ? t('offlineCheck.failed') : t('offlineCheck.savedNote')}
+            {c.status === 'synced' ? t('offlineCheck.synced') : c.status === 'failed' ? t('offlineCheck.notSent') : t('offlineCheck.savedNote')}
           </p>
+          {c.status === 'failed' && (
+            // The server refused it (the child was removed, say): sent again, or removed with its recordings.
+            <div className="mt-3 space-y-2">
+              {c.error && <p className="break-words text-xs text-mute">{c.error}</p>}
+              <div className="flex flex-wrap gap-2">
+                <Button kind="secondary" onClick={() => void retryOffline(c.localId)}>
+                  {t('offlineCheck.sendAgain')}
+                </Button>
+                <Button
+                  kind="danger"
+                  onClick={() => {
+                    if (window.confirm(t('offlineCheck.removeConfirm'))) void abandonOffline(c.localId).then(() => navigate(back, { replace: true }))
+                  }}
+                >
+                  {t('offlineCheck.remove')}
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
         <ul className="mt-4 space-y-2 stagger">
           {c.items.map((it, k) => {
@@ -127,22 +147,34 @@ export default function OfflineCheckin() {
 
   const save = async (marks: boolean[]) => {
     setBusy(true)
+    setSaveError(null)
     const n = c.items.length + 1
     const ask = item.level === 'word' && meaningWords(item.units ?? [], c.language).length ? item.units ?? [] : null
-    await addItem(c.localId, item, marks, clip)
-    setClip(null)
-    setMarking(false)
-    setBusy(false)
-    setCelebrate(n)
-    setMeaning(ask)
+    try {
+      await addItem(c.localId, item, marks, clip)
+      setClip(null)
+      setMarking(false)
+      setCelebrate(n)
+      setMeaning(ask)
+    } catch (e) {
+      setSaveError(e as Error)
+    } finally {
+      setBusy(false)
+    }
   }
   // The teacher skips the card instead of having it read: it counts for nothing; the ladder moves on (or ends).
   const skip = async () => {
     setBusy(true)
-    await addSkip(c.localId, item)
-    setClip(null)
-    setMarking(false)
-    setBusy(false)
+    setSaveError(null)
+    try {
+      await addSkip(c.localId, item)
+      setClip(null)
+      setMarking(false)
+    } catch (e) {
+      setSaveError(e as Error)
+    } finally {
+      setBusy(false)
+    }
   }
   const record = async () => {
     const got = await recorder.start()
@@ -185,6 +217,7 @@ export default function OfflineCheckin() {
       )}
       <SayToChild item={item} test={c.language} />
       <ReadingCard item={item} />
+      <ErrorBox error={saveError} />
 
       {marking ? (
         <>

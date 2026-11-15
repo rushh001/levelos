@@ -1,5 +1,7 @@
 """End-to-end API flow with a scripted fake scorer (no audio processing, no vendors)."""
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -157,6 +159,34 @@ def test_the_shared_demo_class_cannot_be_deleted(client, db):
     assert client.delete(f"/api/classes/{same['id']}", headers=asha).status_code == 200
 
 
+def test_each_check_gets_its_own_cards(client, script):
+    # Children in a class rarely get the same letter or word card, never the paragraph the child before them read,
+    # and a child never reads the same paragraph again in their next checks.
+    h = login(client)
+    cls, a = make_student(client, h)
+    b = client.post(f"/api/classes/{cls['id']}/students", json={"first_name": "Ravi"}, headers=h).json()
+    ca = client.post("/api/checkins", json={"student_id": a["id"]}, headers=h).json()
+    cb = client.post("/api/checkins", json={"student_id": b["id"]}, headers=h).json()
+    assert "~" in ca["next_item"]["id"] and ca["next_item"]["id"] != cb["next_item"]["id"]
+    assert client.get(f"/api/checkins/{ca['id']}", headers=h).json()["next_item"]["id"] == ca["next_item"]["id"]
+
+    def paragraph_check(student, n):
+        return client.post("/api/checkins", json={"student_id": student["id"], "local_id": f"p{n}-{student['id']}",
+                                                  "start_level": "paragraph"}, headers=h).json()
+
+    script.clear()
+    read = []
+    for n in range(3):
+        c = paragraph_check(a, n)
+        read.append(c["next_item"]["id"])
+        c = upload(client, h, c)["checkin"]
+        while c["next_item"]:
+            c = upload(client, h, c)["checkin"]
+        assert client.post(f"/api/checkins/{c['id']}/finish", headers=h).status_code == 200
+    assert len(set(read)) == 3  # never the same paragraph again
+    assert paragraph_check(b, 9)["next_item"]["id"] != read[-1]  # nor the one the child before just read
+
+
 # ---- the adaptive ladder and the two-check guardrail
 
 
@@ -243,6 +273,20 @@ def test_local_id_makes_start_idempotent(client):
     a = client.post("/api/checkins", json={"student_id": st["id"], "local_id": "phone-1"}, headers=h).json()
     b = client.post("/api/checkins", json={"student_id": st["id"], "local_id": "phone-1"}, headers=h).json()
     assert a["id"] == b["id"]
+
+
+def test_an_offline_check_is_dated_when_it_was_done(client):
+    """A check done on the phone and sent days later keeps its own date (never in the future); an online one cannot
+    set one."""
+    h = login(client)
+    _, st = make_student(client, h)
+    start = lambda **kw: client.post("/api/checkins", json={"student_id": st["id"], **kw}, headers=h).json()  # noqa: E731
+    week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).replace(microsecond=0)
+    assert start(local_id="phone-dated", started_at=week_ago.isoformat())["started_at"][:16] == week_ago.isoformat()[:16]
+    future = start(local_id="phone-future", started_at=(datetime.now(timezone.utc) + timedelta(days=3)).isoformat())
+    assert datetime.fromisoformat(future["started_at"].replace("Z", "+00:00")) <= datetime.now(timezone.utc)
+    online = start(started_at=week_ago.isoformat())
+    assert datetime.fromisoformat(online["started_at"].replace("Z", "+00:00")) > datetime.now(timezone.utc) - timedelta(minutes=5)
 
 
 # ---- teacher review of uncertain words, overrides

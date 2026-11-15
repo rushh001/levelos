@@ -6,6 +6,7 @@ import { ReviewPanel } from '../components/ReviewPanel'
 import { WordChips, WordLegend, wordCorrect } from '../components/WordChips'
 import { ErrorBox, LevelBadge, Page, Spinner } from '../components/ui'
 import { nameIn, withName } from '../lib/names'
+import { deleteCheckRecordings, overrideCheck, reviewCheck } from '../lib/outbox'
 import { patternKey, useUiFollows } from '../lib/readingLang'
 import type { Checkin, Evidence, ItemResult, Level, Word } from '../lib/types'
 import { pick, useUiLang } from '../lib/uiLang'
@@ -61,7 +62,7 @@ export default function Result() {
   }
 
   const tapWord = (itemResultId: string, w: Word) =>
-    void act(() => Api.review(checkin.id, [{ item_result_id: itemResultId, i: w.i, correct: !wordCorrect(w) }]))
+    void act(() => reviewCheck(checkin, [{ item_result_id: itemResultId, i: w.i, correct: !wordCorrect(w) }]))
 
   const d = checkin.diagnosis
   const confirmedNow =
@@ -94,7 +95,7 @@ export default function Result() {
           <select
             disabled={saving}
             value={checkin.teacher_overrode ? checkin.level_final ?? '' : ''}
-            onChange={(e) => void act(() => Api.override(checkin.id, (e.target.value || null) as Level | null))}
+            onChange={(e) => void act(() => overrideCheck(checkin, (e.target.value || null) as Level | null))}
             className="select px-2 py-1.5"
           >
             <option value="">{t('result.clearOverride')}</option>
@@ -113,7 +114,7 @@ export default function Result() {
             checkinId={checkin.id}
             items={checkin.items.filter((r) => r.needs_review)}
             busy={saving}
-            onDone={(marks) => void act(() => Api.review(checkin.id, marks))}
+            onDone={(marks) => void act(() => reviewCheck(checkin, marks))}
           />
         </div>
       )}
@@ -176,7 +177,7 @@ export default function Result() {
           <span>{t('result.keptDays', { days: health?.audio_retention_days ?? 30 })}</span>
           <button
             onClick={() => {
-              if (window.confirm(t('result.deleteConfirm'))) void act(() => Api.deleteRecordings(checkin.id))
+              if (window.confirm(t('result.deleteConfirm'))) void act(() => deleteCheckRecordings(checkin))
             }}
             className="rounded-xl border border-line bg-white px-2 py-1 text-mute"
           >

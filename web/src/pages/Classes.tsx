@@ -7,6 +7,7 @@ import { Button, ErrorBox, Page, Spinner } from '../components/ui'
 import { bankLanguages, isBeta } from '../lib/content'
 import { nameIn } from '../lib/names'
 import { createClass, deleteClass } from '../lib/outbox'
+import { useSaveAllForOffline } from '../lib/saveOffline'
 import { useUiLang } from '../lib/uiLang'
 import { useAsync } from '../lib/useAsync'
 
@@ -15,6 +16,7 @@ export default function Classes({ list }: { list?: boolean }) {
   const { t } = useTranslation()
   const ui = useUiLang()
   const { data, error, loading, reload } = useAsync(() => Api.classes())
+  useSaveAllForOffline(data) // every class, for use with no network
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
   const [grade, setGrade] = useState(2)
@@ -22,16 +24,27 @@ export default function Classes({ list }: { list?: boolean }) {
   const [confirming, setConfirming] = useState<string | null>(null) // the class whose delete is being confirmed
   const [deleted, setDeleted] = useState(false) // after a delete, stay on the list
   const [deleteError, setDeleteError] = useState<Error | null>(null)
+  const [saving, setSaving] = useState(false) // a double tap makes the class once
+  const [createError, setCreateError] = useState<Error | null>(null)
 
   if (loading && !data) return <Page><Spinner label={t('loading')} /></Page>
   if (data && data.length === 1 && !creating && !list && !deleted) return <Navigate to={`/class/${data[0].id}`} replace />
 
   const create = async (e: FormEvent) => {
     e.preventDefault()
-    await createClass({ name, grade, language }) // offline too: sent when the network is back
-    setCreating(false)
-    setName('')
-    await reload()
+    if (saving) return
+    setSaving(true)
+    setCreateError(null)
+    try {
+      await createClass({ name, grade, language }) // offline too: sent when the network is back
+      setCreating(false)
+      setName('')
+      await reload()
+    } catch (err) {
+      setCreateError(err as Error)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const remove = async (classId: string) => {
@@ -104,6 +117,7 @@ export default function Classes({ list }: { list?: boolean }) {
       </ul>
       {creating ? (
         <form onSubmit={create} className="mt-6 space-y-3 card">
+          <ErrorBox error={createError} />
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -132,7 +146,7 @@ export default function Classes({ list }: { list?: boolean }) {
           </label>
           <p className="text-xs text-mute">{t('classes.languageHint')}</p>
           <div className="flex gap-2">
-            <Button type="submit">{t('save')}</Button>
+            <Button type="submit" disabled={saving}>{t('save')}</Button>
             <Button kind="secondary" onClick={() => setCreating(false)}>
               {t('cancel')}
             </Button>

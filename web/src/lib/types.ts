@@ -146,6 +146,8 @@ export interface Checkin {
   status: CheckinStatus
   source: 'ai' | 'offline_marks'
   start_level: ItemLevel
+  /** The teacher chose the group: the check reads only that level's card. */
+  fixed_level?: boolean
   level_suggested: Level | null
   level_final: Level | null
   teacher_overrode: boolean

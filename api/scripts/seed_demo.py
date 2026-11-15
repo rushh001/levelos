@@ -19,7 +19,7 @@ import sys
 from datetime import timedelta
 
 from app.auth import hash_pin
-from app.content import Item, items, pick_item
+from app.content import Item, items
 from app.db import Base, SessionLocal, create_schema, engine
 from app.levels.aser_rules import LEVEL_ORDER, next_item_level
 from app.llm import diagnose as diag
@@ -166,7 +166,7 @@ def run_checkin(db, teacher, student, language: str, target: str, profile: str, 
         level = next_item_level(outcomes, c.start_level)
         if level is None:
             break
-        item = pick_item(c.language, level, svc._recent_item_ids(db, c))
+        item = svc.next_item(db, c)
         passed = LEVEL_ORDER[level] <= LEVEL_ORDER[target_level]
         flip = review and level == "paragraph"
         score = synthetic(item, passed, profile, rng, vocab, uncertain_extra=flip)

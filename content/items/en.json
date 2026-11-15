@@ -1,7 +1,7 @@
 {
   "language": "en",
   "version": "0.1.0",
-  "status": "draft: awaiting educator review",
+  "status": "draft: awaiting educator review; pools and the passages after -b drafted with Claude (scripts/draft_cards.py), held in code to the spec and to the difficulty of the reviewed -a and -b cards",
   "spec": "Same five-level ladder as the regional-language tool (letter, word, paragraph, story) so one engine and one dashboard serve every language. ASER's own English tool uses a different ladder (capital letters, small letters, words, sentences); this deviation is stated in the README. Letters: lowercase, 5 per card, letter name or sound both accepted. Words: familiar 3-letter CVC words, 5 per card. Paragraph: 4 linked sentences of at most 6 words. Story: 7-10 linked sentences. Original text written for LevelOS.",
   "instructions": {
     "letter": {
@@ -36,6 +36,10 @@
       "bn": "এই গল্পটা জোরে পড়ো।",
       "en": "Read this story aloud."
     }
+  },
+  "pools": {
+    "letter": ["s", "m", "t", "a", "p", "d", "b", "n", "e", "g", "h", "r", "l", "o", "c", "f", "i", "j", "k", "u", "v", "w", "y"],
+    "word": ["cat", "sun", "pen", "bus", "hat", "dog", "cup", "red", "bag", "sit", "pot", "net", "fan", "big", "mud", "bed", "bee", "box", "car", "cow", "egg", "fox", "hen", "key", "pig", "rat", "tap", "van", "arm", "leg", "ear", "eye", "lip", "toe", "jam", "tea", "pan", "mat", "rug", "mop", "jug", "tin", "bat", "ant", "owl", "yak", "ram", "cub", "boy", "toy", "map", "cap", "bun", "nut", "pea", "fig", "oil", "ink", "jar", "bin"]
   },
   "items": [
     { "id": "en-letter-a", "level": "letter", "units": ["s", "m", "t", "a", "p"] },
@@ -88,6 +92,91 @@
         "The kite flew away over the trees.",
         "Arjun laughed and said, \"We will make another one.\""
       ]
+    },
+
+    {
+      "id": "en-para-c",
+      "level": "paragraph",
+      "title": "The cat on the wall",
+      "sentences": ["A cat sat on the wall.", "It was black and white.", "It saw a small bird.", "The bird flew away."]
+    },
+    {
+      "id": "en-para-d",
+      "level": "paragraph",
+      "title": "Rain in the field",
+      "sentences": ["It rained in the night.", "The field is wet now.", "Frogs sit in the mud.", "They sing all morning."]
+    },
+    {
+      "id": "en-para-e",
+      "level": "paragraph",
+      "title": "My new pencil",
+      "sentences": ["Father gave me a pencil.", "It is long and blue.", "I write my name with it.", "I keep it in my bag."]
+    },
+    {
+      "id": "en-para-f",
+      "level": "paragraph",
+      "title": "Our big kite",
+      "sentences": ["We made a big kite.", "It is red and yellow.", "The wind took it up.", "It flew over the trees."]
+    },
+    {
+      "id": "en-para-g",
+      "level": "paragraph",
+      "title": "Lunch at school",
+      "sentences": ["We eat lunch at school.", "Today we have rice and dal.", "My friend shares her roti.", "I give her my banana."]
+    },
+    {
+      "id": "en-para-h",
+      "level": "paragraph",
+      "title": "The hen and her eggs",
+      "sentences": ["Our hen sits in a box.", "She has four eggs.", "One day the eggs crack.", "Four small chicks come out."]
+    },
+    {
+      "id": "en-para-i",
+      "level": "paragraph",
+      "title": "Play in the sand",
+      "sentences": ["We play near the river.", "The sand is soft and warm.", "I make a little house.", "My sister makes a big hill."]
+    },
+    {
+      "id": "en-para-j",
+      "level": "paragraph",
+      "title": "The cow and her calf",
+      "sentences": ["A cow is in the shed.", "Her calf is very small.", "It drinks milk from her.", "Then it lies down to nap."]
+    },
+    {
+      "id": "en-story-c",
+      "level": "story",
+      "title": "The red umbrella",
+      "sentences": ["Ravi was walking to school.", "Big dark clouds came in the sky.", "Soon the rain began to fall.", "Ravi did not have an umbrella.", "His friend Sita had a red one.", "She said, \"Come, walk with me.\"", "They walked to school under it.", "Both of them were dry in class.", "Ravi said, \"Thank you, Sita.\""]
+    },
+    {
+      "id": "en-story-d",
+      "level": "story",
+      "title": "A trip to the market",
+      "sentences": ["Priya went to the market with Father.", "There were many shops and carts.", "They bought onions and potatoes.", "Father also bought some yellow bananas.", "Priya carried the small bag home.", "Mother made a hot potato curry.", "Everyone ate it with rice.", "Priya gave each person a banana."]
+    },
+    {
+      "id": "en-story-e",
+      "level": "story",
+      "title": "Rotis with Grandma",
+      "sentences": ["Grandma was making rotis for lunch.", "Kiran wanted to help her.", "Grandma gave him a small ball of dough.", "Kiran rolled it flat.", "His roti was not round.", "It looked like a map!", "Grandma laughed and put it on the pan.", "Kiran ate his own roti with dal.", "He said it was the best one."]
+    },
+    {
+      "id": "en-story-f",
+      "level": "story",
+      "title": "The ball in the tree",
+      "sentences": ["Asha and Raju played with a ball.", "Raju threw the ball very high.", "It got stuck in the neem tree.", "They could not reach it.", "Asha found a long stick.", "She tapped the branch.", "The ball fell down.", "They played again till evening."]
+    },
+    {
+      "id": "en-story-g",
+      "level": "story",
+      "title": "The bird's nest",
+      "sentences": ["A bird made a nest near our window.", "It used grass and small sticks.", "Soon there were three eggs in it.", "Gita looked at the nest every day.", "One morning she heard a soft sound.", "Three baby birds were in the nest.", "Their mother brought them food.", "Gita was very happy to see them."]
+    },
+    {
+      "id": "en-story-h",
+      "level": "story",
+      "title": "Amit's new cycle",
+      "sentences": ["Amit got a new blue cycle.", "He did not know how to ride it.", "His sister Neha held the seat.", "Amit pushed the pedals slowly.", "He fell down on the grass.", "He got up and tried again.", "Soon he could ride alone.", "Now he rides with Neha to school."]
     }
   ]
 }

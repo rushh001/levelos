@@ -4,8 +4,9 @@
  * each part starts; the recording is kept on the phone, so it plays again with no network. Otherwise the phone's own
  * voice reads the parts, if the phone has one for the language.
  */
+import bank from 'virtual:activity-bank'
 import type { TFunction } from 'i18next'
-import { Api } from '../api'
+import { Api, isReachable } from '../api'
 import { db } from '../db'
 import { patternKey } from './readingLang'
 import type { Activity, ActivityStep } from './types'
@@ -24,7 +25,7 @@ export interface Recording {
 }
 
 const MAX_PART = 500
-const KEPT = 12 // recordings kept on the phone (each about half a megabyte)
+const KEPT = 30 // recordings kept on the phone (each about half a megabyte): a class's groups in its languages, and more
 // The locale each interface language's voice speaks, for the phone's own voices.
 const LOCALE: Record<string, string> = { en: 'en-IN', hi: 'hi-IN', mr: 'mr-IN', kn: 'kn-IN', ta: 'ta-IN', bn: 'bn-IN' }
 
@@ -77,6 +78,8 @@ export async function serverRecording(ui: string, parts: Part[]): Promise<Record
   const key = `speech/${ui}/${fnv(parts.map((p) => p.text).join('\n'))}`
   let kept = (await db.cache.get(key).catch(() => undefined))?.value as Kept | undefined
   if (!kept) {
+    // The header says Offline: no wait on the network (a request would only time out).
+    if (!navigator.onLine || !isReachable()) return null
     try {
       kept = await Api.speech(ui, parts.map((p) => p.text))
     } catch {
@@ -93,6 +96,89 @@ async function forgetOld() {
   const rows = await db.cache.where('key').startsWith('speech/').toArray()
   const old = rows.sort((x, y) => y.updatedAt - x.updatedAt).slice(KEPT)
   if (old.length) await db.cache.bulkDelete(old.map((r) => r.key))
+}
+
+/** Keeps the server's recording of an activity on the phone (made once on the server, then free), so it can be
+ * heard offline later. Online only; quietly does nothing otherwise. */
+export async function keepRecording(ui: string, parts: Part[]): Promise<void> {
+  if (!navigator.onLine || !isReachable()) return
+  const r = await serverRecording(ui, parts)
+  if (r) URL.revokeObjectURL(r.url)
+}
+
+// ---------------------------------------------------------------- the book activities, recorded once
+
+// Each book activity's title, steps and tip, recorded per language (api/scripts/make_activity_audio.py; the
+// examples in brackets are not read). An activity made on the phone with no network is read aloud from these.
+// They are kept in the browser's cache storage, in the cache the service worker serves them from (vite.config.ts):
+// the page puts them there itself and reads them back itself, so they do not depend on the service worker being in
+// charge of the page at that moment (on the first visit it is not yet, and a hard reload bypasses it).
+const AUDIO_CACHE = 'activity-audio'
+const RECORDED_PARTS = ['title', 'step-0', 'step-1', 'step-2', 'tip']
+const AT_ONCE = 4 // files downloaded at the same time
+const clipUrl = (ui: string, activityId: string, part: string) => `/audio/activity/${ui}/${activityId}/${part}.mp3`
+const BOOK = bank.filter((a) => a.uses_text)
+const audioCache = () => ('caches' in window ? caches.open(AUDIO_CACHE).catch(() => null) : Promise.resolve(null))
+
+/** The recorded parts of a book activity as the bank has it (made on the phone, or the bank's own when Claude was not
+ * used): part key -> file. Null for an activity Claude or LM Studio reworded. */
+export function bookClips(a: Activity, ui: string): Record<string, string> | null {
+  if (!['phone', 'bank'].includes(a.generated_by) || !BOOK.some((b) => b.id === a.source_activity_id)) return null
+  const clips: Record<string, string> = { intro: clipUrl(ui, a.source_activity_id, 'title'), tip: clipUrl(ui, a.source_activity_id, 'tip') }
+  a.plan.steps.forEach((_, i) => {
+    if (RECORDED_PARTS.includes(`step-${i}`)) clips[`step-${i}`] = clipUrl(ui, a.source_activity_id, `step-${i}`)
+  })
+  return clips
+}
+
+const saving = new Map<string, Promise<void>>() // languages being downloaded right now
+
+/** Downloads the recordings for these interface languages (in the background, while online), so they play with no
+ * network. Only the files not on the phone yet are fetched, so calling it again costs one look at the cache. */
+export async function saveRecordings(uis: string[]): Promise<void> {
+  for (const ui of new Set(uis)) {
+    let run = saving.get(ui)
+    if (!run) {
+      run = saveLanguage(ui).finally(() => saving.delete(ui))
+      saving.set(ui, run)
+    }
+    await run
+  }
+}
+
+async function saveLanguage(ui: string): Promise<void> {
+  if (!navigator.onLine) return
+  const cache = await audioCache()
+  if (!cache) return // no cache storage (a plain-http address): the service worker cannot run there either
+  const have = new Set((await cache.keys().catch(() => [] as readonly Request[])).map((r) => new URL(r.url).pathname))
+  const missing = BOOK.flatMap((a) => RECORDED_PARTS.map((part) => clipUrl(ui, a.id, part))).filter((u) => !have.has(u))
+  let next = 0
+  const worker = async () => {
+    while (next < missing.length && navigator.onLine) await cache.add(missing[next++]).catch(() => undefined)
+  }
+  await Promise.all(Array.from({ length: AT_ONCE }, worker))
+}
+
+/** The recorded parts ready to play: each from the phone's copy (as a blob, so no network or service worker is
+ * needed), or from the network while online. Null when the first part cannot be played. `release` frees the copies. */
+export async function playableClips(clips: Record<string, string>): Promise<{ urls: Record<string, string>; release: () => void } | null> {
+  const cache = await audioCache()
+  const urls: Record<string, string> = {}
+  const made: string[] = []
+  for (const [key, url] of Object.entries(clips)) {
+    const kept = await cache?.match(url).catch(() => undefined)
+    const blob = kept?.ok ? await kept.blob().catch(() => null) : null
+    if (blob?.size) {
+      urls[key] = URL.createObjectURL(blob)
+      made.push(urls[key])
+    } else if (navigator.onLine && (await fetch(url).then((r) => r.ok).catch(() => false))) {
+      urls[key] = url
+    }
+  }
+  const release = () => made.forEach((u) => URL.revokeObjectURL(u))
+  if (urls.intro) return { urls, release }
+  release()
+  return null
 }
 
 /** The phone's own voice for the language, if it has one (the list can take a moment to load). */

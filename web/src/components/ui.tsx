@@ -1,28 +1,19 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useSyncExternalStore, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { ApiError, OfflineError } from '../api'
+import { ApiError, OfflineError, isReachable, watchReachable } from '../api'
 import { db } from '../db'
 import { useAuth } from '../lib/auth'
 import { nameIn } from '../lib/names'
+import { mine } from '../lib/outbox'
 import type { Cohort, ItemPublic, Level, StudentSummary } from '../lib/types'
 import { dateLocale, useUiLang } from '../lib/uiLang'
 import { Mascot } from './Mascot'
 
+/** Whether the server can be reached (not just whether the phone is on a network): see api.ts. */
 export function useOnline() {
-  const [online, setOnline] = useState(navigator.onLine)
-  useEffect(() => {
-    const up = () => setOnline(true)
-    const down = () => setOnline(false)
-    window.addEventListener('online', up)
-    window.addEventListener('offline', down)
-    return () => {
-      window.removeEventListener('online', up)
-      window.removeEventListener('offline', down)
-    }
-  }, [])
-  return online
+  return useSyncExternalStore(watchReachable, isReachable)
 }
 
 /** `tag`: a short line under the title (which reading test this is), so the title itself keeps the room. The
@@ -45,14 +36,19 @@ export function Page({
   const { teacher, logout } = useAuth()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  // Reading checks and changes (a class, a child, a group) waiting on the phone for the network.
+  // This teacher's reading checks and changes (a class, a child, a group) waiting on the phone for the network.
   const pending = useLiveQuery(
     async () =>
-      (await db.checkins.where('status').anyOf('queued', 'failed').count()) +
-      (((await db.cache.get('outbox'))?.value as unknown[] | undefined)?.length ?? 0),
-    [],
+      (await db.checkins.where('status').anyOf('queued', 'failed').filter(mine).count()) +
+      ((((await db.cache.get('outbox'))?.value as { owner?: string | null }[] | undefined) ?? []).filter(mine).length),
+    [teacher?.id],
     0,
   )
+  // Logging out with work not sent: it stays on the phone for this teacher's next login here.
+  const logOut = () => {
+    if (pending > 0 && !window.confirm(t('logoutPending'))) return
+    logout()
+  }
 
   return (
     <div className={`mx-auto flex min-h-full flex-col px-4 pb-10 pt-3 ${wide ? 'max-w-3xl' : 'max-w-md'}`}>
@@ -80,21 +76,25 @@ export function Page({
             ⏳ {pending}
           </span>
         )}
-        <span
-          className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-            online ? 'text-leaf-deep' : 'bg-sun-soft text-sun-deep'
-          }`}
-          title={online ? t('online') : t('offline')}
-        >
-          <span className={`h-2 w-2 rounded-full ${online ? 'bg-leaf' : 'bg-sun'}`} aria-hidden />
-          {online ? <span className="sr-only">{t('online')}</span> : t('offline')}
-        </span>
+        {online && (
+          <span className="flex items-center px-2 py-0.5" title={t('online')}>
+            <span className="h-2 w-2 rounded-full bg-leaf" aria-hidden />
+            <span className="sr-only">{t('online')}</span>
+          </span>
+        )}
         {teacher && (
-          <button onClick={logout} className="text-xs text-mute underline underline-offset-2">
+          <button onClick={logOut} className="shrink-0 text-xs text-mute underline underline-offset-2">
             {t('logout')}
           </button>
         )}
       </header>
+      {/* Offline gets its own row, so it is plain to see and a long word for it never squeezes the page title. */}
+      {!online && (
+        <div className="mt-2 flex items-center gap-1.5 self-start rounded-full bg-sun-soft px-2.5 py-1 text-xs font-medium text-sun-deep" title={t('offline')} role="status">
+          <span className="h-2 w-2 rounded-full bg-sun" aria-hidden />
+          {t('offline')}
+        </div>
+      )}
       <main key={pathname} className="mt-4 flex-1 rise">
         {children}
       </main>
@@ -119,7 +119,7 @@ export function Spinner({ label }: { label?: string }) {
 /** A teacher-facing message for any error, in the interface language; the server's own (English, technical) text
  * stays only as a tooltip for whoever debugs it. */
 function errorText(error: Error, t: (key: string) => string): string {
-  if (error instanceof OfflineError) return t('errors.offline')
+  if (error instanceof OfflineError) return t(error.message === 'not-saved' ? 'errors.notSaved' : 'errors.offline')
   if (!(error instanceof ApiError)) return t('error')
   const m = error.message
   if (error.status === 401) return t('errors.session')
@@ -314,7 +314,7 @@ export function ReadingCard({ item }: { item: ItemPublic }) {
   return (
     <div className="rounded-4xl border-2 border-line bg-white p-5 shadow-card pop">
       {item.sentences?.map((s, i) => (
-        <p key={i} className={`font-medium text-ink ${item.level === 'story' ? 'text-2xl leading-relaxed' : 'reading-text'}`}>
+        <p key={i} className={`font-medium text-ink ${item.level === 'story' ? 'reading-face text-2xl leading-relaxed' : 'reading-text'}`}>
           {s}
         </p>
       ))}

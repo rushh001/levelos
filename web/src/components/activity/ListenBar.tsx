@@ -1,23 +1,26 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { phoneVoice, serverRecording, type Part, type Recording } from '../../lib/speech'
+import { phoneVoice, playableClips, serverRecording, type Part, type Recording } from '../../lib/speech'
 
 export interface ListenHandle {
   /** Plays one part only (a step's 🔊). */
   playPart: (i: number) => void
 }
 
-type Mode = 'idle' | 'loading' | 'server' | 'phone' | 'none'
+type Mode = 'idle' | 'loading' | 'server' | 'clips' | 'phone' | 'none'
 
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
 /**
  * "Listen to this activity": the whole activity read aloud in the teacher's language, with a slider to move to any
  * part and a chip per part (intro, each step, homework, tip). `onPart` tells the page which part is being read, so
- * its step glows. The server's voice when online (kept on the phone afterwards); else the phone's own voice.
+ * its step glows. The server's voice when online (kept on the phone afterwards); offline, that kept recording, or for
+ * an activity made on the phone the book activity's recorded lines (`clips`), else the phone's own voice.
  */
-export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; onPart: (key: string | null) => void }>(
-  function ListenBar({ parts, ui, onPart }, ref) {
+export const ListenBar = forwardRef<
+  ListenHandle,
+  { parts: Part[]; ui: string; onPart: (key: string | null) => void; clips?: Record<string, string> | null }
+>(function ListenBar({ parts, ui, onPart, clips }, ref) {
     const { t } = useTranslation()
     const [mode, setMode] = useState<Mode>('idle')
     const [rec, setRec] = useState<Recording | null>(null)
@@ -25,6 +28,8 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
     const [at, setAt] = useState(0) // seconds (server voice) or part index (phone voice)
     const [slow, setSlow] = useState(false)
     const audio = useRef<HTMLAudioElement | null>(null)
+    const player = useRef<HTMLAudioElement | null>(null) // the recorded lines, one after another
+    const lines = useRef<{ urls: Record<string, string>; release: () => void } | null>(null) // those lines, ready to play
     const voice = useRef<SpeechSynthesisVoice | null>(null)
     const stopAt = useRef<number | null>(null) // one part only: pause when the next one starts
     const run = useRef(0) // the phone voice's current run; an utterance from a cancelled run is ignored
@@ -37,7 +42,9 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
     useEffect(
       () => () => {
         audio.current?.pause()
+        player.current?.pause()
         if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+        lines.current?.release()
         onPart(null)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,6 +53,7 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
     useEffect(() => () => void (rec && URL.revokeObjectURL(rec.url)), [rec])
     useEffect(() => {
       if (audio.current) audio.current.playbackRate = slow ? 0.85 : 1
+      if (player.current) player.current.playbackRate = slow ? 0.85 : 1
     }, [slow, rec])
 
     // ---------------------------------------------------------------- the phone's voice
@@ -70,6 +78,32 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
         setAt(k)
         onPart(parts[k].key)
         window.speechSynthesis.speak(u)
+      }
+      setPlaying(true)
+      say(i)
+    }
+
+    // ---------------------------------------------------------------- the recorded lines (offline)
+
+    const playClips = (i: number, only = false) => {
+      const me = ++run.current
+      const el = player.current ?? new Audio()
+      player.current = el
+      const urls = lines.current?.urls ?? {}
+      const say = (k: number) => {
+        if (me !== run.current) return
+        while (k < parts.length && !urls[parts[k].key]) k++ // a part with no recording (the homework) is skipped
+        if (k >= parts.length) {
+          setPlaying(false)
+          onPart(null)
+          return
+        }
+        el.src = urls[parts[k].key]
+        el.playbackRate = slowRef.current ? 0.85 : 1
+        el.onended = () => (only ? me === run.current && (setPlaying(false), onPart(null)) : say(k + 1))
+        setAt(k)
+        onPart(parts[k].key)
+        void el.play().catch(() => me === run.current && (setPlaying(false), onPart(null)))
       }
       setPlaying(true)
       say(i)
@@ -117,6 +151,7 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
 
     const start = async (i = 0, only = false) => {
       if (mode === 'server') return seekTo(i, only)
+      if (mode === 'clips') return playClips(i, only)
       if (mode === 'phone') return speakFrom(i, only)
       if (mode === 'loading') return
       setMode('loading')
@@ -126,6 +161,14 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
         setRec(r)
         setMode('server')
         return seekTo(i, only, r)
+      }
+      // Offline, an activity made on the phone: the book activity's recorded lines, from the phone's copy.
+      const ready = clips ? await playableClips(clips) : null
+      if (ready) {
+        lines.current?.release()
+        lines.current = ready
+        setMode('clips')
+        return playClips(i, only)
       }
       voice.current = await phoneVoice(ui)
       if (!voice.current) return setMode('none')
@@ -147,6 +190,13 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
           return setPlaying(false)
         }
         return speakFrom(at)
+      }
+      if (mode === 'clips' && player.current) {
+        if (playing) {
+          player.current.pause()
+          return setPlaying(false)
+        }
+        return playClips(at)
       }
       void start(0)
     }
@@ -201,7 +251,8 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
                   stopAt.current = null
                   audio.current.currentTime = v
                   setAt(v)
-                } else speakFrom(v)
+                } else if (mode === 'clips') playClips(v)
+                else speakFrom(v)
               }}
               className="w-full accent-brand"
             />
@@ -221,7 +272,7 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
           {parts.map((p, i) => (
             <button
               key={p.key}
-              onClick={() => (mode === 'server' ? seekTo(i) : speakFrom(i))}
+              onClick={() => (mode === 'server' ? seekTo(i) : mode === 'clips' ? playClips(i) : speakFrom(i))}
               className={`min-w-[2.25rem] rounded-full px-2.5 py-1 text-sm font-semibold transition active:scale-95 ${
                 i === current && playing ? 'bg-brand text-white' : 'bg-white text-brand-deep'
               }`}
@@ -240,5 +291,4 @@ export const ListenBar = forwardRef<ListenHandle, { parts: Part[]; ui: string; o
         {mode === 'phone' && <p className="mt-1 text-xs text-mute">{t('activity.phoneVoice')}</p>}
       </div>
     )
-  },
-)
+  })

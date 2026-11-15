@@ -2,13 +2,14 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Api, OfflineError } from '../api'
+import { Api, isReachable, noServer } from '../api'
 import { db } from '../db'
 import { hasBank } from '../lib/content'
+import { aliases } from '../lib/idmap'
 import { nameIn, withName } from '../lib/names'
 import { startOffline } from '../lib/offline'
 import { patternKey, useReadingLang } from '../lib/readingLang'
-import { Button, ErrorBox, LevelBadge, Page, ReadingTestSwitch, Spinner, formatDate } from '../components/ui'
+import { Button, ErrorBox, LevelBadge, Page, ReadingTestSwitch, Spinner, formatDate, useOnline } from '../components/ui'
 import type { Checkin, Cohort } from '../lib/types'
 import { changeGroup } from '../lib/outbox'
 import { pick, useUiLang } from '../lib/uiLang'
@@ -36,7 +37,13 @@ export default function Student() {
   const [starting, setStarting] = useState(false)
   const [startError, setStartError] = useState<Error | null>(null)
   const uiLang = useUiLang()
-  const local = useLiveQuery(() => db.checkins.where('studentId').equals(id).reverse().sortBy('startedAt'), [id])
+  const online = useOnline()
+  // Checks on this phone for the child (under their temporary ID too, if they were added offline).
+  const local = useLiveQuery(
+    async () => db.checkins.where('studentId').anyOf(await aliases(id)).reverse().sortBy('startedAt'),
+    [id],
+  )
+  const [moveError, setMoveError] = useState<Error | null>(null)
 
   if (loading && !s) return <Page back><Spinner label={t('loading')} /></Page>
   if (!s) return <Page back><ErrorBox error={error} onRetry={reload} /></Page>
@@ -44,16 +51,23 @@ export default function Student() {
   const level = s.levels[lang]
   const langName = t(`lang.${lang}`, { defaultValue: lang })
 
+  // A check left unfinished on the server: not one the phone is sending (it has a local ID), nor one a check on the
+  // phone has already taken over.
+  const unfinished = s.checkins_list.find(
+    (c) => c.status === 'in_progress' && c.language === lang && !c.local_id && !local?.some((l) => l.replaces === c.id),
+  )
+  // With no network, a check left unfinished on the server is taken over by one on the phone, from the cards read.
   const start = async () => {
     setStarting(true)
     setStartError(null)
-    const offline = async () => navigate(`/offline/${await startOffline(s, lang)}`)
+    const offline = async () => navigate(`/offline/${await startOffline(s, lang, unfinished)}`)
     try {
-      if (!navigator.onLine && hasBank(lang)) return await offline()
+      // No network (or the server not answering): straight to a check on the phone, without waiting on the network.
+      if ((!navigator.onLine || !isReachable()) && hasBank(lang)) return await offline()
       const c = await Api.startCheckin(s.id, lang)
       navigate(`/checkin/${c.id}`)
     } catch (e) {
-      if (e instanceof OfflineError && hasBank(lang)) await offline()
+      if (noServer(e) && hasBank(lang)) await offline()
       else setStartError(e as Error)
     } finally {
       setStarting(false)
@@ -61,12 +75,16 @@ export default function Student() {
   }
 
   const moveTo = async (value: string) => {
-    await changeGroup(s, lang, value === 'auto' ? null : (value as Cohort)) // offline too: sent when the network is back
-    await reload()
+    setMoveError(null)
+    try {
+      await changeGroup(s, lang, value === 'auto' ? null : (value as Cohort)) // offline too: sent when the network is back
+      await reload()
+    } catch (e) {
+      setMoveError(e as Error)
+    }
   }
 
   const last = latestDiagnosis(s.checkins_list, lang)
-  const unfinished = s.checkins_list.find((c) => c.status === 'in_progress' && c.language === lang)
 
   return (
     <Page title={nameIn(s, s.first_name, uiLang)} back={`/class/${s.class_id}`}>
@@ -95,7 +113,7 @@ export default function Student() {
 
       <div className="mt-4 space-y-2">
         <ReadingTestSwitch languages={s.languages} value={lang} onChange={setLang} />
-        {unfinished ? (
+        {unfinished && online ? (
           <Button onClick={() => navigate(`/checkin/${unfinished.id}`)} className="w-full text-lg">
             {t('readingTest.start', { language: langName })} ({t('student.inProgress')})
           </Button>
@@ -144,6 +162,7 @@ export default function Student() {
             ))}
           </select>
         </label>
+        <ErrorBox error={moveError} />
         <p className="mt-1 text-xs text-mute">
           {level?.cohort_override
             ? t('student.groupStart', { level: t(`level.${level.cohort_override}`) })
