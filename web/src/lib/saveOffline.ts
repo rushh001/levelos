@@ -8,7 +8,7 @@
  * when it was last saved is kept on the phone, so reopening the app does not save it all again.
  */
 import { useEffect } from 'react'
-import { Api, ApiError, isReachable } from '../api'
+import { Api, ApiError, getToken, isReachable } from '../api'
 import { db } from '../db'
 import i18n from '../i18n'
 import { todaysActivity } from './localActivity'
@@ -75,7 +75,12 @@ async function saveClass(classId: string, data: Dashboard) {
 /** The class's pages from GET /classes/{id}/offline, each filed under the address the app reads it from. 'none': the
  * server has no pack (an older one), the pages are then read one by one; 'later': a change was made on the phone
  * meanwhile, so the server's pages would wipe it. */
+const packRequests = new Map<string, number>()
+
 async function savePack(classId: string): Promise<'saved' | 'none' | 'later'> {
+  const token = getToken()
+  const request = (packRequests.get(classId) ?? 0) + 1
+  packRequests.set(classId, request)
   // A change waiting, or sent while the pack was on its way: the pack may be from before it and would wipe it from
   // the phone's pages (a child added on a flaky network vanished so). Saved next time.
   if (await outboxCount()) return 'later'
@@ -95,8 +100,13 @@ async function savePack(classId: string): Promise<'saved' | 'none' | 'later'> {
   ]
   const own = pack.dashboards[pack.default_language]
   if (own) rows.push({ key: `/classes/${classId}/dashboard`, value: own, updatedAt: now })
-  await db.cache.bulkPut(rows)
-  return 'saved'
+  return db.transaction('rw', db.cache, async () => {
+    if (getToken() !== token || packRequests.get(classId) !== request ||
+        await outboxCount() || changesSent() !== sentBefore ||
+        getToken() !== token || packRequests.get(classId) !== request) return 'later' as const
+    await db.cache.bulkPut(rows)
+    return 'saved' as const
+  })
 }
 
 /** The class's pages saved again now, in one request (a child was just added: their page is on the phone at once,

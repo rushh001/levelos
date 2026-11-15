@@ -12,6 +12,8 @@ import asyncio
 import hashlib
 import hmac
 import json
+import os
+import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -277,7 +279,7 @@ def _signature(teacher_id: str, item_id: str, score_json: str) -> str:
 
 
 async def preview_score(teacher: Teacher, item_id: str, data: bytes, suffix: str) -> tuple[ItemScore, str | None, str | None]:
-    """Score one card's recording for a check running on the phone, without storing anything: the phone shows the
+    """Score one card's recording for a check running on the phone, without creating a check: the phone shows the
     AI's marks for the teacher to confirm and keeps the result. Returns (score, score_json, signature). The phone
     sends `score_json` and its signature back with the teacher's marks when the check syncs, so the recording is
     never paid for twice and the phone cannot make up an AI result. Nothing is signed unless it was scored."""
@@ -285,7 +287,24 @@ async def preview_score(teacher: Teacher, item_id: str, data: bytes, suffix: str
         item = get_item(item_id)
     except KeyError:
         raise HTTPException(422, f"unknown item {item_id!r}") from None
-    score = await score_item(data, item, suffix=suffix, allow_gemini=settings.gemini_for_children)
+    # Preview retries must reuse paid results in every environment. This is separate from the
+    # optional vendor response cache used by the other scoring paths.
+    key = hashlib.sha256(data + json.dumps([item_id, suffix]).encode()).hexdigest()
+    stored = settings.speech_cache_dir / "preview" / f"{key}.json"
+    try:
+        score = ItemScore.from_dict(json.loads(stored.read_text(encoding="utf-8")))
+    except FileNotFoundError:
+        score = await score_item(data, item, suffix=suffix, allow_gemini=settings.gemini_for_children)
+        if score.status == "scored":
+            stored.parent.mkdir(parents=True, exist_ok=True)
+            # Readers never see partially written JSON.
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=stored.parent, delete=False) as out:
+                temporary = out.name
+                json.dump(score.to_dict(), out, ensure_ascii=False)
+            try:
+                os.replace(temporary, stored)
+            finally:
+                Path(temporary).unlink(missing_ok=True)
     if score.status != "scored":
         return score, None, None
     score_json = json.dumps(score.to_dict(), ensure_ascii=False, separators=(",", ":"))

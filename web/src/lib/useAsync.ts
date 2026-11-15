@@ -11,23 +11,28 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[] = [], opts: { 
   const fnRef = useRef(fn)
   fnRef.current = fn
 
+  const sequence = useRef(0)
   const reload = useCallback(async () => {
+    const request = ++sequence.current
     setLoading(true)
     try {
       const value = await fnRef.current()
-      setData(value)
-      setError(null)
+      if (request === sequence.current) {
+        setData(value)
+        setError(null)
+      }
       return value
     } catch (e) {
-      setError(e as Error)
+      if (request === sequence.current) setError(e as Error)
       return null
     } finally {
-      setLoading(false)
+      if (request === sequence.current) setLoading(false)
     }
   }, [])
 
   useEffect(() => {
     void reload()
+    return () => { ++sequence.current }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 

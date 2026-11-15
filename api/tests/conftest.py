@@ -18,6 +18,11 @@ settings.keep_awake_url = None  # never call out, even if the environment sets i
 settings.diagnosis_debounce_s = 0  # no waiting in tests
 
 
+@pytest.fixture(autouse=True)
+def isolated_preview_cache(monkeypatch, tmp_path):
+    monkeypatch.setattr(settings, "speech_cache_dir", tmp_path / "speech")
+
+
 @pytest.fixture
 def db():
     from app.db import Base, SessionLocal, engine

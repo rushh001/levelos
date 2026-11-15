@@ -49,10 +49,11 @@ type AiState =
   | { kind: 'waiting'; late: boolean }
   | { kind: 'marked'; wrong: Set<number>; unsure: Set<number>; ai: { scoreJson: string; sig: string } }
   | { kind: 'rerecord'; reason: string } // the AI could not hear it clearly
-  // The teacher marks: `why` says so on the screen. touched: they started before the AI answered (theirs stand);
+  | { kind: 'teacher'; ai: { scoreJson: string; sig: string } } // teacher started before the AI answered
+  // The teacher marks: `why` says so on the screen.
   // notSetUp: this server has no speech keys; unavailable: the speech services did not answer the server;
   // couldNot: the AI could not mark this recording; noAnswer: the network did not bring the AI's answer.
-  | { kind: 'failed'; why: 'touched' | 'notSetUp' | 'unavailable' | 'couldNot' | 'noAnswer' }
+  | { kind: 'failed'; why: 'notSetUp' | 'unavailable' | 'couldNot' | 'noAnswer' }
 
 // Whether this server can mark recordings at all (speech keys set). Asked once; when it cannot, recordings are not
 // uploaded for marking and the teacher is told why.
@@ -349,7 +350,7 @@ export default function PhoneCheck() {
       .then((r) => {
         if (ctrl.signal.aborted) return
         if (r.status === 'scored' && r.score_json && r.sig) {
-          if (touched.current) return setAi({ kind: 'failed', why: 'touched' }) // the teacher is marking already: theirs stand
+          if (touched.current) return setAi({ kind: 'teacher', ai: { scoreJson: r.score_json, sig: r.sig } }) // the teacher is marking already: theirs stand
           const wrong = new Set<number>()
           const unsure = new Set<number>()
           r.words.forEach((w, i) => {
@@ -397,8 +398,8 @@ export default function PhoneCheck() {
     setSaveError(null)
     const n = c.items.length + 1
     const ask = item.level === 'word' && meaningWords(item.units ?? [], c.language).length ? item.units ?? [] : null
-    // The AI's result goes with the marks only if the teacher saw its marks before saving.
-    const confirmed = ai.kind === 'marked' ? ai.ai : null
+    // Keep the signed result even when the teacher started first; their marks settle every word.
+    const confirmed = ai.kind === 'marked' || ai.kind === 'teacher' ? ai.ai : null
     try {
       await addItem(c.localId, item, marks, clip, measured, confirmed)
       resetCard()
@@ -412,6 +413,7 @@ export default function PhoneCheck() {
   }
   // The teacher skips the card instead of having it read: it counts for nothing; the ladder moves on (or ends).
   const skip = async () => {
+    recorder.cancel()
     setBusy(true)
     setSaveError(null)
     try {
@@ -457,7 +459,6 @@ export default function PhoneCheck() {
       case 'rerecord':
         return line(t('phoneCheck.aiRerecord'), 'text-sun-deep')
       case 'failed':
-        if (ai.why === 'touched') return line(t('offlineCheck.recorded'))
         return line(t(`phoneCheck.ai_${ai.why}`), 'text-sun-deep')
       default:
         return line(t('offlineCheck.recorded'))

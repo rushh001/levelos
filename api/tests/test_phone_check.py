@@ -152,3 +152,18 @@ def test_the_offline_pack_has_every_page_of_the_class(client, script):
     assert client.get(f"/api/classes/{cls['id']}/offline", headers=other).status_code == 404
     zipped = client.get(f"/api/classes/{cls['id']}/offline", headers={**h, "Accept-Encoding": "gzip"})
     assert zipped.headers.get("content-encoding") == "gzip"  # a slow network carries a tenth of it
+
+
+def test_preview_retry_reuses_result_even_in_production_without_speech_cache(client, script, monkeypatch):
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "app_env", "prod")
+    monkeypatch.setattr(settings, "speech_cache", False)
+    h = login(client)
+    first = score_card(client, h, "hi-word-b")
+
+    async def must_not_score(*args, **kwargs):
+        raise AssertionError("preview retry repeated paid scoring")
+
+    monkeypatch.setattr("app.services.checkins.score_item", must_not_score)
+    assert score_card(client, h, "hi-word-b") == first

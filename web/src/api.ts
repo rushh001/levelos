@@ -148,7 +148,6 @@ export const announceSynced = (count: number) => {
   if (count > 0) window.dispatchEvent(new CustomEvent(SYNCED_EVENT, { detail: count }))
 }
 
-const sleep = (ms: number) => new Promise<null>((r) => window.setTimeout(() => r(null), ms))
 
 /** The request never reached the server (no network). Reads fall back to the phone's cache before this is thrown. */
 export class OfflineError extends Error {}
@@ -191,6 +190,8 @@ export async function api<T>(givenPath: string, init: RequestInit = {}, opts: { 
   })
 }
 
+const readGenerations = new Map<string, number>()
+
 async function read<T>(givenPath: string, init: RequestInit, opts: { timeoutMs?: number }): Promise<T> {
   // A class or child made offline keeps working under its temporary ID once the server has given it a real one.
   const path = await realPath(givenPath)
@@ -230,46 +231,29 @@ async function read<T>(givenPath: string, init: RequestInit, opts: { timeoutMs?:
     changed()
     return fromPhone()
   }
-  if (method === 'GET' && !path.startsWith('/auth/')) {
-    // Back online: changes made offline go to the server before anything is read again, so a fresh read has them.
-    // On a weak network that could take long: the page does not wait more than a moment for it.
-    const { flushOutbox, outboxCount } = await import('./lib/outbox')
-    await Promise.race([flushOutbox(), sleep(3_000)])
-    // Changes still waiting: the phone's copy has them and the server's answer would not (a child added on a flaky
-    // network would vanish from the class page). The page refreshes once they are sent (SYNCED_EVENT).
-    if (await outboxCount()) {
-      const copy = await fromPhone().catch(() => undefined)
-      if (copy !== undefined) return copy
+  if (method !== 'GET' || path.startsWith('/auth/')) {
+    return fromServer<T>(path, { ...init, headers }, method, fromPhone, opts.timeoutMs)
+  }
+  const generation = (readGenerations.get(path) ?? 0) + 1
+  readGenerations.set(path, generation)
+  const current = () => readGenerations.get(path) === generation && getToken() === t
+  const copy = await fromPhone().then((v) => ({ v }), () => null)
+  const refresh = async () => {
+    const { flushOutbox, outboxCount, changesSent } = await import('./lib/outbox')
+    await flushOutbox()
+    if (!current() || await outboxCount()) return fromPhone()
+    const sent = changesSent()
+    const canSave = async () => current() && !(await outboxCount()) && changesSent() === sent && current()
+    const value = await fromServer<T>(path, { ...init, headers }, method, fromPhone, opts.timeoutMs, canSave, current)
+    if (copy && await canSave() && JSON.stringify(value) !== JSON.stringify(copy.v)) {
+      window.dispatchEvent(new CustomEvent(FRESH_EVENT, { detail: path }))
     }
+    return value
   }
-  const server = fromServer<T>(path, { ...init, headers }, method, fromPhone, opts.timeoutMs)
-  if (method !== 'GET' || path.startsWith('/auth/')) return server
-  // A page with a copy on the phone: the server's answer if it comes quickly, else the copy at once while the request
-  // goes on in the background and refreshes the copy for next time.
-  const copy = await fromPhone().then(
-    (v) => ({ v }),
-    () => null,
-  )
+  const server = refresh()
   if (!copy) return server
-  const first = await Promise.race([
-    server.then(
-      (v) => ({ v }),
-      (e: unknown) => ({ e }),
-    ),
-    sleep(netState() === 'online' ? READ_WAIT_MS : READ_WAIT_WEAK_MS),
-  ])
-  if (first === null) {
-    // The server's answer, when it comes, is the newer copy: open pages that show this one refresh to it.
-    server.then(
-      (v) => {
-        if (JSON.stringify(v) !== JSON.stringify(copy.v)) window.dispatchEvent(new CustomEvent(FRESH_EVENT, { detail: path }))
-      },
-      () => undefined,
-    )
-    return copy.v
-  }
-  if ('v' in first) return first.v
-  throw first.e
+  void server.catch(() => undefined)
+  return copy.v
 }
 
 async function fromServer<T>(
@@ -278,6 +262,8 @@ async function fromServer<T>(
   method: string,
   fromPhone: () => Promise<T>,
   timeoutMs?: number,
+  canSave: () => Promise<boolean> = async () => true,
+  current: () => boolean = () => true,
 ): Promise<T> {
   // A request that hangs (a weak signal, a server not answering) is given up after a while, as with no network.
   const ctl = new AbortController()
@@ -337,9 +323,13 @@ async function fromServer<T>(
     outer?.removeEventListener('abort', onOuter)
   }
   if (method === 'GET') {
+    if (!(await canSave())) return fromPhone()
     // Keep the last good copy of every page's data, so the app still opens offline.
-    await db.cache.put({ key: path, value: data, updatedAt: Date.now() }).catch(() => undefined) // before it is read again
-    if (/^\/students\/[^/?]+$/.test(path)) void refreshCheckCopies((data as StudentDetail).checkins_list)
+    await db.transaction('rw', db.cache, async () => {
+      if (!(await canSave()) || !current()) return
+      await db.cache.put({ key: path, value: data, updatedAt: Date.now() })
+      if (/^\/students\/[^/?]+$/.test(path)) await refreshCheckCopies((data as StudentDetail).checkins_list)
+    }).catch(() => undefined)
   } else if (path.startsWith('/checkins')) {
     // A check changed online (a card, a correction, the level): the phone's copy of its result follows.
     const c = ((data as { checkin?: Checkin } | undefined)?.checkin ?? data) as Checkin | undefined
@@ -350,8 +340,6 @@ async function fromServer<T>(
 
 const READ_MS = 30_000 // a page with no copy on the phone (the free server can take a while to wake)
 const READ_WHEN_DOWN_MS = 6_000 // …while the network is weak or the server not answering
-const READ_WAIT_MS = 5_000 // a page with a copy on the phone waits this long for the server before showing the copy…
-const READ_WAIT_WEAK_MS = 1_500 // …or this long once the network is known to be weak
 const WRITE_MS = 20_000 // past this a change is kept on the phone and sent later (it carries an ID: never made twice)
 const UPLOAD_MS = 120_000 // a recording, scored by the speech services before the answer comes
 

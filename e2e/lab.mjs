@@ -23,6 +23,7 @@
  */
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import net from 'node:net'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -89,9 +90,13 @@ function stopAll() {
 }
 
 async function startServers() {
-  if (await up(API_URL)) {
-    console.log('• API already running on :8000, using it (its log is not recorded)')
-  } else {
+  // Refuse any listener, including an unhealthy API with a different database.
+  await new Promise((resolve, reject) => {
+    const probe = net.createServer()
+    probe.once('error', () => reject(new Error('Port 8000 is occupied. Stop that service before starting the lab.')))
+    probe.listen(8000, '127.0.0.1', () => probe.close(resolve))
+  })
+  {
     // With the fake microphone (a tone), the AI would only be paid to hear nothing: off (api/app/config.py NO_AI).
     // With your own voice, the keys in api/.env are used and the AI marks the cards.
     const env = { DATABASE_URL: 'sqlite:///./lab.db', APP_ENV: 'dev', KEEP_AWAKE_URL: '', ...(args.has('--fake-mic') ? { NO_AI: '1' } : {}) }

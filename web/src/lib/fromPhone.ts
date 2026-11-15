@@ -37,11 +37,12 @@ function asCheck(c: QueuedCheckin): Checkin {
 }
 
 /** The child's row again with the phone's checks among theirs (`listed`: the checks the server's page lists). */
-function withPhoneChecks<T extends StudentSummary>(x: T, listed: Checkin[], phone: QueuedCheckin[]): T {
-  const known = new Set(listed.map((c) => c.id))
+function withPhoneChecks<T extends StudentSummary>(x: T, listed: Checkin[], phone: QueuedCheckin[], knownChecks = listed): T {
+  const known = new Set(knownChecks.filter((c) => c.status === 'scored' || c.status === 'needs_review').map((c) => c.id))
   const extra = phone.filter((c) => !(c.serverId && known.has(c.serverId))).map(asCheck)
   if (!extra.length) return x
-  const all = [...extra, ...listed].sort((a, b) => Date.parse(b.started_at) - Date.parse(a.started_at))
+  const replaced = new Set(extra.map((c) => c.id))
+  const all = [...extra, ...listed.filter((c) => !replaced.has(c.id))].sort((a, b) => Date.parse(b.started_at) - Date.parse(a.started_at))
   let out = x
   for (const lang of new Set(extra.map((c) => c.language))) out = restate(out, all, lang)
   // The newest check has no diagnosis yet (it comes from the server): the child's last known mistakes stay.
@@ -77,8 +78,11 @@ export async function overlay<T>(path: string, value: T): Promise<T> {
     const ids = new Set([...(await aliases(row.id)), row.id])
     const mine = phone.filter((c) => ids.has(c.studentId) && classIds.has(c.classId))
     if (!mine.length) continue
-    const listed = (await savedPage(row.id))?.checkins_list ?? []
-    const next = withPhoneChecks(row, listed, mine)
+    // Only this dashboard's own timestamp can show that it has caught up.
+    const extra = mine.filter((c) => c.status !== 'synced' || c.language !== row.language || !row.last_checkin_at ||
+      Date.parse(row.last_checkin_at) < c.startedAt)
+    const history = (await savedPage(row.id))?.checkins_list ?? []
+    const next = withPhoneChecks(row, history, extra, [])
     if (next !== row) {
       place(d, next)
       changed = true
