@@ -1,7 +1,7 @@
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from pydantic import AliasChoices, Field, field_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 API_DIR = Path(__file__).resolve().parents[1]
@@ -58,6 +58,16 @@ class Settings(BaseSettings):
     # Render sets RENDER_EXTERNAL_URL itself; KEEP_AWAKE_URL overrides it. Unset (local runs, tests) = off.
     keep_awake_url: str | None = Field(None, validation_alias=AliasChoices("keep_awake_url", "render_external_url"))
     keep_awake_minutes: float = 10
+
+    # NO_AI=1: no speech services and no Claude, whatever keys the env files hold (automated tests: a test tone would go
+    # to paid services and come back "not sure"; without them the teacher marks every card, the same on every run).
+    no_ai: bool = False
+
+    @model_validator(mode="after")
+    def _no_ai_means_no_keys(self):
+        if self.no_ai:
+            self.anthropic_api_key = self.sarvam_api_key = self.azure_speech_key = self.gemini_api_key = None
+        return self
 
     @field_validator("database_url")
     @classmethod

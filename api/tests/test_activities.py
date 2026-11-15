@@ -241,3 +241,14 @@ def test_generate_endpoint_and_rating(client, script):
     rated = client.post(f"/api/activities/{a['id']}/rating", json={"rating": 4}, headers=h).json()
     assert rated["teacher_rating"] == 4
     assert client.get(f"/api/classes/{cls['id']}/activities", headers=h).json()[0]["id"] == a["id"]
+
+
+def test_every_letter_a_child_can_misread_has_a_word_for_its_sound():
+    # A child's misread letters come first on a Letter group's cards, and they come from the card pools, not only
+    # the ASER letters: each needs a word for its sound, except letters that never begin a word.
+    from app.content import available_languages, pool
+    never_first = {"mr": {"ळ", "ण"}, "kn": {"ಳ"}, "ta": {"ட", "ள", "ன", "ண", "ற", "ழ"}}
+    for lang in available_languages():
+        letters = dict.fromkeys(act.base_letter(u) for u in pool(lang, "letter"))
+        missing = [x for x in letters if not act.anchor_word(x, lang) and x not in never_first.get(lang, set())]
+        assert not missing, (lang, missing)

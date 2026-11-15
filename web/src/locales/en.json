@@ -3,6 +3,7 @@
   "tagline": "A 3-minute reading check that shows each child's real level and what to do next.",
   "online": "Online",
   "offline": "Offline",
+  "slowNetwork": "Slow network",
   "pendingUploads_one": "{{count}} reading check waiting to be sent",
   "pendingUploads_other": "{{count}} reading checks waiting to be sent",
   "back": "Back",
@@ -369,7 +370,8 @@
     "notSent": "The server did not accept this check.",
     "sendAgain": "Send again",
     "remove": "Remove from this phone",
-    "removeConfirm": "Remove this check from the phone? It was not sent, so it will be lost."
+    "removeConfirm": "Remove this check from the phone? It was not sent, so it will be lost.",
+    "measured": "Measured on the phone: read for {{s}} s · long pauses: {{n}}"
   },
   "errors": {
     "offline": "No network. Check the connection and try again.",
@@ -380,5 +382,79 @@
     "nothingRead": "No card has been read yet.",
     "checkMoved": "This reading check has moved on. Go back to the child's page and open it again.",
     "notSaved": "No network, and this page is not saved on this phone yet. Open it once with internet."
+  },
+  "phoneCheck": {
+    "aiListening": "The AI is listening to the recording… you can start marking.",
+    "aiMarked": "The AI crossed out the words it heard read wrongly. Check them, change any, then save.",
+    "aiUnsure": "A dot means the AI is not sure: listen again and decide.",
+    "aiLate": "The network is slow: mark it yourself. If the AI's marks arrive before you tap, they will appear here.",
+    "aiRerecord": "The AI could not hear it clearly. Mark it yourself, or press Cancel and record again.",
+    "unsureWord": "The AI is not sure about this word",
+    "listen": "Listen again",
+    "seeResult": "See the full result",
+    "sending": "Sending… the AI check will follow.",
+    "slowBanner": "Slow network: the check carries on on this phone and is sent when it can be.",
+    "checkingRecording": "Checking the recording…",
+    "ai_notSetUp": "AI marking is not set up yet. Tap every letter or word read wrongly.",
+    "ai_unavailable": "AI marking is not available right now. Tap every letter or word read wrongly.",
+    "ai_couldNot": "The AI could not mark this recording. Tap every letter or word read wrongly.",
+    "ai_noAnswer": "The AI’s marks did not arrive (network). Tap every letter or word read wrongly.",
+    "markWhileReading": "Listen and tap any word the child reads wrongly. You can change it after.",
+    "practise": "Practise next",
+    "fromMarks": "from your marks"
+  },
+  "net": {
+    "back": "Connection back.",
+    "down": "No network. Keep working: everything is kept on this phone.",
+    "weak": "Weak network. The app works from this phone and sends when it can.",
+    "sent_one": "Saved on the server: {{count}} change from this phone.",
+    "sent_other": "Saved on the server: {{count}} changes from this phone."
+  },
+  "markHelp": {
+    "title": "What counts as a mistake",
+    "wrong": "Tap a word if the child skips it, reads it wrongly, or cannot read it.",
+    "selfCorrect": "Put right at once by the child? Leave it: it counts as read.",
+    "pauses": "Long pauses are timed by the phone: no need to mark them.",
+    "gotIt": "Got it"
+  },
+  "ready": {
+    "done": "Ready offline · saved {{when}}",
+    "saving": "Saving this class on the phone for use without network…",
+    "notSaved": "This class is not on the phone yet: open it once with internet.",
+    "tag": "offline",
+    "tagHelp": "On this phone: opens without network"
+  },
+  "install": {
+    "title": "Add LevelOS to your home screen",
+    "why": "It opens like an app, works without network, and keeps your checks safe until they are sent.",
+    "button": "Add to home screen",
+    "later": "Not now"
+  },
+  "pending": {
+    "title": "Waiting to be sent",
+    "helpOnline": "These are on this phone and go to the server by themselves. You can send them now.",
+    "helpOffline": "These are safe on this phone and are sent by themselves when there is network.",
+    "check": "Reading check: {{name}}",
+    "newClass": "New class: {{name}}",
+    "newChild": "New child: {{name}}",
+    "group": "Child moved to another group",
+    "deleteClass": "Class deleted",
+    "rating": "Activity rating",
+    "review": "Corrections to a result",
+    "level": "Level changed on a result",
+    "recordings": "Recordings deleted",
+    "other": "A change",
+    "none": "Nothing is waiting.",
+    "sendNow": "Send now",
+    "sending": "Sending…",
+    "close": "Close"
+  },
+  "oneMore": {
+    "found": "Level found",
+    "finish": "Finish the check",
+    "button": "One more card: {{level}}",
+    "why": "A nervous child or a bad moment? Give one more card at the level just failed. If the child reads it, the check goes on; if not, this level stands.",
+    "banner": "One more card: if the child reads it, the check goes on.",
+    "skip": "Finish without it"
   }
 }

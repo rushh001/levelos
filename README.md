@@ -105,7 +105,7 @@
 | ✅ Works offline | 🌐 Needs the network |
 |---|---|
 | 📱 Open the app, classes, children, groups (every class saved on the phone in the background) | 🔑 Sign-up and login |
-| 🪜 Reading check (teacher taps the mistakes) + provisional level | 🗣️ AI scoring of recordings (sent when back online) |
+| 🪜 Reading check + provisional level: the phone checks each recording (too short, silent, reading time, long pauses), the teacher taps the mistakes | 🗣️ AI marks of each card (online: within seconds; offline: when back online) |
 | 📚 10-minute activity, made on the phone from the book bank | 🧠 Claude diagnosis (when back online) |
 | 🗂️ New class · new child · group change · rating · delete a class | |
 | ✍️ Corrections on a result: tap a word, confirm, change the level | |
@@ -115,10 +115,17 @@
 **⚙️ How it works**
 
 - 📦 **PWA:** the app, cards, pictures and audio are stored on the phone.
-- 💾 **Data:** every page opened is kept in the phone's database (IndexedDB).
+- 💾 **Data:** every page opened is kept in the phone's database (IndexedDB). A class's pages arrive in one request (the offline pack), before its activities and audio, so a slow network has the whole class before the signal goes.
+- 📱 **Every check runs on the phone**, network or not: online, the AI marks the card while the teacher looks at it and its marks fill in to confirm; if it takes more than 8 s, or is not set up, the screen says so and the teacher marks. The AI's result is signed by the server and sent back with the marks, so a card is never scored twice.
 - 🪜 **Same rules:** the ASER ladder runs on the phone too (a test keeps it in step with the server).
 - 📤 **Outbox:** changes wait on the phone (⏳ badge). A class or child made offline gets a temporary ID and is created only once. Corrections are worked out on the phone by the server's own rules.
-- ✂️ **Network drops mid-check:** "Continue offline" goes on from the cards already read; it is never counted twice.
+- ✂️ **Network drops mid-check:** the check simply carries on. A check left unfinished on the server is taken over from the cards already read; it is never counted twice.
+- 👥 **Groups move at once:** a check finished with no network puts the child in their new group on the class page straight away; the server confirms it when the check is sent.
+- 🎯 **Today's mistakes, offline too:** after a check the phone lists what to practise next (from the teacher's marks), and an activity made on the phone puts the letters and words the group just misread first (⭐ on the cards).
+- 🔁 **Level found, or one more card:** when the ladder ends on a failed card, the teacher can finish (the ASER default) or give one more card at that level; read, and the check goes on.
+- ✍️ **Mark while the child reads:** the card's words are under the microphone while it records; a word tapped then stays marked. The first time, a short card says what counts as a mistake.
+- ✅ **Ready offline:** each class says when it was last saved on the phone ("✓ Ready offline · saved 5 minutes ago"); a child added online is saved at once. "Add to home screen" is offered, which also keeps waiting checks safe from the browser's clean-ups. Tapping ⏳ lists everything waiting, with "Send now".
+- 📶 **Weak or flaky signal:** the header says "Slow network". Pages show the phone's copy after 5 s (1.5 s once the signal is known to be weak) and refresh in the background; changes wait on the phone and stay on screen. A ping notices when the network carries again: what waited is sent, pages refresh themselves and a message says so.
 - 👥 **Shared phone:** each teacher's waiting work is sent only under their own login.
 - 🔄 **Back online:** changes are sent first, then the checks (dated when they were done). Recordings get AI-scored, and any word where the AI ≠ the teacher comes back to confirm. A level never changes silently.
 
@@ -140,7 +147,7 @@
 | ✅ Card pass / fail correct | **9 / 9** |
 
 - 👧 Also tried with children in a school.
-- 🧪 203 automated API tests, plus browser runs: online check, activity, offline round trip, replay.
+- 🧪 210 automated API tests, plus 17 browser tests of bad networks and of working offline (no network, no internet, weak, slow 3G, flaky, network lost mid-check: [e2e/README.md](e2e/README.md)) and a network lab to try them by hand (`cd e2e && npm run lab`).
 - ➡️ [eval/README.md](eval/README.md)
 
 ---

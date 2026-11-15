@@ -8,6 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host",
     "typecheck": "tsc --noEmit",
+    "test": "node --test tests/",
     "dev:https": "vite --host --mode https"
   },
   "dependencies": {

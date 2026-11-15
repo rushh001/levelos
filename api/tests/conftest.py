@@ -18,6 +18,13 @@ settings.keep_awake_url = None  # never call out, even if the environment sets i
 settings.diagnosis_debounce_s = 0  # no waiting in tests
 
 
+@pytest.fixture(autouse=True)
+def isolated_preview_cache():
+    from app.services import checkins
+
+    checkins._previews.clear()  # each test starts with no recording scored
+
+
 @pytest.fixture
 def db():
     from app.db import Base, SessionLocal, engine

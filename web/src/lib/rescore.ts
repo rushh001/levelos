@@ -52,7 +52,9 @@ function evaluate(s: ItemScore): ItemScore {
 
 const outcomes = (c: Checkin): Outcome[] =>
   c.items.map((r) =>
-    r.source === 'skipped' ? skippedOutcome(r.item_level) : outcomeOf(r.result, r.result.words.filter(wordCorrect).length),
+    r.source === 'skipped'
+      ? skippedOutcome(r.item_level)
+      : { ...outcomeOf(r.result, r.result.words.filter(wordCorrect).length), retry: !!r.result.retry },
   )
 
 /** _settle: what the check counts as now. A correction that fails a card the ladder had passed reopens it, as on the

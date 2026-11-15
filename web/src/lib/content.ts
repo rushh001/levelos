@@ -133,10 +133,15 @@ export const baseLetter = (w: string) => {
  * picture for first, then a classic alphabet-chart word (content/letter_words.json), then one from the language's
  * ASER word cards. The letters the children misread are known to the server.
  */
-export function letterCards(lang: string, turn = 0): ActivityMaterial {
+/** Letters for a Letter group (as the server's letter_cards): the letters the children misread first (`prefer`, from
+ * their checks), then the language's ASER letters, a different five each time (`turn`), each with a picture word. */
+export function letterCards(lang: string, turn = 0, prefer: readonly string[] = []): ActivityMaterial {
   const pool = Array.from(new Set((BANKS[lang]?.items ?? []).filter((i) => i.level === 'letter').flatMap((i) => i.units ?? []).map(baseLetter)))
   const k = pool.length ? (turn * 5) % pool.length : 0
-  const items = [...pool.slice(k), ...pool.slice(0, k)].slice(0, 5)
+  const rotated = [...pool.slice(k), ...pool.slice(0, k)]
+  const latin = pool.length > 0 && isAscii(pool[0])
+  const misread = prefer.filter((p) => clusters(p).length === 1 && isAscii(p) === latin).map(baseLetter)
+  const items = Array.from(new Set([...misread, ...rotated])).slice(0, 5)
   const short = (w: string) => clusters(w).length >= 2 && clusters(w).length <= 3
   const lower = (w: string) => (isAscii(w) ? w.toLowerCase() : w)
   const cards = (BANKS[lang]?.items ?? []).filter((i) => i.level === 'word').flatMap((i) => i.units ?? []).map(lower)
@@ -298,4 +303,14 @@ export function getItem(id: string): ItemPublic | null {
   }
   const raw = bank.items.find((i) => i.id === id)
   return raw ? toPublic(bank, raw) : null
+}
+
+/** Same split as the server (punctuation dropped, letters/marks/digits kept) so tap-marks line up with words. */
+export function tokens(text: string): string[] {
+  return text.normalize('NFC').replace(/[^\p{L}\p{M}\p{N}'’]+/gu, ' ').split(/\s+/).filter(Boolean)
+}
+
+/** A card's words (or letters) in order, as the teacher marks them. */
+export function itemTokens(item: ItemPublic): string[] {
+  return item.units ? item.units.flatMap(tokens) : tokens((item.sentences ?? []).join(' '))
 }
