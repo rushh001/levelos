@@ -78,6 +78,8 @@ class ItemOutcome:
     wcpm_floor: float | None = None
     # The card was not read: the teacher skipped it. It counts for nothing (neither a pass nor a fail).
     skipped: str | None = None
+    # One more card the teacher gave at a level the child had just failed (one_more_level): it replaces that card.
+    retry: bool = False
 
 
 def skipped_outcome(item_level: str) -> ItemOutcome:
@@ -146,6 +148,36 @@ def start_level(grade: int | None, last_level: str | None, group: str | None = N
     return "letter"
 
 
+def effective_outcomes(outcomes: list[ItemOutcome]) -> list[ItemOutcome]:
+    """The cards as the ladder counts them: one more card at a level (`retry`) replaces the card read there before
+    it, so a pass on it lets the ladder go on up and a fail leaves the level where it was."""
+    kept: list[ItemOutcome | None] = list(outcomes)
+    for k, o in enumerate(outcomes):
+        if not o.retry:
+            continue
+        for j in range(k - 1, -1, -1):
+            prev = kept[j]
+            if prev is not None and prev.item_level == o.item_level and prev.skipped is None:
+                kept[j] = None
+                break
+    return [o for o in kept if o is not None]
+
+
+def one_more_level(
+    outcomes: list[ItemOutcome], start: str, t: Thresholds = DEFAULT_THRESHOLDS, fixed: bool = False
+) -> str | None:
+    """Once the ladder has ended on a card the child failed, the teacher may give one more card at that level (a
+    nervous child, a bad moment): the level of that card, or None. Once per level; not after a skip or a pass."""
+    if not outcomes or next_item_level(outcomes, start, t, fixed) is not None:
+        return None
+    last = outcomes[-1]
+    if last.skipped is not None or last.retry or item_passed(last, t):
+        return None
+    if any(o.retry and o.item_level == last.item_level for o in outcomes):
+        return None
+    return last.item_level
+
+
 def next_item_level(
     outcomes: list[ItemOutcome], start: str, t: Thresholds = DEFAULT_THRESHOLDS, fixed: bool = False
 ) -> str | None:
@@ -160,6 +192,7 @@ def next_item_level(
     """
     if not outcomes:
         return start
+    outcomes = effective_outcomes(outcomes)
     if fixed:  # only the group's card: offered until it has been tried (read or skipped)
         return None if any(o.item_level == start for o in outcomes) else start
     read = read_outcomes(outcomes)

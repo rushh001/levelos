@@ -9,6 +9,12 @@ only the English level.
 from __future__ import annotations
 
 import asyncio
+import copy
+import hashlib
+import hmac
+import json
+import time
+from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -24,6 +30,7 @@ from ..levels.aser_rules import (
     ItemOutcome,
     level_from_outcomes,
     next_item_level,
+    one_more_level,
     skipped_outcome,
     start_level,
     update_levels,
@@ -110,10 +117,13 @@ def placed_level(outcomes: list[ItemOutcome]) -> str | None:
     return level
 
 
-def next_item(db: Session, checkin: Checkin) -> Item | None:
+def next_item(db: Session, checkin: Checkin, one_more: bool = False) -> Item | None:
+    """The card the ladder asks for next; `one_more`: the one more card the teacher may give after the ladder ended
+    on a fail (aser_rules.one_more_level)."""
     if checkin.status != "in_progress" or awaiting_review(checkin):
         return None
-    level = next_item_level(outcomes(checkin), checkin.start_level, fixed=bool(checkin.fixed_level))
+    rule = one_more_level if one_more else next_item_level
+    level = rule(outcomes(checkin), checkin.start_level, fixed=bool(checkin.fixed_level))
     if not level:
         return None
     # Seeded by the check and its position: asked again, the check gets the same card back.
@@ -186,7 +196,7 @@ def start(db: Session, teacher: Teacher, student_id: str, language: str | None, 
     return c
 
 
-def _expect_item(db: Session, checkin: Checkin, item_id: str) -> Item:
+def _expect_item(db: Session, checkin: Checkin, item_id: str, one_more: bool = False) -> Item:
     if checkin.status != "in_progress":
         raise HTTPException(409, f"check-in is {checkin.status}")
     if awaiting_review(checkin):
@@ -195,9 +205,10 @@ def _expect_item(db: Session, checkin: Checkin, item_id: str) -> Item:
         item = get_item(item_id)
     except KeyError:
         raise HTTPException(422, f"unknown item {item_id!r}") from None
-    expected = next_item(db, checkin)
+    expected = next_item(db, checkin, one_more)
     if expected is None:
-        raise HTTPException(409, "the ladder is complete; finish the check-in")
+        raise HTTPException(409, "no more card to give; finish the check-in" if one_more
+                            else "the ladder is complete; finish the check-in")
     if item.lang != checkin.language or item.level != expected.level:
         raise HTTPException(409, f"expected a {expected.level} item in {checkin.language}")
     return item
@@ -263,17 +274,106 @@ async def add_audio(db: Session, checkin: Checkin, item_id: str, data: bytes, su
     return score, ir
 
 
-def add_marks(db: Session, checkin: Checkin, item_id: str, marks: list[bool], duration_ms: int | None) -> ItemResult:
-    """Teacher tap-to-mark (offline or when the speech services are down): one boolean per letter/word."""
-    item = _expect_item(db, checkin, item_id)
+def _signature(teacher_id: str, item_id: str, score_json: str) -> str:
+    msg = f"{teacher_id}|{item_id}|{score_json}".encode("utf-8")
+    return hmac.new(settings.jwt_secret.encode("utf-8"), msg, hashlib.sha256).hexdigest()
+
+
+PREVIEW_KEEP_S = 30 * 60
+PREVIEW_MAX = 500  # recordings kept at once (each result is a few KB)
+_previews: OrderedDict[str, tuple[float, dict]] = OrderedDict()
+
+
+def _recent_preview(key: str) -> dict | None:
+    now = time.monotonic()
+    while _previews and next(iter(_previews.values()))[0] < now - PREVIEW_KEEP_S:
+        _previews.popitem(last=False)
+    hit = _previews.get(key)
+    return copy.deepcopy(hit[1]) if hit else None
+
+
+def _keep_preview(key: str, result: dict) -> None:
+    _previews[key] = (time.monotonic(), copy.deepcopy(result))
+    _previews.move_to_end(key)
+    while len(_previews) > PREVIEW_MAX:
+        _previews.popitem(last=False)
+
+
+async def preview_score(teacher: Teacher, item_id: str, data: bytes, suffix: str) -> tuple[ItemScore, str | None, str | None]:
+    """Score one card's recording for a check running on the phone, without creating a check: the phone shows the
+    AI's marks for the teacher to confirm and keeps the result. Returns (score, score_json, signature). The phone
+    sends `score_json` and its signature back with the teacher's marks when the check syncs, so the recording is
+    never paid for twice and the phone cannot make up an AI result. Nothing is signed unless it was scored."""
+    try:
+        item = get_item(item_id)
+    except KeyError:
+        raise HTTPException(422, f"unknown item {item_id!r}") from None
+    # A retry of the same recording (the answer was lost on a weak network) reuses the result instead of paying the
+    # speech services again. Kept in memory for half an hour: what the AI heard a child say is never written to disk.
+    key = hashlib.sha256(data + json.dumps([item_id, suffix]).encode()).hexdigest()
+    kept = _recent_preview(key)
+    if kept is not None:
+        score = ItemScore.from_dict(kept)
+    else:
+        score = await score_item(data, item, suffix=suffix, allow_gemini=settings.gemini_for_children)
+        if score.status == "scored":
+            _keep_preview(key, score.to_dict())
+    if score.status != "scored":
+        return score, None, None
+    score_json = json.dumps(score.to_dict(), ensure_ascii=False, separators=(",", ":"))
+    return score, score_json, _signature(teacher.id, item_id, score_json)
+
+
+def _verified_ai(teacher_id: str, item_id: str, score_json: str | None, sig: str | None) -> ItemScore | None:
+    if not score_json and not sig:
+        return None
+    if not score_json or not sig or not hmac.compare_digest(_signature(teacher_id, item_id, score_json), sig):
+        raise HTTPException(422, "the AI result sent with these marks is not one this server made")
+    return ItemScore.from_dict(json.loads(score_json))
+
+
+def add_marks(db: Session, checkin: Checkin, item_id: str, marks: list[bool], duration_ms: int | None,
+              hesitations: int | None = None, ai_json: str | None = None, ai_sig: str | None = None,
+              one_more: bool = False) -> ItemResult:
+    """Teacher tap-to-mark (offline or when the speech services are down): one boolean per letter/word.
+    `duration_ms` and `hesitations` come from the phone's own measure of the recording (reading time and long
+    pauses, the same rules as `speech.audio`), so the server's ladder lands where the phone's did.
+
+    With `ai_json`/`ai_sig` (a result from `preview_score`): the AI marked the card on the phone and the teacher
+    confirmed or changed each word before saving. The AI result is kept (what was heard, word timings) with the
+    teacher's mark settling every word, and the card is stored as AI-scored: its recording, uploaded after, is kept
+    for replay but not scored again."""
+    item = _expect_item(db, checkin, item_id, one_more)
     ref = tokenize(item.text, item.lang)
     if len(marks) != len(ref):
         raise HTTPException(422, f"expected {len(ref)} marks for {item.id}, got {len(marks)}")
+    ai = _verified_ai(checkin.student.classroom.teacher_id, item_id, ai_json, ai_sig)
+    if ai is not None:
+        if ai.item_id != item.id or len(ai.words) != len(marks):
+            raise HTTPException(422, "the AI result is for another card")
+        for w, m in zip(ai.words, marks):
+            w["teacher_mark"] = bool(m)
+            w["teacher_correct"] = bool(m)  # the teacher saw the AI's mark and settled the word
+            w["uncertain"] = False
+        # The phone ran the ladder on its own measure of reading time and pauses: the server counts the same, or
+        # a passage near a threshold could pass on one side and fail on the other and the cards would not line up.
+        # (The AI's word timings stay in the words, for replay.)
+        if duration_ms:
+            ai.reading_ms = duration_ms
+        if hesitations is not None:
+            ai.hesitations, ai.hesitation_source = hesitations, "phone"
+        ai.ai_scored = True
+        ai.retry = one_more
+        ir = _store(db, checkin, item, ai.evaluate(), "ai", offline_marks=list(marks))
+        db.commit()
+        return ir
     words = [{"i": i, "ref": r, "label": "correct" if m else "sub", "uncertain": False, "heard": {}, "labels": {},
               "pa": None, "start_ms": None, "end_ms": None, "teacher_correct": bool(m)}
              for i, (r, m) in enumerate(zip(ref, marks))]
     score = ItemScore(item_id=item.id, level=item.level, lang=item.lang, status="scored",
-                      duration_ms=duration_ms or 0, reading_ms=duration_ms, words=words).evaluate()
+                      duration_ms=duration_ms or 0, reading_ms=duration_ms, words=words,
+                      hesitations=hesitations, hesitation_source="phone" if hesitations is not None else None,
+                      retry=one_more).evaluate()
     ir = _store(db, checkin, item, score, "offline_marks", offline_marks=list(marks))
     db.commit()
     return ir
@@ -302,10 +402,15 @@ async def attach_audio(db: Session, checkin: Checkin, ir: ItemResult, data: byte
     confirm, exactly like two speech paths disagreeing. The ladder that was run offline is left alone; if a
     disagreement could flip an item, the check-in goes to needs_review (or reopens) through the usual settling.
     """
-    if ir.source != "offline_marks" or ir.offline_marks is None:
-        raise HTTPException(409, "only tap-marked items take a later recording")
+    if ir.offline_marks is None:
+        raise HTTPException(409, "only cards marked on the phone take a later recording")
     if ir.result.get("ai_scored"):
-        return ItemScore.from_dict(ir.result)  # already scored: a retried upload is a no-op
+        # Scored already (on the phone, before the teacher confirmed it, or by an earlier upload): keep the
+        # recording for replay if it is not kept yet, never score it again.
+        if ir.audio is None:
+            await _keep_recording(db, ir, data, suffix)
+            db.commit()
+        return ItemScore.from_dict(ir.result)
     item = get_item(ir.item_id)
     score = await score_item(data, item, suffix=suffix, allow_gemini=settings.gemini_for_children)
     if score.status != "scored":  # the marks stand; note why the recording did not help

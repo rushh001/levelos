@@ -1,0 +1,7 @@
+.fixtures/
+playwright-report/
+test-results/
+node_modules/
+lab-sessions/
+playwright.local.config.ts
+uat-reports/

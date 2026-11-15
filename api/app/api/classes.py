@@ -185,6 +185,21 @@ def patch_student(student_id: str, body: StudentPatch, teacher: Teacher = Depend
     return student_out(s, lang)
 
 
+@router.get("/classes/{class_id}/offline")
+def offline_pack(class_id: str, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
+    """Everything the phone needs to work with this class without network, in one request: the class page in each
+    of its reading tests and every child's page. The phone files each one under the address it reads it from, so
+    the pages open (and checks run) offline exactly as online. One request instead of one per child, so a slow
+    network has it all in one go."""
+    c = owned_class(db, teacher, class_id)
+    langs = reading_languages(c.language) or [c.language]
+    return {
+        "dashboards": {lang: dashboard(class_id, lang, teacher, db) for lang in langs},
+        "default_language": langs[0],
+        "students": {s.id: get_student(s.id, None, teacher, db) for s in c.students},
+    }
+
+
 @router.get("/classes/{class_id}/dashboard")
 def dashboard(class_id: str, language: str | None = None, teacher: Teacher = Depends(current_teacher),
               db: Session = Depends(get_db)) -> dict:

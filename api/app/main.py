@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from . import models  # noqa: F401  (registers tables on Base)
 from .api import activities as activity_routes
@@ -71,6 +72,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Answers compressed: a class's offline pack is ~640 KB of JSON and ~10 times less compressed, which on a slow
+# 3G signal (~50 KB/s) is the difference between the class reaching the phone before the signal goes, or not.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 app.include_router(auth_routes.router)
 app.include_router(class_routes.router)
 app.include_router(checkin_routes.router)

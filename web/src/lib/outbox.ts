@@ -6,7 +6,7 @@
  * until the server gives it a real one (lib/idmap.ts), and the reading checks done offline for that child follow.
  * Online, these calls go straight to the server as before.
  */
-import { Api, ApiError, OfflineError, api, currentTeacherId, noServer } from '../api'
+import { Api, ApiError, FRESH_EVENT, OfflineError, announceSynced, api, currentTeacherId, noServer } from '../api'
 import { db } from '../db'
 import { isTempId, realId, realPath, remember } from './idmap'
 import { applyOverride, applyReview, place, restate, type ReviewMark } from './rescore'
@@ -111,13 +111,15 @@ export async function addChild(
   classId: string,
   body: { first_name: string; avatar: string; names?: Record<string, string> },
 ): Promise<void> {
+  // The temporary ID goes with the first try too: on a weak network the server may add the child and the answer
+  // never arrive; the retry from the outbox then finds that child instead of adding a second one.
+  const tempId = newId('s')
   try {
-    await Api.addStudent(classId, body)
+    await Api.addStudent(classId, { ...body, local_id: tempId })
     return
   } catch (e) {
     if (!noServer(e)) throw e
   }
-  const tempId = newId('s')
   await together(async () => {
     // The temporary ID goes along, so the server adds the child once even if this is sent twice (the app closed
     // mid-sync).
@@ -156,13 +158,13 @@ export async function addChild(
 // ---------------------------------------------------------------- a new class
 
 export async function createClass(body: { name: string; grade: number; language: string }): Promise<void> {
+  const tempId = newId('c') // sent with the first try too, as for a child
   try {
-    await Api.createClass(body)
+    await Api.createClass({ ...body, local_id: tempId })
     return
   } catch (e) {
     if (!noServer(e)) throw e
   }
-  const tempId = newId('c')
   const languages = body.language === 'en' ? ['en'] : [body.language, 'en']
   const cls: ClassSummary = { id: tempId, name: body.name, names: {}, grade: body.grade, language: body.language, languages, students_count: 0 }
   const board = (lang: string): Dashboard => ({
@@ -296,15 +298,36 @@ export function flushOutbox(): Promise<void> {
   return flushing
 }
 
+let sentInAll = 0
+
+/** How many changes this page has sent so far: a server page read across a change being sent may predate it. */
+export const changesSent = () => sentInAll
+
 async function send(): Promise<void> {
+  let sent = 0
+  try {
+    await sendAll((accepted) => {
+      if (!accepted) return
+      sent += 1
+      sentInAll += 1
+    })
+  } finally {
+    announceSynced(sent) // open pages show the server's copy; the teacher is told
+  }
+}
+
+/** `onSent(accepted)`: a change left the outbox, taken by the server or refused by it (then dropped). */
+async function sendAll(onSent: (accepted: boolean) => void): Promise<void> {
   for (;;) {
     const p = (await pending()).find(mine)
     if (!p) return
     const path = await realPath(p.path)
     let created: { id?: string } | undefined
+    let accepted = false
     try {
       const body = p.body === undefined ? undefined : JSON.stringify(p.body)
       created = await api<{ id?: string }>(path, { method: p.method, body })
+      accepted = true
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) return // logged out: sent after the next login
       // No network, or a server failing (starting up, restarting): kept, and sent again a little later. Never let go
@@ -330,6 +353,9 @@ async function send(): Promise<void> {
       })
     }
     await save((await pending()).filter((x) => x.id !== p.id))
+    // Refused: not counted as saved, but open pages show the server's copy again (the phone's had the change).
+    if (!accepted) window.dispatchEvent(new CustomEvent(FRESH_EVENT, { detail: p.path }))
+    onSent(accepted)
   }
 }
 

@@ -32,7 +32,12 @@ class StartIn(BaseModel):
 class MarksIn(BaseModel):
     item_id: str
     marks: list[bool] = Field(min_length=1, max_length=200)
-    duration_ms: int | None = Field(default=None, ge=0)
+    duration_ms: int | None = Field(default=None, ge=0)  # how long the child read (the phone measures the speech)
+    hesitations: int | None = Field(default=None, ge=0, le=1000)  # long pauses the phone counted in the recording
+    # The AI's result for this card from POST /checkins/score, shown on the phone and confirmed by the teacher.
+    ai_score: str | None = Field(default=None, max_length=200_000)
+    ai_sig: str | None = Field(default=None, max_length=128)
+    one_more: bool = False  # the one more card the teacher gave after the ladder ended on a fail
 
 
 class SkipIn(BaseModel):
@@ -86,6 +91,20 @@ def start(body: StartIn, teacher: Teacher = Depends(current_teacher), db: Sessio
     return checkin_out(c, svc.next_item(db, c))
 
 
+@router.post("/score")
+async def score_card(item_id: str = Form(...), audio: UploadFile = File(...),
+                     teacher: Teacher = Depends(current_teacher)) -> dict:
+    """Score one card's recording for a check running on the phone; nothing is stored. `status` is scored,
+    rerecord (too short / silent / too long: record again) or failed (speech services down: the teacher marks).
+    A scored result comes with `score_json` and `sig`, which the phone sends back with the teacher's marks."""
+    data = await audio.read(MAX_AUDIO_BYTES + 1)
+    if len(data) > MAX_AUDIO_BYTES:
+        raise HTTPException(413, "clip too large")
+    score, score_json, sig = await svc.preview_score(teacher, item_id, data, _suffix(audio))
+    return {"status": score.status, "reason": score.reason, "score_json": score_json, "sig": sig,
+            "words": [{"label": w["label"], "uncertain": w["uncertain"]} for w in score.words]}
+
+
 @router.get("/{checkin_id}")
 def get(checkin_id: str, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
     c = svc.owned_checkin(db, teacher, checkin_id)
@@ -115,7 +134,8 @@ async def upload_item(checkin_id: str, item_id: str = Form(...), audio: UploadFi
 def mark_item(checkin_id: str, body: MarksIn, teacher: Teacher = Depends(current_teacher),
               db: Session = Depends(get_db)) -> dict:
     c = svc.owned_checkin(db, teacher, checkin_id)
-    ir = svc.add_marks(db, c, body.item_id, body.marks, body.duration_ms)
+    ir = svc.add_marks(db, c, body.item_id, body.marks, body.duration_ms, body.hesitations, body.ai_score, body.ai_sig,
+                       body.one_more)
     return {"status": "scored", "reason": None, "item_result": item_result_out(ir),
             "checkin": checkin_out(c, svc.next_item(db, c))}
 

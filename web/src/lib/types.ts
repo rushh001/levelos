@@ -97,6 +97,7 @@ export interface ItemScore {
   needs_review: boolean
   primary: string | null
   ai_scored?: boolean
+  retry?: boolean // one more card the teacher gave at a level just failed: it replaces that card on the ladder
 }
 
 export interface ItemResult {
@@ -186,6 +187,23 @@ export interface StudentDetail extends StudentSummary {
   class_id: string
   checkins_list: Checkin[]
   level_history: { at: string; provisional: Level | null; confirmed: Level | null; source: string; checkin_id: string | null }[]
+}
+
+/** A class's pages for working offline, in one answer (GET /classes/{id}/offline). */
+export interface OfflinePack {
+  dashboards: Record<string, Dashboard>
+  default_language: string
+  students: Record<string, StudentDetail>
+}
+
+/** The AI's marks for one card of a check running on the phone (POST /checkins/score). `score_json` and `sig` go back
+ * to the server with the teacher's marks, so the recording is not scored again. */
+export interface CardScore {
+  status: 'scored' | 'rerecord' | 'failed'
+  reason: string | null
+  score_json: string | null
+  sig: string | null
+  words: { label: string; uncertain: boolean }[]
 }
 
 export interface Health {

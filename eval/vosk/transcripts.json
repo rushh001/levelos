@@ -1,0 +1,5282 @@
+[
+ {
+  "clip": "en-para-a__clean",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have a red ball i play with it every day my dog likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.46259487499999974,
+  "audio_s": 12.765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i have a red ball i play with it every day my dog likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.04844108299999972,
+  "audio_s": 12.765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have a red ball i play with did every day my dog likes my ball he run shafted it",
+  "oov": [],
+  "seconds": 0.4434840000000002,
+  "audio_s": 14.4725625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i have a red ball i play with it every day my dog likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.0546303749999999,
+  "audio_s": 14.4725625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i i have a red ball now v i play with it every day my dog rely my boy he's awfully off suffering you be my",
+  "oov": [],
+  "seconds": 0.6582059170000005,
+  "audio_s": 12.765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "my i have a red ball i play with it every day my dog i my ball play a runs after day my",
+  "oov": [],
+  "seconds": 0.05156500000000008,
+  "audio_s": 12.765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "the i have a read boy he i play with they die every day now my dog like my ball game things we run south ferry",
+  "oov": [],
+  "seconds": 0.7402928340000008,
+  "audio_s": 14.4725625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "red ball he i play with every day my dog likes my ball runs a a",
+  "oov": [],
+  "seconds": 0.05594599999999961,
+  "audio_s": 14.4725625
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have a red bell i play with a day my dog licks likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.4388595420000003,
+  "audio_s": 12.609375
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i have a red [unk] i play with a day my dog likes likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.04808399999999935,
+  "audio_s": 12.609375
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have a red bell i play with a day my dog leg slides my ball he runs shafted it",
+  "oov": [],
+  "seconds": 0.4871077079999999,
+  "audio_s": 14.2936875
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i have a red day i play with a day my dog likes likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.05385945899999989,
+  "audio_s": 14.2936875
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "see i have a red bell w i'd play with a d j down my dog likes my ball we were the he runs off the radio w",
+  "oov": [],
+  "seconds": 0.6957956659999995,
+  "audio_s": 12.609375
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i have a red dog i play with a day dog my dog likes my ball he runs after red dog",
+  "oov": [],
+  "seconds": 0.052210291999999825,
+  "audio_s": 12.609375
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have i read day i believe we can day by day my dog lake apply my boss either he runs albany geez",
+  "oov": [],
+  "seconds": 0.7241022080000006,
+  "audio_s": 14.2936875
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i a red i day day my dog likes my ball he runs a he",
+  "oov": [],
+  "seconds": 0.05704904200000005,
+  "audio_s": 14.2936875
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "b d n. gee",
+  "oov": [],
+  "seconds": 0.2689459999999997,
+  "audio_s": 8.8413125
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bee dee n ee jee",
+  "oov": [
+   "buh",
+   "enn",
+   "guh",
+   "nn",
+   "nuh"
+  ],
+  "seconds": 0.03091708300000029,
+  "audio_s": 8.8413125
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "the guy and g",
+  "oov": [],
+  "seconds": 0.27296474999999987,
+  "audio_s": 9.387625
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "dee ghee n jee",
+  "oov": [
+   "buh",
+   "enn",
+   "guh",
+   "nn",
+   "nuh"
+  ],
+  "seconds": 0.036229374999999564,
+  "audio_s": 9.387625
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "b g d d o n the error oh gee",
+  "oov": [],
+  "seconds": 0.41172933400000034,
+  "audio_s": 8.8413125
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bee gee d dee n eh ee jee",
+  "oov": [
+   "buh",
+   "enn",
+   "guh",
+   "nn",
+   "nuh"
+  ],
+  "seconds": 0.03237383299999941,
+  "audio_s": 8.8413125
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "the please the game my dog",
+  "oov": [],
+  "seconds": 0.502170125000001,
+  "audio_s": 9.387625
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bee bee jee",
+  "oov": [
+   "buh",
+   "enn",
+   "guh",
+   "nn",
+   "nuh"
+  ],
+  "seconds": 0.04438237499999964,
+  "audio_s": 9.387625
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "cat sin pain bus had",
+  "oov": [],
+  "seconds": 0.3255626249999999,
+  "audio_s": 9.1223125
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "cat sun pen bus hat",
+  "oov": [],
+  "seconds": 0.030141541999999077,
+  "audio_s": 9.1223125
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "cant seem pain bass had",
+  "oov": [],
+  "seconds": 0.3077774170000005,
+  "audio_s": 9.7065625
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "cat sun pen bus hat",
+  "oov": [],
+  "seconds": 0.03227741699999953,
+  "audio_s": 9.7065625
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "we can ever read the sin of leeway in the bath my job i bow been",
+  "oov": [],
+  "seconds": 0.6355447500000011,
+  "audio_s": 9.1223125
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "cat sun bus",
+  "oov": [],
+  "seconds": 0.031986583000000124,
+  "audio_s": 9.1223125
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "can i say seen the pain barney gasoline",
+  "oov": [],
+  "seconds": 0.5730894590000002,
+  "audio_s": 9.7065625
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "cat pen bus",
+  "oov": [],
+  "seconds": 0.03411445799999946,
+  "audio_s": 9.7065625
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "f g why p. w",
+  "oov": [],
+  "seconds": 0.26471995900000067,
+  "audio_s": 9.3369375
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "f jee y jee w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "ef",
+   "eff",
+   "ess",
+   "fuh",
+   "guh",
+   "ss",
+   "wuh",
+   "yuh"
+  ],
+  "seconds": 0.032812832999999486,
+  "audio_s": 9.3369375
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "f g why the w",
+  "oov": [],
+  "seconds": 0.29707516599999906,
+  "audio_s": 9.9573125
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "f jee y jee w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "ef",
+   "eff",
+   "ess",
+   "fuh",
+   "guh",
+   "ss",
+   "wuh",
+   "yuh"
+  ],
+  "seconds": 0.03497691699999983,
+  "audio_s": 9.9573125
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "the a four star g b y b b b w zhao",
+  "oov": [],
+  "seconds": 0.550169833,
+  "audio_s": 9.3369375
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jee jee y w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "ef",
+   "eff",
+   "ess",
+   "fuh",
+   "guh",
+   "ss",
+   "wuh",
+   "yuh"
+  ],
+  "seconds": 0.03581595800000059,
+  "audio_s": 9.3369375
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "my long the why they saw the money it's my job blue star",
+  "oov": [],
+  "seconds": 0.507924083999999,
+  "audio_s": 9.9573125
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "y w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "ef",
+   "eff",
+   "ess",
+   "fuh",
+   "guh",
+   "ss",
+   "wuh",
+   "yuh"
+  ],
+  "seconds": 0.03988329199999896,
+  "audio_s": 9.9573125
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "w i yeah d. n.",
+  "oov": [],
+  "seconds": 0.26808220800000093,
+  "audio_s": 9.147875
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "w i pee dee n",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "enn",
+   "ih",
+   "nn",
+   "nuh",
+   "pe",
+   "puh",
+   "wuh"
+  ],
+  "seconds": 0.032460249999999746,
+  "audio_s": 9.147875
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "w i hey guy and",
+  "oov": [],
+  "seconds": 0.2767828750000003,
+  "audio_s": 9.7445625
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "w i pee dee n",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "enn",
+   "ih",
+   "nn",
+   "nuh",
+   "pe",
+   "puh",
+   "wuh"
+  ],
+  "seconds": 0.03366266699999976,
+  "audio_s": 9.7445625
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "mr t w paid my i know make some big game oh the video",
+  "oov": [],
+  "seconds": 0.5309274580000007,
+  "audio_s": 9.147875
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "w i dee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "enn",
+   "ih",
+   "nn",
+   "nuh",
+   "pe",
+   "puh",
+   "wuh"
+  ],
+  "seconds": 0.037365750000001086,
+  "audio_s": 9.147875
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "ya blew oh nine a beer geez d.",
+  "oov": [],
+  "seconds": 0.4183734999999995,
+  "audio_s": 9.7445625
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "w en i aye dee dee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "enn",
+   "ih",
+   "nn",
+   "nuh",
+   "pe",
+   "puh",
+   "wuh"
+  ],
+  "seconds": 0.03691199999999917,
+  "audio_s": 9.7445625
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "j. oh m. s. you",
+  "oov": [],
+  "seconds": 0.25226879200000063,
+  "audio_s": 8.9223125
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jay oh m s yu",
+  "oov": [
+   "emm",
+   "ess",
+   "juh",
+   "muh",
+   "oo",
+   "ss"
+  ],
+  "seconds": 0.031748125000000016,
+  "audio_s": 8.9223125
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "j. oh n. s. you",
+  "oov": [],
+  "seconds": 0.26466600000000007,
+  "audio_s": 9.4576875
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jay oh m s yu",
+  "oov": [
+   "emm",
+   "ess",
+   "juh",
+   "muh",
+   "oo",
+   "ss"
+  ],
+  "seconds": 0.03520574999999937,
+  "audio_s": 9.4576875
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "my bo j. oh ya a real pain you know",
+  "oov": [],
+  "seconds": 0.5529527080000012,
+  "audio_s": 8.9223125
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "j oh m yu",
+  "oov": [
+   "emm",
+   "ess",
+   "juh",
+   "muh",
+   "oo",
+   "ss"
+  ],
+  "seconds": 0.03303720799999965,
+  "audio_s": 8.9223125
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i owe my against the air that",
+  "oov": [],
+  "seconds": 0.6527567919999981,
+  "audio_s": 9.4576875
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jay oh",
+  "oov": [
+   "emm",
+   "ess",
+   "juh",
+   "muh",
+   "oo",
+   "ss"
+  ],
+  "seconds": 0.040580208000001505,
+  "audio_s": 9.4576875
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "d h c oh h.",
+  "oov": [],
+  "seconds": 0.2687181669999994,
+  "audio_s": 9.024
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "see oh eh",
+  "oov": [
+   "aa",
+   "cee",
+   "emm",
+   "kuh",
+   "muh",
+   "oo",
+   "vuh"
+  ],
+  "seconds": 0.0392220839999986,
+  "audio_s": 9.024
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "guy h. c oh h.",
+  "oov": [],
+  "seconds": 0.2729221250000009,
+  "audio_s": 9.579625
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "see oh eh",
+  "oov": [
+   "aa",
+   "cee",
+   "emm",
+   "kuh",
+   "muh",
+   "oo",
+   "vuh"
+  ],
+  "seconds": 0.04205533300000042,
+  "audio_s": 9.579625
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "what do we under a tree see the up owing so lazy age though",
+  "oov": [],
+  "seconds": 0.6804900420000024,
+  "audio_s": 9.024
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "see oh",
+  "oov": [
+   "aa",
+   "cee",
+   "emm",
+   "kuh",
+   "muh",
+   "oo",
+   "vuh"
+  ],
+  "seconds": 0.041534999999999656,
+  "audio_s": 9.024
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "a shame i oh please every woman",
+  "oov": [],
+  "seconds": 0.5146063339999998,
+  "audio_s": 9.579625
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "eh ay oh",
+  "oov": [
+   "aa",
+   "cee",
+   "emm",
+   "kuh",
+   "muh",
+   "oo",
+   "vuh"
+  ],
+  "seconds": 0.04257454200000055,
+  "audio_s": 9.579625
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "k v p. blue j",
+  "oov": [],
+  "seconds": 0.26507337500000006,
+  "audio_s": 9.182375
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "kay vee pee w jee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "kuh",
+   "pe",
+   "puh",
+   "vuh",
+   "wuh"
+  ],
+  "seconds": 0.03398254200000039,
+  "audio_s": 9.182375
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "he we p. w jane",
+  "oov": [],
+  "seconds": 0.2923080839999983,
+  "audio_s": 9.7783125
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "kay vee pee w jee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "kuh",
+   "pe",
+   "puh",
+   "vuh",
+   "wuh"
+  ],
+  "seconds": 0.03567099999999712,
+  "audio_s": 9.7783125
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "we door theme w j matter",
+  "oov": [],
+  "seconds": 0.4005740839999987,
+  "audio_s": 9.182375
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "pee w jee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "kuh",
+   "pe",
+   "puh",
+   "vuh",
+   "wuh"
+  ],
+  "seconds": 0.03830454200000233,
+  "audio_s": 9.182375
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "he yeah globally aware oh",
+  "oov": [],
+  "seconds": 0.4613271250000004,
+  "audio_s": 9.7783125
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jee vee jee w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "kuh",
+   "pe",
+   "puh",
+   "vuh",
+   "wuh"
+  ],
+  "seconds": 0.03886904200000174,
+  "audio_s": 9.7783125
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "j. g n. h. w.",
+  "oov": [],
+  "seconds": 0.2659317080000001,
+  "audio_s": 9.2290625
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jay jee w",
+  "oov": [
+   "aa",
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "juh",
+   "kuh",
+   "wuh"
+  ],
+  "seconds": 0.0375705410000009,
+  "audio_s": 9.2290625
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "j. g and h. w",
+  "oov": [],
+  "seconds": 0.2764822909999971,
+  "audio_s": 9.8344375
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jay jee w",
+  "oov": [
+   "aa",
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "juh",
+   "kuh",
+   "wuh"
+  ],
+  "seconds": 0.04035079100000161,
+  "audio_s": 9.8344375
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "jay murrow my boy toy end he runs area god damn you are",
+  "oov": [],
+  "seconds": 0.5754227920000012,
+  "audio_s": 9.2290625
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jay jee w",
+  "oov": [
+   "aa",
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "juh",
+   "kuh",
+   "wuh"
+  ],
+  "seconds": 0.04115366699999967,
+  "audio_s": 9.2290625
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "james taylor they say oh damn w no",
+  "oov": [],
+  "seconds": 0.4788647499999996,
+  "audio_s": 9.8344375
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "jay jee w",
+  "oov": [
+   "aa",
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "juh",
+   "kuh",
+   "wuh"
+  ],
+  "seconds": 0.043999833999997406,
+  "audio_s": 9.8344375
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "bean bag cat cow box",
+  "oov": [],
+  "seconds": 0.3075255830000003,
+  "audio_s": 9.22525
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bin bag cat cow box",
+  "oov": [],
+  "seconds": 0.02986374999999697,
+  "audio_s": 9.22525
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "then bag cat cow box",
+  "oov": [],
+  "seconds": 0.33031950000000165,
+  "audio_s": 9.8154375
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bin bag cat cow box",
+  "oov": [],
+  "seconds": 0.03179966599999773,
+  "audio_s": 9.8154375
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "bad i write my garage gow your job my box big i",
+  "oov": [],
+  "seconds": 0.6525720840000027,
+  "audio_s": 9.22525
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bag cat cow box bag",
+  "oov": [],
+  "seconds": 0.03044129199999901,
+  "audio_s": 9.22525
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "back then wow so",
+  "oov": [],
+  "seconds": 0.48146833400000233,
+  "audio_s": 9.8154375
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bin cat cow box box",
+  "oov": [],
+  "seconds": 0.03261920899999993,
+  "audio_s": 9.8154375
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "heart not box bin sit",
+  "oov": [],
+  "seconds": 0.3389362089999999,
+  "audio_s": 9.3141875
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "hat nut bag [unk]",
+  "oov": [],
+  "seconds": 0.03105841700000056,
+  "audio_s": 9.3141875
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "nat box bin state",
+  "oov": [],
+  "seconds": 0.3389706669999981,
+  "audio_s": 9.9445625
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "hat nut bag bag",
+  "oov": [],
+  "seconds": 0.033798292000000174,
+  "audio_s": 9.9445625
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "my name i know if my boss the bad honestly say pensive",
+  "oov": [],
+  "seconds": 0.6447626669999984,
+  "audio_s": 9.3141875
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "nut bag",
+  "oov": [],
+  "seconds": 0.03388562499999992,
+  "audio_s": 9.3141875
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "like you know i hit by a heal ben has red tape",
+  "oov": [],
+  "seconds": 0.6297345830000012,
+  "audio_s": 9.9445625
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "",
+  "oov": [],
+  "seconds": 0.039098166000002266,
+  "audio_s": 9.9445625
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "fig bed mud and ban",
+  "oov": [],
+  "seconds": 0.3138668750000022,
+  "audio_s": 8.9616875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bed mud ant pan",
+  "oov": [],
+  "seconds": 0.030521124999999927,
+  "audio_s": 8.9616875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "fake dead mad and pan",
+  "oov": [],
+  "seconds": 0.3156858749999998,
+  "audio_s": 9.5156875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bed mud ant pan",
+  "oov": [],
+  "seconds": 0.03198541700000135,
+  "audio_s": 9.5156875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "fig we need our bed please man down every day bang my job",
+  "oov": [],
+  "seconds": 0.5347108329999983,
+  "audio_s": 8.9616875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bed mud pan",
+  "oov": [],
+  "seconds": 0.030755790999997146,
+  "audio_s": 8.9616875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i mean they yell my door anna guy he's",
+  "oov": [],
+  "seconds": 0.5065178330000002,
+  "audio_s": 9.5156875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "mud pan",
+  "oov": [],
+  "seconds": 0.03503274999999917,
+  "audio_s": 9.5156875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "box toy big car fan",
+  "oov": [],
+  "seconds": 0.3151214160000002,
+  "audio_s": 9.3641875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "box big car [unk]",
+  "oov": [],
+  "seconds": 0.031157291999999615,
+  "audio_s": 9.3641875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "box try being car san",
+  "oov": [],
+  "seconds": 0.3460690839999998,
+  "audio_s": 9.976625
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "box big car",
+  "oov": [],
+  "seconds": 0.033350125000001896,
+  "audio_s": 9.976625
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "see bother gave jail in the toy oh it is no way digger i write my a fancy you",
+  "oov": [],
+  "seconds": 0.6491897910000013,
+  "audio_s": 9.3641875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "box car",
+  "oov": [],
+  "seconds": 0.03278862499999846,
+  "audio_s": 9.3641875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "yeah enjoy it while they the same guy i came down planes",
+  "oov": [],
+  "seconds": 0.6592658749999991,
+  "audio_s": 9.976625
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "yak car",
+  "oov": [],
+  "seconds": 0.034916499999997797,
+  "audio_s": 9.976625
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "net pain dog bed egg",
+  "oov": [],
+  "seconds": 0.31863454200000163,
+  "audio_s": 9.1194375
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "net pen dog bed egg",
+  "oov": [],
+  "seconds": 0.029656708000000975,
+  "audio_s": 9.1194375
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "nope pain dog bed egg",
+  "oov": [],
+  "seconds": 0.32058920800000124,
+  "audio_s": 9.689125
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "net pen dog bed egg",
+  "oov": [],
+  "seconds": 0.03171475000000257,
+  "audio_s": 9.689125
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "bread for net i was in it every day dong line about bear like my book believing",
+  "oov": [],
+  "seconds": 0.777814750000001,
+  "audio_s": 9.1194375
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "bed net egg dog bed",
+  "oov": [],
+  "seconds": 0.031275416999999806,
+  "audio_s": 9.1194375
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "matt lauer pain dark day c",
+  "oov": [],
+  "seconds": 0.5692458340000002,
+  "audio_s": 9.689125
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "pen dog bed",
+  "oov": [],
+  "seconds": 0.03331833300000042,
+  "audio_s": 9.689125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "dog hi fox jar yeah",
+  "oov": [],
+  "seconds": 0.30110304100000107,
+  "audio_s": 9.3888125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "dog key fox jug ear",
+  "oov": [],
+  "seconds": 0.03251341699999699,
+  "audio_s": 9.3888125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "dog he fox jar air",
+  "oov": [],
+  "seconds": 0.30839720800000237,
+  "audio_s": 9.995125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "dog key fox jug ear",
+  "oov": [],
+  "seconds": 0.03280308299999746,
+  "audio_s": 9.995125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "dog play with it i really believe me my wife john a year by go",
+  "oov": [],
+  "seconds": 0.7532884159999966,
+  "audio_s": 9.3888125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "dog jug ear",
+  "oov": [],
+  "seconds": 0.033606334000005234,
+  "audio_s": 9.3888125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "dumb dog the day he be a fork yan gap the air",
+  "oov": [],
+  "seconds": 0.4880313330000021,
+  "audio_s": 9.995125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "dog dog fox ear",
+  "oov": [],
+  "seconds": 0.03401695799999516,
+  "audio_s": 9.995125
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "father gave me a pencil it is long and blue i write my name with it trees today it my bag",
+  "oov": [],
+  "seconds": 0.47674116700000013,
+  "audio_s": 13.251875
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "father gave me a pencil it is long and blue i write my name with it write it my bag",
+  "oov": [],
+  "seconds": 0.050848792000003584,
+  "audio_s": 13.251875
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "father gave me a pen sin it is long and blue i write my name were dead trees today it's my bad",
+  "oov": [],
+  "seconds": 0.5057889580000037,
+  "audio_s": 15.0270625
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "father gave me a pencil long and blue i write my name with it a a it my bag",
+  "oov": [],
+  "seconds": 0.057095457999999155,
+  "audio_s": 15.0270625
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "my mother gave me a pin say it is long and blue jays i write my name will brees of today it's my bad damn please",
+  "oov": [],
+  "seconds": 0.8284400829999967,
+  "audio_s": 13.251875
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "my gave me a pencil it long and blue a i write my name blue it my bag",
+  "oov": [],
+  "seconds": 0.052977749999996604,
+  "audio_s": 13.251875
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "my father gave me a pen save the plan it is long and blue i write my name with it i play with a day to day it's my door they my",
+  "oov": [],
+  "seconds": 0.8426394170000009,
+  "audio_s": 15.0270625
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "my father gave me a pencil it is long and blue i write my name with it i name it my my",
+  "oov": [],
+  "seconds": 0.06015441699999968,
+  "audio_s": 15.0270625
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "it is hot day ravi drinks cold water he likes under a tree hill bird sings on the tree",
+  "oov": [],
+  "seconds": 0.46767466700000426,
+  "audio_s": 12.658125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "it is hot day ravi drinks cold water he drinks under a tree he bird sings on the tree",
+  "oov": [],
+  "seconds": 0.04954912499999864,
+  "audio_s": 12.658125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "it is hot day romney drinks cold water he like son buried tree his bird sings on the tree",
+  "oov": [],
+  "seconds": 0.4806184170000023,
+  "audio_s": 14.3478125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "is hot day ravi drinks cold water he under it tree bird sings on day tree",
+  "oov": [],
+  "seconds": 0.05526458399999967,
+  "audio_s": 14.3478125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "the red wing it is hot they fly play with a drug bring or cold water my dog he lives under a tree hill burning things on the three d.",
+  "oov": [],
+  "seconds": 0.8136737499999995,
+  "audio_s": 12.658125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "is hot day ravi drinks cold water under a tree bird he sings on the tree",
+  "oov": [],
+  "seconds": 0.05121745799999644,
+  "audio_s": 12.658125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "in his heart i mean really links cold war mine does he likes that a vivid dreams i bad endings on their dream d.",
+  "oov": [],
+  "seconds": 0.8640564170000005,
+  "audio_s": 14.3478125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "is hot day drinks cold water he drinks bird sings on tree the",
+  "oov": [],
+  "seconds": 0.05826554200000089,
+  "audio_s": 14.3478125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have read ball so play with it every day my dog likes my ball now runs after it",
+  "oov": [],
+  "seconds": 0.4919084580000046,
+  "audio_s": 12.908125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i have red ball play with it every day my dog likes my ball [unk] runs after it",
+  "oov": [],
+  "seconds": 0.049082249999997885,
+  "audio_s": 12.908125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have read ball so play with did every day my dog likes my ball now run shafted it",
+  "oov": [],
+  "seconds": 0.46728758300000095,
+  "audio_s": 14.634
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i have red ball play with it every day my dog likes my ball runs after it",
+  "oov": [],
+  "seconds": 0.05615033399999447,
+  "audio_s": 14.634
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have read both played a good job read this or play with it every day the my dog likes my more reliable water now runs off the rate nice some brownies read",
+  "oov": [],
+  "seconds": 0.9661053330000016,
+  "audio_s": 12.908125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i have red ball every play with it every day day my dog likes my ball runs after runs red",
+  "oov": [],
+  "seconds": 0.051720124999995676,
+  "audio_s": 12.908125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i read boy he were dead every day my dog like my boy doubt he now rally last friday a you",
+  "oov": [],
+  "seconds": 0.7577780000000018,
+  "audio_s": 14.634
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "i red ball he dog play red every day he my dog likes my ball runs he",
+  "oov": [],
+  "seconds": 0.057975749999997106,
+  "audio_s": 14.634
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "we day over the river the sand is soft warm i make a little house my sister makes a big hill",
+  "oov": [],
+  "seconds": 0.47579991699999624,
+  "audio_s": 13.03125
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "we river the sand is soft warm i make a little house my sister makes a big hill",
+  "oov": [],
+  "seconds": 0.05061008299999514,
+  "audio_s": 13.03125
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "we die over the river there's sand is soft too warm i make a little house my sister makes a big hill",
+  "oov": [],
+  "seconds": 0.5506963750000011,
+  "audio_s": 14.7765625
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "we the river the sand is soft warm i make and little house my sister makes a big hill",
+  "oov": [],
+  "seconds": 0.05712491599999936,
+  "audio_s": 14.7765625
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "i have we day over the river so this is and resolved the why my i make a little house my sister make a big hill fluid",
+  "oov": [],
+  "seconds": 0.7815896249999952,
+  "audio_s": 13.03125
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "we the river sand my make a little house my sister makes the big hill",
+  "oov": [],
+  "seconds": 0.052303458000004355,
+  "audio_s": 13.03125
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "free",
+  "text": "we'll be over there this sand is so i'm late and how with it if he might make a big hey my boss",
+  "oov": [],
+  "seconds": 1.037887167000001,
+  "audio_s": 14.7765625
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-in-0.4",
+  "mode": "grammar",
+  "text": "we sand is soft the warm i make and house my sister make big my",
+  "oov": [],
+  "seconds": 0.06268500000000188,
+  "audio_s": 14.7765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have a red ball i play with it every day my dog likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.5944501249999945,
+  "audio_s": 12.765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have a red ball i play with it every day my dog likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.05542549999999835,
+  "audio_s": 12.765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have a red barn i play with it every day my dog likes my born he runs after it",
+  "oov": [],
+  "seconds": 0.6607860000000016,
+  "audio_s": 14.4725625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have a red ball i play with it every day my dog likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.06412875000000184,
+  "audio_s": 14.4725625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "the nine i have a red reborn now you i play with it every dg my dog likes my boy he saw me right itself too late you be my",
+  "oov": [],
+  "seconds": 1.0110878340000014,
+  "audio_s": 12.765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "my i have a red ball he i play with it every day my dog likes my ball a play runs after it [unk] my",
+  "oov": [],
+  "seconds": 0.05797749999999979,
+  "audio_s": 12.765625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "the the i have read don't think he i play with a that every day now my bill lights my boy dean they will run south didn't he",
+  "oov": [],
+  "seconds": 1.100467082999998,
+  "audio_s": 14.4725625
+ },
+ {
+  "clip": "en-para-a__clean",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have red ball he i play with a every day my [unk] likes my ball he runs after it he",
+  "oov": [],
+  "seconds": 0.06662533399999404,
+  "audio_s": 14.4725625
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have a red bell i play with the d my dog licks likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.6010946250000018,
+  "audio_s": 12.609375
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have a red [unk] i play with a day my dog likes likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.054987374999996064,
+  "audio_s": 12.609375
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have a red ben i play with the day my dog likes likes my born he runs after it",
+  "oov": [],
+  "seconds": 0.6873274159999951,
+  "audio_s": 14.2936875
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have a red [unk] i play with a day my dog likes likes my ball he runs after it",
+  "oov": [],
+  "seconds": 0.06239483399999557,
+  "audio_s": 14.2936875
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "then see i have a them vandal don't live i live with the dg go my dog like likes my born we the he runs out today though don't you",
+  "oov": [],
+  "seconds": 1.002898082999998,
+  "audio_s": 12.609375
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] i have a red [unk] dog i play with it day my dog likes likes my ball he runs after a dog",
+  "oov": [],
+  "seconds": 0.05732520800000174,
+  "audio_s": 12.609375
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have a read thing i mean everything they were mind don't like nights my born down he runs out it ain't gee",
+  "oov": [],
+  "seconds": 1.1162739589999973,
+  "audio_s": 14.2936875
+ },
+ {
+  "clip": "en-para-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have a red play i my with day my dog likes likes my ball dog he runs he",
+  "oov": [],
+  "seconds": 0.06453966699999825,
+  "audio_s": 14.2936875
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "be d an he gee",
+  "oov": [],
+  "seconds": 0.38140741699999836,
+  "audio_s": 8.8413125
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "bee dee n ee jee",
+  "oov": [
+   "enn",
+   "guh"
+  ],
+  "seconds": 0.03807625000000314,
+  "audio_s": 8.8413125
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "be d an he gee",
+  "oov": [],
+  "seconds": 0.3761092089999991,
+  "audio_s": 9.387625
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "bee ghee n ee jee",
+  "oov": [
+   "enn",
+   "guh"
+  ],
+  "seconds": 0.039965958000003354,
+  "audio_s": 9.387625
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "b g di di mau a in a be able to yeah",
+  "oov": [],
+  "seconds": 0.5254839580000024,
+  "audio_s": 8.8413125
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "bee jee dee dee n ee jee eh",
+  "oov": [
+   "enn",
+   "guh"
+  ],
+  "seconds": 0.03883466699999616,
+  "audio_s": 8.8413125
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "and be the deal why am i mean he will be down to my go",
+  "oov": [],
+  "seconds": 0.7979013750000021,
+  "audio_s": 9.387625
+ },
+ {
+  "clip": "en-letter-b__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "bee dee n [unk] bee jee",
+  "oov": [
+   "enn",
+   "guh"
+  ],
+  "seconds": 0.043238999999999805,
+  "audio_s": 9.387625
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "cat sin been bus hat",
+  "oov": [],
+  "seconds": 0.4380573339999998,
+  "audio_s": 9.1223125
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "cat sun pen bus hat",
+  "oov": [],
+  "seconds": 0.03452495899999519,
+  "audio_s": 9.1223125
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "can't sin pain bass hat",
+  "oov": [],
+  "seconds": 0.47318208399999406,
+  "audio_s": 9.7065625
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "cat sun pen bus hat",
+  "oov": [],
+  "seconds": 0.03637391600000228,
+  "audio_s": 9.7065625
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "we can read the same i don't leave been the know bus line don't this high born in",
+  "oov": [],
+  "seconds": 0.8070769170000034,
+  "audio_s": 9.1223125
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "cat sun [unk] bus [unk] hat [unk]",
+  "oov": [],
+  "seconds": 0.03602370799999477,
+  "audio_s": 9.1223125
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "can't you are you saying the been d been a current yeah",
+  "oov": [],
+  "seconds": 0.8109738340000021,
+  "audio_s": 9.7065625
+ },
+ {
+  "clip": "en-word-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "cat sun pen bus hat",
+  "oov": [],
+  "seconds": 0.03750158399999748,
+  "audio_s": 9.7065625
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "if gee why be da blue",
+  "oov": [],
+  "seconds": 0.38296220800000214,
+  "audio_s": 9.3369375
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "f jee y ghee w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "fuh",
+   "guh",
+   "wuh",
+   "yuh"
+  ],
+  "seconds": 0.040082750000003387,
+  "audio_s": 9.3369375
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "f gee why be w",
+  "oov": [],
+  "seconds": 0.40562658400000373,
+  "audio_s": 9.9573125
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "f jee y ghee w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "fuh",
+   "guh",
+   "wuh",
+   "yuh"
+  ],
+  "seconds": 0.04084487499999767,
+  "audio_s": 9.9573125
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "they if boxcar gg why be that being d yeah w go",
+  "oov": [],
+  "seconds": 0.6729647089999986,
+  "audio_s": 9.3369375
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "ghee f jee jee y ghee ghee ghee w [unk]",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "fuh",
+   "guh",
+   "wuh",
+   "yuh"
+  ],
+  "seconds": 0.03996304200000367,
+  "audio_s": 9.3369375
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "no and jean my mom why they the money if my god you",
+  "oov": [],
+  "seconds": 0.8009943749999948,
+  "audio_s": 9.9573125
+ },
+ {
+  "clip": "en-gen-letter-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "jee y ghee w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "fuh",
+   "guh",
+   "wuh",
+   "yuh"
+  ],
+  "seconds": 0.04196637500000122,
+  "audio_s": 9.9573125
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "w i key d an",
+  "oov": [],
+  "seconds": 0.40054291699999567,
+  "audio_s": 9.147875
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "w i pee dee n",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "enn",
+   "wuh"
+  ],
+  "seconds": 0.03892620799999946,
+  "audio_s": 9.147875
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "w i key d an",
+  "oov": [],
+  "seconds": 0.39650370799999735,
+  "audio_s": 9.7445625
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "w i pee dee n",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "enn",
+   "wuh"
+  ],
+  "seconds": 0.04067674999999582,
+  "audio_s": 9.7445625
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "the see how dumb blue fin my i don't make some big key on d v d and",
+  "oov": [],
+  "seconds": 0.7441379999999995,
+  "audio_s": 9.147875
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "w pee i pee dee dee n",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "enn",
+   "wuh"
+  ],
+  "seconds": 0.040289416000000244,
+  "audio_s": 9.147875
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "yeah you i think he later a d beer and d",
+  "oov": [],
+  "seconds": 0.6632380419999961,
+  "audio_s": 9.7445625
+ },
+ {
+  "clip": "en-gen-letter-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "w i de pee dee n n dee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "enn",
+   "wuh"
+  ],
+  "seconds": 0.04286462499999999,
+  "audio_s": 9.7445625
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "gee oh am s you",
+  "oov": [],
+  "seconds": 0.39754245800000376,
+  "audio_s": 8.9223125
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "jay oh m s yu",
+  "oov": [
+   "emm",
+   "juh"
+  ],
+  "seconds": 0.03964895800000079,
+  "audio_s": 8.9223125
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "gee oh an s you",
+  "oov": [],
+  "seconds": 0.3999404999999996,
+  "audio_s": 9.4576875
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "jay oh m s yu",
+  "oov": [
+   "emm",
+   "juh"
+  ],
+  "seconds": 0.04053975000000065,
+  "audio_s": 9.4576875
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i born g e bay oh thanks and john name is ill fame you i live",
+  "oov": [],
+  "seconds": 0.7076421669999959,
+  "audio_s": 8.9223125
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] jay oh m jai ess yu jay yu",
+  "oov": [
+   "emm",
+   "juh"
+  ],
+  "seconds": 0.04152100000000303,
+  "audio_s": 8.9223125
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "t v i o and s you",
+  "oov": [],
+  "seconds": 0.5600652920000044,
+  "audio_s": 9.4576875
+ },
+ {
+  "clip": "en-gen-letter-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "jay oh m s yu",
+  "oov": [
+   "emm",
+   "juh"
+  ],
+  "seconds": 0.042138457999996604,
+  "audio_s": 9.4576875
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "d age see oh age",
+  "oov": [],
+  "seconds": 0.37506241599999157,
+  "audio_s": 9.024
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "vee [unk] see oh [unk]",
+  "oov": [
+   "emm",
+   "vuh"
+  ],
+  "seconds": 0.04286275000001183,
+  "audio_s": 9.024
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "d eight see oh age",
+  "oov": [],
+  "seconds": 0.3840402499999982,
+  "audio_s": 9.579625
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "vee [unk] see oh ay",
+  "oov": [
+   "emm",
+   "vuh"
+  ],
+  "seconds": 0.04504841700000384,
+  "audio_s": 9.579625
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "what did we eighteen hundred three seat up and oh forty three age don't key",
+  "oov": [],
+  "seconds": 0.9748530410000029,
+  "audio_s": 9.024
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] ay see see oh ay vee",
+  "oov": [
+   "emm",
+   "vuh"
+  ],
+  "seconds": 0.041561833000002935,
+  "audio_s": 9.024
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "dino a chamber oh i mean v at all",
+  "oov": [],
+  "seconds": 0.8682680419999969,
+  "audio_s": 9.579625
+ },
+ {
+  "clip": "en-gen-letter-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "vee ay see oh ay ay see vee",
+  "oov": [
+   "emm",
+   "vuh"
+  ],
+  "seconds": 0.046506957999994825,
+  "audio_s": 9.579625
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "key we be da blue gee",
+  "oov": [],
+  "seconds": 0.39780883299999914,
+  "audio_s": 9.182375
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "ghee ve pee w jee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "vuh",
+   "wuh"
+  ],
+  "seconds": 0.03841249999999263,
+  "audio_s": 9.182375
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "key re be god blue gee",
+  "oov": [],
+  "seconds": 0.4037972910000036,
+  "audio_s": 9.7783125
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "ghee ve vee w jee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "vuh",
+   "wuh"
+  ],
+  "seconds": 0.039335334000000444,
+  "audio_s": 9.7783125
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "he and we don't the heating oil w b b g much on",
+  "oov": [],
+  "seconds": 0.6636900830000059,
+  "audio_s": 9.182375
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "jee ve vee w vee jee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "vuh",
+   "wuh"
+  ],
+  "seconds": 0.03936037500000111,
+  "audio_s": 9.182375
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "the key re de deux been created a goblin jean",
+  "oov": [],
+  "seconds": 0.9204438750000037,
+  "audio_s": 9.7783125
+ },
+ {
+  "clip": "en-gen-letter-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "ve jee ve ghee ve w vee jee",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "vuh",
+   "wuh"
+  ],
+  "seconds": 0.04176662500000816,
+  "audio_s": 9.7783125
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "gee gee an age da blue",
+  "oov": [],
+  "seconds": 0.3713843750000052,
+  "audio_s": 9.2290625
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "jee jee [unk] [unk] w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "juh",
+   "wuh"
+  ],
+  "seconds": 0.042607166000010466,
+  "audio_s": 9.2290625
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "gee gee an eight w",
+  "oov": [],
+  "seconds": 0.39431025000000375,
+  "audio_s": 9.8344375
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "jee jee [unk] [unk] w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "juh",
+   "wuh"
+  ],
+  "seconds": 0.04694145799999205,
+  "audio_s": 9.8344375
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "the g model jeans my boy toy and he runs young age a w",
+  "oov": [],
+  "seconds": 0.7448690420000048,
+  "audio_s": 9.2290625
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] ghee jee jee ay w",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "juh",
+   "wuh"
+  ],
+  "seconds": 0.0414995409999932,
+  "audio_s": 9.2290625
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "jean jan abby a gun w a",
+  "oov": [],
+  "seconds": 0.6901276669999987,
+  "audio_s": 9.8344375
+ },
+ {
+  "clip": "en-gen-letter-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "jee jee ay ay w ay",
+  "oov": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "guh",
+   "juh",
+   "wuh"
+  ],
+  "seconds": 0.044458625000004304,
+  "audio_s": 9.8344375
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "been bag gad go box",
+  "oov": [],
+  "seconds": 0.3989212500000008,
+  "audio_s": 9.22525
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "bin bag cat cow box",
+  "oov": [],
+  "seconds": 0.03363912500000765,
+  "audio_s": 9.22525
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "then bag can't go box",
+  "oov": [],
+  "seconds": 0.4178628749999973,
+  "audio_s": 9.8154375
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "bin bag cat cow box",
+  "oov": [],
+  "seconds": 0.035854666000005864,
+  "audio_s": 9.8154375
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "their name bad right candidate go read or you don't mind boxy i",
+  "oov": [],
+  "seconds": 0.9582076669999964,
+  "audio_s": 9.22525
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "bin bag cat cow box [unk]",
+  "oov": [],
+  "seconds": 0.035516874999999004,
+  "audio_s": 9.22525
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "then than city yeah go read boss the",
+  "oov": [],
+  "seconds": 0.6634192920000004,
+  "audio_s": 9.8154375
+ },
+ {
+  "clip": "en-gen-word-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "bin bag cat cow box",
+  "oov": [],
+  "seconds": 0.03698374999999032,
+  "audio_s": 9.8154375
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "hat not box been sit",
+  "oov": [],
+  "seconds": 0.4389203340000023,
+  "audio_s": 9.3141875
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "hat nut [unk] [unk] [unk]",
+  "oov": [],
+  "seconds": 0.03611562500000787,
+  "audio_s": 9.3141875
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "hat not box then sit",
+  "oov": [],
+  "seconds": 0.48187620800000275,
+  "audio_s": 9.9445625
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "hat nut [unk] [unk] [unk]",
+  "oov": [],
+  "seconds": 0.039080708000000186,
+  "audio_s": 9.9445625
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "my name have to choose to know the if my boys de they don't want a game set things eg",
+  "oov": [],
+  "seconds": 0.9502140000000026,
+  "audio_s": 9.3141875
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "hat nut [unk] [unk] [unk] [unk] [unk] ear",
+  "oov": [],
+  "seconds": 0.03847016699999983,
+  "audio_s": 9.3141875
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "yeah bodies ben je greg plitt",
+  "oov": [],
+  "seconds": 0.8644397500000025,
+  "audio_s": 9.9445625
+ },
+ {
+  "clip": "en-gen-word-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "ear nut bag bag",
+  "oov": [],
+  "seconds": 0.03994674999999859,
+  "audio_s": 9.9445625
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "fig bed mud and ban",
+  "oov": [],
+  "seconds": 0.43488158399999577,
+  "audio_s": 8.9616875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] bed mud ant pan",
+  "oov": [],
+  "seconds": 0.03303454199999578,
+  "audio_s": 8.9616875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "fig bed mind and than",
+  "oov": [],
+  "seconds": 0.42476158299999156,
+  "audio_s": 9.5156875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] bed mud ant pan",
+  "oov": [],
+  "seconds": 0.03621595799999966,
+  "audio_s": 9.5156875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "oh fig we need bad thing month so the with it and di di di by my don't like",
+  "oov": [],
+  "seconds": 0.7865647080000002,
+  "audio_s": 8.9616875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] [unk] bed mud [unk] pan mud",
+  "oov": [],
+  "seconds": 0.0354744170000032,
+  "audio_s": 8.9616875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "they think i mean there's a month in though i'm dying than aims",
+  "oov": [],
+  "seconds": 0.9378725830000008,
+  "audio_s": 9.5156875
+ },
+ {
+  "clip": "en-gen-word-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "ant bed mud [unk] ant pan",
+  "oov": [],
+  "seconds": 0.03730008299999099,
+  "audio_s": 9.5156875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "box doj big gone fan",
+  "oov": [],
+  "seconds": 0.43104933300000425,
+  "audio_s": 9.3641875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "box [unk] big car [unk]",
+  "oov": [],
+  "seconds": 0.03453570800000705,
+  "audio_s": 9.3641875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "box delay big god fan",
+  "oov": [],
+  "seconds": 0.43745670799999914,
+  "audio_s": 9.976625
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "box [unk] big car [unk]",
+  "oov": [],
+  "seconds": 0.037053917000008596,
+  "audio_s": 9.976625
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "the boxy jail means doj only it is being a new dion and right my a family you",
+  "oov": [],
+  "seconds": 0.771171209000002,
+  "audio_s": 9.3641875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "box [unk] [unk] big big car yak",
+  "oov": [],
+  "seconds": 0.03676300000000765,
+  "audio_s": 9.3641875
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "the thing about see now enjoying my big the been gone by the game now thing",
+  "oov": [],
+  "seconds": 1.0329684170000064,
+  "audio_s": 9.976625
+ },
+ {
+  "clip": "en-gen-word-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "box yak [unk] [unk] big big car [unk]",
+  "oov": [],
+  "seconds": 0.03957879099999673,
+  "audio_s": 9.976625
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "net ben dog bed aig",
+  "oov": [],
+  "seconds": 0.4229879580000073,
+  "audio_s": 9.1194375
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "net pen dog bed egg",
+  "oov": [],
+  "seconds": 0.034406875000001946,
+  "audio_s": 9.1194375
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "net then doug bed aig",
+  "oov": [],
+  "seconds": 0.4529537920000024,
+  "audio_s": 9.689125
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "net pen dog bed egg",
+  "oov": [],
+  "seconds": 0.03785775000000058,
+  "audio_s": 9.689125
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "read for net sylvain every the don't nine on the been bad nights my book a living thing only of",
+  "oov": [],
+  "seconds": 1.146360125000001,
+  "audio_s": 9.1194375
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] net bed dog bed egg",
+  "oov": [],
+  "seconds": 0.03487879200000066,
+  "audio_s": 9.1194375
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "man fame door yeah then i a mean the",
+  "oov": [],
+  "seconds": 0.7282630000000125,
+  "audio_s": 9.689125
+ },
+ {
+  "clip": "en-gen-word-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "net pen dog bed egg",
+  "oov": [],
+  "seconds": 0.03752454199999988,
+  "audio_s": 9.689125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "dog key fox john yeah",
+  "oov": [],
+  "seconds": 0.40744741599999657,
+  "audio_s": 9.3888125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "dog key fox jug ear",
+  "oov": [],
+  "seconds": 0.036499874999989856,
+  "audio_s": 9.3888125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "doug key fox jar yeah",
+  "oov": [],
+  "seconds": 0.4233689999999939,
+  "audio_s": 9.995125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "dog key fox jug ear",
+  "oov": [],
+  "seconds": 0.039825833999998395,
+  "audio_s": 9.995125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "don't play with it i've really been my voice was a new john galliano feel like",
+  "oov": [],
+  "seconds": 0.8838233749999915,
+  "audio_s": 9.3888125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "dog key fox jug ear",
+  "oov": [],
+  "seconds": 0.037993000000000166,
+  "audio_s": 9.3888125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "the dog be the key v a fox john yeah am i",
+  "oov": [],
+  "seconds": 0.6044047080000041,
+  "audio_s": 9.995125
+ },
+ {
+  "clip": "en-gen-word-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "dog key key key fox jug ear",
+  "oov": [],
+  "seconds": 0.03933062499999096,
+  "audio_s": 9.995125
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "father gave me a pencil it is long and blue i write my name with it trees today it my bag",
+  "oov": [],
+  "seconds": 0.6785783329999902,
+  "audio_s": 13.251875
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "father gave me a pencil it is long and blue i write my name with it [unk] it my bag",
+  "oov": [],
+  "seconds": 0.05896033400000533,
+  "audio_s": 13.251875
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "father gave me a benson it is long and blue i write my name with didn't trees today in my bag",
+  "oov": [],
+  "seconds": 0.7425577919999995,
+  "audio_s": 15.0270625
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "father gave me a pencil it is long and blue i write my name with it [unk] it my bag",
+  "oov": [],
+  "seconds": 0.06531591600000297,
+  "audio_s": 15.0270625
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "in my mother gave me a fencing yeah it is long and blue gg i write my name with a d a breezy today it's my bad gov",
+  "oov": [],
+  "seconds": 1.053406209000002,
+  "audio_s": 13.251875
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "my father gave me a pencil it is long and blue i write my name with it blue a it my bag in",
+  "oov": [],
+  "seconds": 0.060469874999995454,
+  "audio_s": 13.251875
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "they my father gave me a thin say how it is long and blue i write my name with repaint i play within a vs today of my mind they",
+  "oov": [],
+  "seconds": 1.2827839580000102,
+  "audio_s": 15.0270625
+ },
+ {
+  "clip": "en-gen-para-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "my father gave me a pencil it is long and blue i write my name with name i name is a my my my",
+  "oov": [],
+  "seconds": 0.06932233299998813,
+  "audio_s": 15.0270625
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "it is hard day ravi drinks cold water he likes under a tree hill bird sings on the tree",
+  "oov": [],
+  "seconds": 0.634263292,
+  "audio_s": 12.658125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "it is hot day ravi drinks cold water he [unk] under a tree he bird sings on the tree",
+  "oov": [],
+  "seconds": 0.05549208299999009,
+  "audio_s": 12.658125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "it is hot day ravi drinks cold water he like sunday red tree hey bird sings on the tree",
+  "oov": [],
+  "seconds": 0.6676478339999932,
+  "audio_s": 14.3478125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "it is hot day ravi drinks cold water he [unk] under it tree he bird sings on the tree",
+  "oov": [],
+  "seconds": 0.06381104199999754,
+  "audio_s": 14.3478125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "read the it is hard day's night live with a wrote me a drink cold water my god he likes under a tree he'll be wrong bernie things on the tree be",
+  "oov": [],
+  "seconds": 1.1103661249999988,
+  "audio_s": 12.658125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "[unk] it is hot day ravi drinks cold water he [unk] tree bird sings on the tree the",
+  "oov": [],
+  "seconds": 0.05812412499999198,
+  "audio_s": 12.658125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "it is hot day i mean we're going to water mind he nine eleven three i mean a murder things on the train d",
+  "oov": [],
+  "seconds": 1.1806518329999989,
+  "audio_s": 14.3478125
+ },
+ {
+  "clip": "en-gen-para-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "it is hot day drinks cold water he tree bird sings on the tree the",
+  "oov": [],
+  "seconds": 0.065563166000004,
+  "audio_s": 14.3478125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have read ball so play with it every day my dog likes my ball now runs after it",
+  "oov": [],
+  "seconds": 0.6662623750000023,
+  "audio_s": 12.908125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have red ball [unk] play with it every day my dog likes my ball [unk] runs after it",
+  "oov": [],
+  "seconds": 0.057801957999998876,
+  "audio_s": 12.908125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have read born so play with did every day my dog likes my born now runs after it",
+  "oov": [],
+  "seconds": 0.6759517920000064,
+  "audio_s": 14.634
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have red ball [unk] play with it every day my dog likes my ball [unk] runs after it",
+  "oov": [],
+  "seconds": 0.06447841699998946,
+  "audio_s": 14.634
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have read been leading was a gun free zone play with it every detail they my dog likes my more reliably water now runs after they die sun belt",
+  "oov": [],
+  "seconds": 1.240764833,
+  "audio_s": 12.908125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i have red ball [unk] play with it every day day my dog likes my ball [unk] runs after it i",
+  "oov": [],
+  "seconds": 0.059065707999991446,
+  "audio_s": 12.908125
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i am very heavy red bull and mean gee so play with it every day key a my daughter nine my born and i don't know enough to date g",
+  "oov": [],
+  "seconds": 0.9590073749999988,
+  "audio_s": 14.634
+ },
+ {
+  "clip": "en-gen-para-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "i red ball he play with it every day a my dog [unk] my ball a i dog [unk] runs after it he",
+  "oov": [],
+  "seconds": 0.06717187499999966,
+  "audio_s": 14.634
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "we do over the river the sand is soft warm i make a little house my sister makes a big hill",
+  "oov": [],
+  "seconds": 0.6531324580000017,
+  "audio_s": 13.03125
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "clean",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "we [unk] the river the sand is soft warm i make a little house my sister makes a big hill",
+  "oov": [],
+  "seconds": 0.056789459000000875,
+  "audio_s": 13.03125
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "we day over the river the sand sanders soft to warm i make a little house my system makes a big hill",
+  "oov": [],
+  "seconds": 0.6982226670000102,
+  "audio_s": 14.7765625
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "child",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "we [unk] the river the sand is soft warm i make a little house my sister makes a big hill",
+  "oov": [],
+  "seconds": 0.06553737499999102,
+  "audio_s": 14.7765625
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "i have we d over the river so this sound so ways my i make a little holes fail my sister makes a big him hillary",
+  "oov": [],
+  "seconds": 1.0602552089999904,
+  "audio_s": 13.03125
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "we [unk] the river the sand soft warm my i make a little house my sister makes the big hill hill we",
+  "oov": [],
+  "seconds": 0.058879500000003304,
+  "audio_s": 13.03125
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "free",
+  "text": "we deal with the sanders software now i make a little how is it the my sister make a make him me",
+  "oov": [],
+  "seconds": 1.0505310839999993,
+  "audio_s": 14.7765625
+ },
+ {
+  "clip": "en-gen-para-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-en-us-0.15",
+  "mode": "grammar",
+  "text": "we [unk] river the sand is soft i make a little my sister make make hill make",
+  "oov": [],
+  "seconds": 0.07235929200000157,
+  "audio_s": 14.7765625
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा नाम रीना है मेरे पास एक गाय है गाय का रंग सफेद है वह रोज घास खाती है",
+  "oov": [],
+  "seconds": 0.43201495799999634,
+  "audio_s": 13.6425
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा नाम रीना है मेरे पास एक गाय है गाय का रंग सफेद है वह रोज घास खाती है",
+  "oov": [],
+  "seconds": 0.05738849999998763,
+  "audio_s": 13.6425
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा नाम रीना हैं मेरे पास एक गाय हैं गाय का रंग सफेद हैं वह रोज घास खाती हैं",
+  "oov": [],
+  "seconds": 0.6960207500000024,
+  "audio_s": 15.47425
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा नाम रीना है मेरे पास गाय है गाय रंग सफेद है वह रोज घास खाती है",
+  "oov": [],
+  "seconds": 0.06621787499999243,
+  "audio_s": 15.47425
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा नाम रीना है मेरे पास एक गाय है घर जूता गाय का रंग सफेद है था वह रोज घास खाती है",
+  "oov": [],
+  "seconds": 0.9993823329999998,
+  "audio_s": 13.6425
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा नाम रीना है खाती मेरे पास एक गाय है घास गाय का रंग सफेद है का वह रोज घास खाती है",
+  "oov": [],
+  "seconds": 0.05996195800000237,
+  "audio_s": 13.6425
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा नाम पर मेरे पास गाय हैं गाय का रंग सफेद हैं वह कहां गई है",
+  "oov": [],
+  "seconds": 1.9889414579999993,
+  "audio_s": 15.47425
+ },
+ {
+  "clip": "hi-para-a__clean",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरे नाम रीना नाम मेरे पास गाय है नाम गाय का सफेद है वह रोज घास घास है",
+  "oov": [],
+  "seconds": 0.07119808400000238,
+  "audio_s": 15.47425
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा मेरा नाम रीना है मेरे पास गाय है गाय का रंग सफेद सफेद है वह रोज घास खाता है",
+  "oov": [],
+  "seconds": 0.4542576249999968,
+  "audio_s": 14.33
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा मेरा नाम रीना है मेरे पास गाय है गाय का रंग सफेद सफेद है वह रोज घास खाती [unk]",
+  "oov": [],
+  "seconds": 0.060584540999997216,
+  "audio_s": 14.33
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा मेरा नाम हीना हैं मेरे पास गाए हैं गाय का रंग सफेद सफेद हैं वह रोज घास खाता है",
+  "oov": [],
+  "seconds": 0.8098398330000123,
+  "audio_s": 16.26025
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा मेरा नाम रीना है मेरे पास गाय है गाय का रंग सफेद सफेद है वह रोज घास खाती है",
+  "oov": [],
+  "seconds": 0.0705194579999926,
+  "audio_s": 16.26025
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हाँ मेरा मेरा नाम रीना है मेरे पास गाय हल्ला केला गाय का रंग सफेद है आशा है जहां बाहर रोष घास खाता है मूल है",
+  "oov": [],
+  "seconds": 1.8602265829999993,
+  "audio_s": 14.33
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा मेरा नाम रीना है मेरे पास गाय मेरा रीना गाय का रंग सफेद है घास वह रोज घास खाती है [unk]",
+  "oov": [],
+  "seconds": 0.0662806670000009,
+  "audio_s": 14.33
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा मेरा नाम ही नहीं हैं में पास गाए हैं गाय रन सपा यहां खाता है ना",
+  "oov": [],
+  "seconds": 1.8761608749999965,
+  "audio_s": 16.26025
+ },
+ {
+  "clip": "hi-para-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा मेरा नाम रीना है पास गाय है गाय रंग है",
+  "oov": [],
+  "seconds": 0.08161608399998954,
+  "audio_s": 16.26025
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "आज बहुत बारिश हुई सड़क पर पानी भर गया मोहन ने कागज की नाव बनाए नाव पानी में पैर में लगी",
+  "oov": [],
+  "seconds": 0.7243091659999976,
+  "audio_s": 28.243125
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "आज बहुत बारिश हुई सड़क पर पानी भर गया मोहन ने कागज की नाव बनाई नाव पानी में तैरने लगी",
+  "oov": [],
+  "seconds": 0.12279962499999897,
+  "audio_s": 28.243125
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "आज बाहर बारिश हुई सड़क पर पानी भर गया मोहन ने कागज की न बनाएं न्यास पानी में करने लगी",
+  "oov": [],
+  "seconds": 1.1662950000000052,
+  "audio_s": 30.428625
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "आज बहुत बारिश हुई सड़क पर पानी भर गया मोहन ने कागज की नाव बनाई नाव पानी में तैरने लगी",
+  "oov": [],
+  "seconds": 0.13238291700000104,
+  "audio_s": 30.428625
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "आज बहुत बारिश हुई मेरा नाम रीना सड़क पर था मेरे पास आए हैं का तार गांव का रंग पानी भर गया है मोहन ने घास खाता था घर में कागज की नाव बनाई में पानी में सीटी गांव का रंग सपा घर आए थे पैर ने लगभग हर रोज कहां खड़ा रहा",
+  "oov": [],
+  "seconds": 2.8535643749999906,
+  "audio_s": 28.243125
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "आज बहुत बारिश हुई सड़क पर पानी पानी भर गया मोहन में कागज की नाव बनाई में नाव पानी में तैरने लगी",
+  "oov": [],
+  "seconds": 0.14371200000000783,
+  "audio_s": 28.243125
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हाँ वहाँ बारिश हुई पैदा किया क्या पानी भर गया मॉडलिंग में हैं क्या क्या क्या न बनाएं ना ना पानी में लिया क्या एक नहीं ले सकती",
+  "oov": [],
+  "seconds": 3.1381644580000057,
+  "audio_s": 30.428625
+ },
+ {
+  "clip": "hi-para-b__halting",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "बारिश सड़क पानी भर गया मोहन ने कागज नाव बनाई नाव पानी में में",
+  "oov": [],
+  "seconds": 0.17289170800000875,
+  "audio_s": 30.428625
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "गाय बनी मोर खेल दिन",
+  "oov": [],
+  "seconds": 0.39016941699999563,
+  "audio_s": 9.61025
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "गाय पानी मोर केला दिन",
+  "oov": [],
+  "seconds": 0.03654979200000241,
+  "audio_s": 9.61025
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "जाएं पैनी मोर है चीन दिन",
+  "oov": [],
+  "seconds": 0.5812502920000071,
+  "audio_s": 10.26525
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "गाय पानी मोर दिन",
+  "oov": [],
+  "seconds": 0.04043579099999306,
+  "audio_s": 10.26525
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "गाय था या पानी ना मोड़ ला का ही रहा था का बड़ा",
+  "oov": [],
+  "seconds": 1.2269439169999998,
+  "audio_s": 9.61025
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "गाय पानी मोर केला दिन",
+  "oov": [],
+  "seconds": 0.03768095800000992,
+  "audio_s": 9.61025
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हां पानी या मो है",
+  "oov": [],
+  "seconds": 0.9975153330000097,
+  "audio_s": 10.26525
+ },
+ {
+  "clip": "hi-word-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पानी मोर दिन",
+  "oov": [],
+  "seconds": 0.043359624999993684,
+  "audio_s": 10.26525
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "का माँ शा रा ला",
+  "oov": [],
+  "seconds": 0.440107416999993,
+  "audio_s": 8.7591875
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "म र ल",
+  "oov": [],
+  "seconds": 0.03347191599999633,
+  "audio_s": 8.7591875
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "क्या माँ शा ना",
+  "oov": [],
+  "seconds": 0.5382944999999921,
+  "audio_s": 9.2975625
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "म",
+  "oov": [],
+  "seconds": 0.036589332999994895,
+  "audio_s": 9.2975625
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "रूमा गुहा रहा है शा रहाणे मेरा न लाना पड़ा",
+  "oov": [],
+  "seconds": 1.5596732079999924,
+  "audio_s": 8.7591875
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "म र ल",
+  "oov": [],
+  "seconds": 0.04112166699999875,
+  "audio_s": 8.7591875
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "क्या मा शा क्या न खाएं",
+  "oov": [],
+  "seconds": 0.8767252920000033,
+  "audio_s": 9.2975625
+ },
+ {
+  "clip": "hi-letter-a__mistakes",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "",
+  "oov": [],
+  "seconds": 0.03963616699999761,
+  "audio_s": 9.2975625
+ },
+ {
+  "clip": "hi-gen-letter-0",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "डा छः डा या",
+  "oov": [],
+  "seconds": 0.3455306250000092,
+  "audio_s": 8.74375
+ },
+ {
+  "clip": "hi-gen-letter-0",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "ग ड",
+  "oov": [],
+  "seconds": 0.03359612500000253,
+  "audio_s": 8.74375
+ },
+ {
+  "clip": "hi-gen-letter-0",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "गया छः डा यह था",
+  "oov": [],
+  "seconds": 0.408423125000013,
+  "audio_s": 9.2825
+ },
+ {
+  "clip": "hi-gen-letter-0",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "ग ड",
+  "oov": [],
+  "seconds": 0.03664529100001346,
+  "audio_s": 9.2825
+ },
+ {
+  "clip": "hi-gen-letter-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "रे गा मा शा छा मूर्धा अच्छा डा की दूंगा या बेदार फार्मा",
+  "oov": [],
+  "seconds": 1.2879326249999963,
+  "audio_s": 8.74375
+ },
+ {
+  "clip": "hi-gen-letter-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "ग ड",
+  "oov": [],
+  "seconds": 0.03541179199999078,
+  "audio_s": 8.74375
+ },
+ {
+  "clip": "hi-gen-letter-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "में डा या में था",
+  "oov": [],
+  "seconds": 1.3976095829999906,
+  "audio_s": 9.2825
+ },
+ {
+  "clip": "hi-gen-letter-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "ड",
+  "oov": [],
+  "seconds": 0.04277433300001121,
+  "audio_s": 9.2825
+ },
+ {
+  "clip": "hi-gen-letter-1",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "रा डा बा या",
+  "oov": [],
+  "seconds": 0.49694004200000563,
+  "audio_s": 8.6144375
+ },
+ {
+  "clip": "hi-gen-letter-1",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "र त द य",
+  "oov": [],
+  "seconds": 0.03334391699999628,
+  "audio_s": 8.6144375
+ },
+ {
+  "clip": "hi-gen-letter-1",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "अररिया क्या डा डा या",
+  "oov": [],
+  "seconds": 0.6365920840000001,
+  "audio_s": 9.1370625
+ },
+ {
+  "clip": "hi-gen-letter-1",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "द द य",
+  "oov": [],
+  "seconds": 0.038251750000000584,
+  "audio_s": 9.1370625
+ },
+ {
+  "clip": "hi-gen-letter-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरी साथ हाँ में हाँ रोना या आती है",
+  "oov": [],
+  "seconds": 1.802351334000008,
+  "audio_s": 8.6144375
+ },
+ {
+  "clip": "hi-gen-letter-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "र य",
+  "oov": [],
+  "seconds": 0.044769999999999754,
+  "audio_s": 8.6144375
+ },
+ {
+  "clip": "hi-gen-letter-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "अरे वाह या",
+  "oov": [],
+  "seconds": 1.3670489999999802,
+  "audio_s": 9.1370625
+ },
+ {
+  "clip": "hi-gen-letter-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "द य",
+  "oov": [],
+  "seconds": 0.045937124999994694,
+  "audio_s": 9.1370625
+ },
+ {
+  "clip": "hi-gen-letter-2",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "था डा डा",
+  "oov": [],
+  "seconds": 0.573554291999983,
+  "audio_s": 8.7913125
+ },
+ {
+  "clip": "hi-gen-letter-2",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "",
+  "oov": [],
+  "seconds": 0.04360837500001935,
+  "audio_s": 8.7913125
+ },
+ {
+  "clip": "hi-gen-letter-2",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हाँ क्या गया डा",
+  "oov": [],
+  "seconds": 0.63108541699998,
+  "audio_s": 9.315625
+ },
+ {
+  "clip": "hi-gen-letter-2",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "श",
+  "oov": [],
+  "seconds": 0.04052325000000678,
+  "audio_s": 9.315625
+ },
+ {
+  "clip": "hi-gen-letter-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "ल्हासा चार धाम बड़ा सा छा गए डा गाना",
+  "oov": [],
+  "seconds": 1.196871499999986,
+  "audio_s": 8.7913125
+ },
+ {
+  "clip": "hi-gen-letter-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "फ",
+  "oov": [],
+  "seconds": 0.03823941599998193,
+  "audio_s": 8.7913125
+ },
+ {
+  "clip": "hi-gen-letter-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हाँ हाँ डा",
+  "oov": [],
+  "seconds": 1.354863542000004,
+  "audio_s": 9.315625
+ },
+ {
+  "clip": "hi-gen-letter-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "[unk]",
+  "oov": [],
+  "seconds": 0.04344491699998798,
+  "audio_s": 9.315625
+ },
+ {
+  "clip": "hi-gen-letter-3",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "छा का था सा था",
+  "oov": [],
+  "seconds": 0.4715346659999966,
+  "audio_s": 8.7235625
+ },
+ {
+  "clip": "hi-gen-letter-3",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "",
+  "oov": [],
+  "seconds": 0.04228641599999605,
+  "audio_s": 8.7235625
+ },
+ {
+  "clip": "hi-gen-letter-3",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "क्या क्या हाँ सा था",
+  "oov": [],
+  "seconds": 0.5461667499999976,
+  "audio_s": 9.2455625
+ },
+ {
+  "clip": "hi-gen-letter-3",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "",
+  "oov": [],
+  "seconds": 0.04385183299999085,
+  "audio_s": 9.2455625
+ },
+ {
+  "clip": "hi-gen-letter-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "अच्छा या का या था ली का फावड़ा केला लो",
+  "oov": [],
+  "seconds": 1.3764503750000188,
+  "audio_s": 8.7235625
+ },
+ {
+  "clip": "hi-gen-letter-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "च फ न [unk]",
+  "oov": [],
+  "seconds": 0.04013158300000441,
+  "audio_s": 8.7235625
+ },
+ {
+  "clip": "hi-gen-letter-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "क्या क्या खाना खाने",
+  "oov": [],
+  "seconds": 1.2180783340000119,
+  "audio_s": 9.2455625
+ },
+ {
+  "clip": "hi-gen-letter-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "",
+  "oov": [],
+  "seconds": 0.05360816700002147,
+  "audio_s": 9.2455625
+ },
+ {
+  "clip": "hi-gen-letter-4",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "माँ रा शा अच्छा वह",
+  "oov": [],
+  "seconds": 0.45058208300000047,
+  "audio_s": 8.9263125
+ },
+ {
+  "clip": "hi-gen-letter-4",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "म श छ",
+  "oov": [],
+  "seconds": 0.03797737499999698,
+  "audio_s": 8.9263125
+ },
+ {
+  "clip": "hi-gen-letter-4",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "माँ शा छः वह",
+  "oov": [],
+  "seconds": 0.6012602920000063,
+  "audio_s": 9.477625
+ },
+ {
+  "clip": "hi-gen-letter-4",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "श छ",
+  "oov": [],
+  "seconds": 0.04172620800000004,
+  "audio_s": 9.477625
+ },
+ {
+  "clip": "hi-gen-letter-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "जामा रा रा रा रा पीड़ा झा जो बान व शान",
+  "oov": [],
+  "seconds": 1.2227575000000002,
+  "audio_s": 8.9263125
+ },
+ {
+  "clip": "hi-gen-letter-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "म श छ श",
+  "oov": [],
+  "seconds": 0.03749566700000173,
+  "audio_s": 8.9263125
+ },
+ {
+  "clip": "hi-gen-letter-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "सीमा क्या है भाषा क्या दिया",
+  "oov": [],
+  "seconds": 1.3922446249999894,
+  "audio_s": 9.477625
+ },
+ {
+  "clip": "hi-gen-letter-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "",
+  "oov": [],
+  "seconds": 0.04555770899997924,
+  "audio_s": 9.477625
+ },
+ {
+  "clip": "hi-gen-letter-5",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "बा ना ला रहा",
+  "oov": [],
+  "seconds": 0.5877631250000093,
+  "audio_s": 8.695
+ },
+ {
+  "clip": "hi-gen-letter-5",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "ब न ल र",
+  "oov": [],
+  "seconds": 0.03521245800001793,
+  "audio_s": 8.695
+ },
+ {
+  "clip": "hi-gen-letter-5",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "डा क्या ना लिया रिया",
+  "oov": [],
+  "seconds": 0.8891100839999808,
+  "audio_s": 9.2283125
+ },
+ {
+  "clip": "hi-gen-letter-5",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "ब न न",
+  "oov": [],
+  "seconds": 0.03867212499997663,
+  "audio_s": 9.2283125
+ },
+ {
+  "clip": "hi-gen-letter-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "घर न में लिया रात यहां",
+  "oov": [],
+  "seconds": 1.8300393750000126,
+  "audio_s": 8.695
+ },
+ {
+  "clip": "hi-gen-letter-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "न ल र",
+  "oov": [],
+  "seconds": 0.0405116249999935,
+  "audio_s": 8.695
+ },
+ {
+  "clip": "hi-gen-letter-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "क्या है ना ना ना बनाई जाए",
+  "oov": [],
+  "seconds": 1.4908243330000062,
+  "audio_s": 9.2283125
+ },
+ {
+  "clip": "hi-gen-letter-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "न न न",
+  "oov": [],
+  "seconds": 0.04006354200001283,
+  "audio_s": 9.2283125
+ },
+ {
+  "clip": "hi-gen-word-0",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "कान बस थाली दो दादी",
+  "oov": [],
+  "seconds": 0.4237301660000128,
+  "audio_s": 9.991125
+ },
+ {
+  "clip": "hi-gen-word-0",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "कान बस थाली दादी",
+  "oov": [],
+  "seconds": 0.04101866599998516,
+  "audio_s": 9.991125
+ },
+ {
+  "clip": "hi-gen-word-0",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "बैंस खाली जो दागी",
+  "oov": [],
+  "seconds": 0.7619593339999824,
+  "audio_s": 10.7115625
+ },
+ {
+  "clip": "hi-gen-word-0",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "कान बस थाली दादी",
+  "oov": [],
+  "seconds": 0.04415416700001629,
+  "audio_s": 10.7115625
+ },
+ {
+  "clip": "hi-gen-word-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "का साफा बस खाली हफीज का रंग धूम मचाए साइकिल चला दी",
+  "oov": [],
+  "seconds": 1.7130465420000007,
+  "audio_s": 9.991125
+ },
+ {
+  "clip": "hi-gen-word-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "कान बस थाली दादी",
+  "oov": [],
+  "seconds": 0.0413775840000028,
+  "audio_s": 9.991125
+ },
+ {
+  "clip": "hi-gen-word-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हां मैं क्या न है जो नहीं दादी क्या",
+  "oov": [],
+  "seconds": 1.8422403330000066,
+  "audio_s": 10.7115625
+ },
+ {
+  "clip": "hi-gen-word-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "कान थाली दादी",
+  "oov": [],
+  "seconds": 0.050050041999980976,
+  "audio_s": 10.7115625
+ },
+ {
+  "clip": "hi-gen-word-1",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "केला लौटा धान बीज मूली",
+  "oov": [],
+  "seconds": 0.4456903329999875,
+  "audio_s": 10.01275
+ },
+ {
+  "clip": "hi-gen-word-1",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "केला लोटा मूली",
+  "oov": [],
+  "seconds": 0.04427791599999864,
+  "audio_s": 10.01275
+ },
+ {
+  "clip": "hi-gen-word-1",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "केला लौटा धान बीज मूली",
+  "oov": [],
+  "seconds": 0.6320011250000164,
+  "audio_s": 10.7304375
+ },
+ {
+  "clip": "hi-gen-word-1",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "केला लोटा मूली",
+  "oov": [],
+  "seconds": 0.047844499999996515,
+  "audio_s": 10.7304375
+ },
+ {
+  "clip": "hi-gen-word-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "इलाहाबाद गाय हैं लौट आया गायिका धाराएं लाइव है वे में घास काट ली",
+  "oov": [],
+  "seconds": 1.239233583000015,
+  "audio_s": 10.01275
+ },
+ {
+  "clip": "hi-gen-word-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "केला गाय गाय लोटा गाय मूली",
+  "oov": [],
+  "seconds": 0.045599334000002045,
+  "audio_s": 10.01275
+ },
+ {
+  "clip": "hi-gen-word-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "ही नहीं लौटा यह भी मोल नहीं किया गया",
+  "oov": [],
+  "seconds": 1.6251772920000178,
+  "audio_s": 10.7304375
+ },
+ {
+  "clip": "hi-gen-word-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "केला केला लोटा गाय मूली [unk]",
+  "oov": [],
+  "seconds": 0.04495708300001411,
+  "audio_s": 10.7304375
+ },
+ {
+  "clip": "hi-gen-word-2",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "घायल दो तारा शील सीटी",
+  "oov": [],
+  "seconds": 0.4175329169999884,
+  "audio_s": 10.0238125
+ },
+ {
+  "clip": "hi-gen-word-2",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "तारा सीटी",
+  "oov": [],
+  "seconds": 0.04658399999999574,
+  "audio_s": 10.0238125
+ },
+ {
+  "clip": "hi-gen-word-2",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "घायल जो तारा ही सीटी",
+  "oov": [],
+  "seconds": 0.622765290999979,
+  "audio_s": 10.72975
+ },
+ {
+  "clip": "hi-gen-word-2",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "तारा सीटी",
+  "oov": [],
+  "seconds": 0.046811165999997684,
+  "audio_s": 10.72975
+ },
+ {
+  "clip": "hi-gen-word-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "रूप धारा हताशा दो था चार मेरा नाम माँ में सीपी रहा",
+  "oov": [],
+  "seconds": 1.7956817909999927,
+  "audio_s": 10.0238125
+ },
+ {
+  "clip": "hi-gen-word-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "तारा सीटी",
+  "oov": [],
+  "seconds": 0.05024308299999802,
+  "audio_s": 10.0238125
+ },
+ {
+  "clip": "hi-gen-word-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "साल दो हज़ार बारह ही नहीं ही",
+  "oov": [],
+  "seconds": 1.596812624999984,
+  "audio_s": 10.72975
+ },
+ {
+  "clip": "hi-gen-word-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "तारा",
+  "oov": [],
+  "seconds": 0.05648787499998775,
+  "audio_s": 10.72975
+ },
+ {
+  "clip": "hi-gen-word-3",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "पेड फूल चूहा गेंद सेब",
+  "oov": [],
+  "seconds": 0.4936292499999979,
+  "audio_s": 9.8899375
+ },
+ {
+  "clip": "hi-gen-word-3",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पेड़ फूल चूहा गेंद सेब",
+  "oov": [],
+  "seconds": 0.042398542000000816,
+  "audio_s": 9.8899375
+ },
+ {
+  "clip": "hi-gen-word-3",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "सोल क्यों हैं गेंद सेब",
+  "oov": [],
+  "seconds": 0.7143085419999977,
+  "audio_s": 10.5500625
+ },
+ {
+  "clip": "hi-gen-word-3",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "फूल चूहा गेंद सेब",
+  "oov": [],
+  "seconds": 0.0445739169999797,
+  "audio_s": 10.5500625
+ },
+ {
+  "clip": "hi-gen-word-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "था का फूल था जो छुहारा तारा गया था",
+  "oov": [],
+  "seconds": 1.5558987500000114,
+  "audio_s": 9.8899375
+ },
+ {
+  "clip": "hi-gen-word-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पेड़ फूल चूहा गेंद सेब [unk]",
+  "oov": [],
+  "seconds": 0.04099129200000107,
+  "audio_s": 9.8899375
+ },
+ {
+  "clip": "hi-gen-word-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "फूल सा चूहा मांगी है जी गया",
+  "oov": [],
+  "seconds": 1.4549889170000085,
+  "audio_s": 10.5500625
+ },
+ {
+  "clip": "hi-gen-word-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "फूल चूहा गेंद पेड़",
+  "oov": [],
+  "seconds": 0.04635191600002031,
+  "audio_s": 10.5500625
+ },
+ {
+  "clip": "hi-gen-word-4",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "जूता चाय दाल पेड गाना",
+  "oov": [],
+  "seconds": 0.4058364999999924,
+  "audio_s": 9.8895625
+ },
+ {
+  "clip": "hi-gen-word-4",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "चाय धान पेड़ धान",
+  "oov": [],
+  "seconds": 0.04117862499998637,
+  "audio_s": 9.8895625
+ },
+ {
+  "clip": "hi-gen-word-4",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "जूता है डा एक गाना",
+  "oov": [],
+  "seconds": 0.8742479590000016,
+  "audio_s": 10.5710625
+ },
+ {
+  "clip": "hi-gen-word-4",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "चाय धान पेड़ धान",
+  "oov": [],
+  "seconds": 0.042608124999986785,
+  "audio_s": 10.5710625
+ },
+ {
+  "clip": "hi-gen-word-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "जूता फहराने की जाए था दाल का रंग मे साइमन चलाना गाना रहेगा",
+  "oov": [],
+  "seconds": 1.7309252910000055,
+  "audio_s": 9.8895625
+ },
+ {
+  "clip": "hi-gen-word-4",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "चाय धान चाय धान",
+  "oov": [],
+  "seconds": 0.04520929199998136,
+  "audio_s": 9.8895625
+ },
+ {
+  "clip": "hi-gen-word-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "डा हिंदी गाना",
+  "oov": [],
+  "seconds": 1.297255167000003,
+  "audio_s": 10.5710625
+ },
+ {
+  "clip": "hi-gen-word-4",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "चाय धान",
+  "oov": [],
+  "seconds": 0.04848866599999724,
+  "audio_s": 10.5710625
+ },
+ {
+  "clip": "hi-gen-word-5",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "पेड पानी खेत केला मेला",
+  "oov": [],
+  "seconds": 0.41389249999997446,
+  "audio_s": 9.7108125
+ },
+ {
+  "clip": "hi-gen-word-5",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पेड़ पानी खेत केला मेला",
+  "oov": [],
+  "seconds": 0.0386490829999957,
+  "audio_s": 9.7108125
+ },
+ {
+  "clip": "hi-gen-word-5",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "पानी खेल खेला नीना",
+  "oov": [],
+  "seconds": 0.7564043330000061,
+  "audio_s": 10.368875
+ },
+ {
+  "clip": "hi-gen-word-5",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पानी खेत केला मेला",
+  "oov": [],
+  "seconds": 0.04337895800000524,
+  "audio_s": 10.368875
+ },
+ {
+  "clip": "hi-gen-word-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "से पानी में पापा ही केला में लाभ लेना होगा",
+  "oov": [],
+  "seconds": 1.7235892500000034,
+  "audio_s": 9.7108125
+ },
+ {
+  "clip": "hi-gen-word-5",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पेड़ पानी केला मेला केला",
+  "oov": [],
+  "seconds": 0.04019233300002156,
+  "audio_s": 9.7108125
+ },
+ {
+  "clip": "hi-gen-word-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "साथ ही नहीं क्या ना नीना",
+  "oov": [],
+  "seconds": 1.8564961250000067,
+  "audio_s": 10.368875
+ },
+ {
+  "clip": "hi-gen-word-5",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पानी केला मेला",
+  "oov": [],
+  "seconds": 0.08176800000001094,
+  "audio_s": 10.368875
+ },
+ {
+  "clip": "hi-gen-para-0",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हम जी खेत पर जाते हैं खेत गेहूं उगा है मैं भी उनके साथ जाता हूँ वहां ठंडी हवा चलती है",
+  "oov": [],
+  "seconds": 0.6215813750000052,
+  "audio_s": 14.79875
+ },
+ {
+  "clip": "hi-gen-para-0",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "हवा जी खेत पर जाते हैं खेत गेहूँ उगा है मैं भी उनके साथ जाता हूँ वहाँ ठंडी हवा चलती है",
+  "oov": [],
+  "seconds": 0.0654432500000155,
+  "audio_s": 14.79875
+ },
+ {
+  "clip": "hi-gen-para-0",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हम खेत पर जाते हैं खेत गेहूं उगा हैं ने भी उनके साथ जाता हूं वहां ठंडी हवाएं चलती हैं",
+  "oov": [],
+  "seconds": 0.9505141250000122,
+  "audio_s": 16.7969375
+ },
+ {
+  "clip": "hi-gen-para-0",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "जी खेत जाते हैं खेत गेहूँ उगा हैं भी उनके साथ जाता हूँ वहाँ ठंडी हवा चलती हैं",
+  "oov": [],
+  "seconds": 0.07957874999999603,
+  "audio_s": 16.7969375
+ },
+ {
+  "clip": "hi-gen-para-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हम जानते हैं गेहूं लगा है गुब्बारा मैं भी उनके से रात ग्यारह बजे दौड़कर आयशा वहां ठंडी हवा चलती है ना खा",
+  "oov": [],
+  "seconds": 1.5683867079999914,
+  "audio_s": 14.79875
+ },
+ {
+  "clip": "hi-gen-para-0",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "हवा जी जाते हैं गेहूँ उगा हैं मैं भी उनके साथ जी वहाँ ठंडी हवा चलती",
+  "oov": [],
+  "seconds": 0.06689116699999431,
+  "audio_s": 14.79875
+ },
+ {
+  "clip": "hi-gen-para-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "यह फैल जाते हैं उगा हैं ने उनकी जाना वहां ठंडी हवाएं चलती हैं",
+  "oov": [],
+  "seconds": 1.9851572919999967,
+  "audio_s": 16.7969375
+ },
+ {
+  "clip": "hi-gen-para-0",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "खेत गेहूँ उगा हैं मैं उनके हूँ वहाँ ठंडी हवा चलती हैं",
+  "oov": [],
+  "seconds": 0.08341516699999829,
+  "audio_s": 16.7969375
+ },
+ {
+  "clip": "hi-gen-para-1",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा पैर ने रीना है मेरे रंग एक गाय है गाय का रंग सफेद है रूस घास खाती है",
+  "oov": [],
+  "seconds": 0.5182150420000085,
+  "audio_s": 13.34375
+ },
+ {
+  "clip": "hi-gen-para-1",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा रीना है मेरे रंग एक गाय है गाय का रंग सफेद है रोज घास खाती है",
+  "oov": [],
+  "seconds": 0.058539582999998174,
+  "audio_s": 13.34375
+ },
+ {
+  "clip": "hi-gen-para-1",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरे पैर में रीना हैं मेरे रंग एक गाय हैं गाय का रंग सफेद हैं रूस घास खाती हैं",
+  "oov": [],
+  "seconds": 0.8596133749999808,
+  "audio_s": 15.133875
+ },
+ {
+  "clip": "hi-gen-para-1",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरे रीना है मेरे रंग एक गाय है गाय का रंग सफेद है रोज घास खाती है",
+  "oov": [],
+  "seconds": 0.06653387500000463,
+  "audio_s": 15.133875
+ },
+ {
+  "clip": "hi-gen-para-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मेरा शहर में जीना है आशा मेरी राजा एक गाय है अहमदाबाद से गाय का रंग सफेद है रूस घास खाती है और जूता",
+  "oov": [],
+  "seconds": 1.366242709000005,
+  "audio_s": 13.34375
+ },
+ {
+  "clip": "hi-gen-para-1",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा रीना है मेरे रीना एक गाय है गाय का रंग सफेद है रोज घास खाती है का",
+  "oov": [],
+  "seconds": 0.05740766599998892,
+  "audio_s": 13.34375
+ },
+ {
+  "clip": "hi-gen-para-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "मैं जीना है मेरी रांड गाए हैं विज्ञान का रंग सफेद हैं रियो घास खाती हैं या",
+  "oov": [],
+  "seconds": 1.7809842919999994,
+  "audio_s": 15.133875
+ },
+ {
+  "clip": "hi-gen-para-1",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "मेरा रीना है मेरे रंग गाय है गाय रंग सफेद है रीना घास खाती है",
+  "oov": [],
+  "seconds": 0.07548041600000488,
+  "audio_s": 15.133875
+ },
+ {
+  "clip": "hi-gen-para-2",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "शाला में गुब्बारा बजी सब बच्चे दौड़कर आए लाइन में खेत हुए फिर हमने गीत गाया",
+  "oov": [],
+  "seconds": 0.4612360419999959,
+  "audio_s": 13.626875
+ },
+ {
+  "clip": "hi-gen-para-2",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "शाला में बजी सब बच्चे दौड़कर आए लाइन में हुए फिर हमने गीत गाया",
+  "oov": [],
+  "seconds": 0.06354912500000864,
+  "audio_s": 13.626875
+ },
+ {
+  "clip": "hi-gen-para-2",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "शाह में बारह बजे सब बच्चे दौड़कर हैं लाइन में खेत हुए फिर हमने गीत गाया",
+  "oov": [],
+  "seconds": 1.1839640420000137,
+  "audio_s": 15.4554375
+ },
+ {
+  "clip": "hi-gen-para-2",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "शाला में बजी सब बच्चे दौड़कर लाइन में हुए फिर हमने गीत गाया",
+  "oov": [],
+  "seconds": 0.06744900000001053,
+  "audio_s": 15.4554375
+ },
+ {
+  "clip": "hi-gen-para-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "शाला में गुम बारह बयालीस फीट सब बच्चे दौड़कर आया था भिलाई में खेत हुए का तारा फिर हमने गीत गाया था",
+  "oov": [],
+  "seconds": 1.3656000409999933,
+  "audio_s": 13.626875
+ },
+ {
+  "clip": "hi-gen-para-2",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "शाला में सब बच्चे दौड़कर गाया लाइन में गीत हुए फिर हमने गीत गाया",
+  "oov": [],
+  "seconds": 0.06661579199999323,
+  "audio_s": 13.626875
+ },
+ {
+  "clip": "hi-gen-para-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "बारह बजे जब मैं दौड़कर आए हैं वैसे ही हुए था हमने गीत गाया",
+  "oov": [],
+  "seconds": 2.3801471660000004,
+  "audio_s": 15.4554375
+ },
+ {
+  "clip": "hi-gen-para-2",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "शाला बजी दौड़कर आए लाइन हुए हमने गीत गाया",
+  "oov": [],
+  "seconds": 0.0776722499999778,
+  "audio_s": 15.4554375
+ },
+ {
+  "clip": "hi-gen-para-3",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "पापा नई साइकिल लाए सफेद का रंग नीला में साइकिल चलाना सीख रही हूं पापा पीछे पर पकड़ते हैं",
+  "oov": [],
+  "seconds": 0.5739849580000111,
+  "audio_s": 14.40625
+ },
+ {
+  "clip": "hi-gen-para-3",
+  "variant": "clean",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पापा नई साइकिल लाए का रंग नीला मैं साइकिल चलाना सीख रही हूँ पापा पीछे पकड़ते हैं",
+  "oov": [],
+  "seconds": 0.06307566600000314,
+  "audio_s": 14.40625
+ },
+ {
+  "clip": "hi-gen-para-3",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "नई साइकिल लाएं सफेद का रंग नीला में साइकिल चलाना सीख रही हूं पापा पीछे पर पकड़ते हैं",
+  "oov": [],
+  "seconds": 1.1441731249999805,
+  "audio_s": 16.3493125
+ },
+ {
+  "clip": "hi-gen-para-3",
+  "variant": "child",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पापा नई साइकिल लाए सीख का रंग नीला मैं साइकिल चलाना सीख रही हूँ पापा पीछे पकड़ते हैं",
+  "oov": [],
+  "seconds": 0.08383295799998791,
+  "audio_s": 16.3493125
+ },
+ {
+  "clip": "hi-gen-para-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "रहा हूँ पापा नई साइकिल नहीं हवा है सफेद का रंग नीला में साइकिल चलाना ही रहेगा पापा पीछे पर पकड़ते हैं दोनों",
+  "oov": [],
+  "seconds": 2.409885165999981,
+  "audio_s": 14.40625
+ },
+ {
+  "clip": "hi-gen-para-3",
+  "variant": "clean_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "पापा नई साइकिल लाए नई है का रंग नीला मैं साइकिल चलाना रही का पापा पीछे पकड़ते हैं",
+  "oov": [],
+  "seconds": 0.06912925000000314,
+  "audio_s": 14.40625
+ },
+ {
+  "clip": "hi-gen-para-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "free",
+  "text": "हां नई साइट नाम का रंग नीला में साइकिल चलाना सीख रहे हैं कि क्या नाम था ही पर खेलते हैं",
+  "oov": [],
+  "seconds": 2.5384691670000166,
+  "audio_s": 16.3493125
+ },
+ {
+  "clip": "hi-gen-para-3",
+  "variant": "child_noisy",
+  "model": "vosk-model-small-hi-0.22",
+  "mode": "grammar",
+  "text": "नई लाए रंग नीला मैं साइकिल चलाना हैं पापा पकड़ते हैं",
+  "oov": [],
+  "seconds": 0.09174362500002076,
+  "audio_s": 16.3493125
+ }
+]
