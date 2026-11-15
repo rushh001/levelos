@@ -1,0 +1,1352 @@
+{
+ "rows": {
+  "en | small-en-in-0.4 | free | clean": {
+   "agree": "178/194",
+   "agree_pct": 91.8,
+   "caught": "31/32",
+   "caught_pct": 96.9,
+   "false_alarm": "15/162",
+   "false_alarm_pct": 9.3,
+   "card_right": "16/20",
+   "speed": 0.034
+  },
+  "en | small-en-in-0.4 | free | clean | paragraph": {
+   "agree": "122/124",
+   "agree_pct": 98.4,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "2/110",
+   "false_alarm_pct": 1.8,
+   "card_right": "5/6",
+   "speed": 0.036
+  },
+  "en | small-en-in-0.4 | grammar | clean": {
+   "agree": "187/194",
+   "agree_pct": 96.4,
+   "caught": "27/32",
+   "caught_pct": 84.4,
+   "false_alarm": "2/162",
+   "false_alarm_pct": 1.2,
+   "card_right": "18/20",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | grammar | clean | paragraph": {
+   "agree": "122/124",
+   "agree_pct": 98.4,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "2/110",
+   "false_alarm_pct": 1.8,
+   "card_right": "5/6",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | child": {
+   "agree": "153/194",
+   "agree_pct": 78.9,
+   "caught": "32/32",
+   "caught_pct": 100.0,
+   "false_alarm": "41/162",
+   "false_alarm_pct": 25.3,
+   "card_right": "10/20",
+   "speed": 0.032
+  },
+  "en | small-en-in-0.4 | free | child | paragraph": {
+   "agree": "105/124",
+   "agree_pct": 84.7,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "19/110",
+   "false_alarm_pct": 17.3,
+   "card_right": "1/6",
+   "speed": 0.034
+  },
+  "en | small-en-in-0.4 | grammar | child": {
+   "agree": "180/194",
+   "agree_pct": 92.8,
+   "caught": "26/32",
+   "caught_pct": 81.2,
+   "false_alarm": "8/162",
+   "false_alarm_pct": 4.9,
+   "card_right": "16/20",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | grammar | child | paragraph": {
+   "agree": "117/124",
+   "agree_pct": 94.4,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "7/110",
+   "false_alarm_pct": 6.4,
+   "card_right": "3/6",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | clean_noisy": {
+   "agree": "122/194",
+   "agree_pct": 62.9,
+   "caught": "28/32",
+   "caught_pct": 87.5,
+   "false_alarm": "68/162",
+   "false_alarm_pct": 42.0,
+   "card_right": "6/20",
+   "speed": 0.062
+  },
+  "en | small-en-in-0.4 | free | clean_noisy | paragraph": {
+   "agree": "89/124",
+   "agree_pct": 71.8,
+   "caught": "12/14",
+   "caught_pct": 85.7,
+   "false_alarm": "33/110",
+   "false_alarm_pct": 30.0,
+   "card_right": "0/6",
+   "speed": 0.061
+  },
+  "en | small-en-in-0.4 | grammar | clean_noisy": {
+   "agree": "158/194",
+   "agree_pct": 81.4,
+   "caught": "28/32",
+   "caught_pct": 87.5,
+   "false_alarm": "32/162",
+   "false_alarm_pct": 19.8,
+   "card_right": "8/20",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | grammar | clean_noisy | paragraph": {
+   "agree": "106/124",
+   "agree_pct": 85.5,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "18/110",
+   "false_alarm_pct": 16.4,
+   "card_right": "1/6",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | child_noisy": {
+   "agree": "85/194",
+   "agree_pct": 43.8,
+   "caught": "29/32",
+   "caught_pct": 90.6,
+   "false_alarm": "106/162",
+   "false_alarm_pct": 65.4,
+   "card_right": "6/20",
+   "speed": 0.053
+  },
+  "en | small-en-in-0.4 | free | child_noisy | paragraph": {
+   "agree": "63/124",
+   "agree_pct": 50.8,
+   "caught": "11/14",
+   "caught_pct": 78.6,
+   "false_alarm": "58/110",
+   "false_alarm_pct": 52.7,
+   "card_right": "0/6",
+   "speed": 0.054
+  },
+  "en | small-en-in-0.4 | grammar | child_noisy": {
+   "agree": "132/194",
+   "agree_pct": 68.0,
+   "caught": "27/32",
+   "caught_pct": 84.4,
+   "false_alarm": "57/162",
+   "false_alarm_pct": 35.2,
+   "card_right": "8/20",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | grammar | child_noisy | paragraph": {
+   "agree": "89/124",
+   "agree_pct": 71.8,
+   "caught": "13/14",
+   "caught_pct": 92.9,
+   "false_alarm": "34/110",
+   "false_alarm_pct": 30.9,
+   "card_right": "1/6",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | clean | letter": {
+   "agree": "30/35",
+   "agree_pct": 85.7,
+   "caught": "8/9",
+   "caught_pct": 88.9,
+   "false_alarm": "4/26",
+   "false_alarm_pct": 15.4,
+   "card_right": "6/7",
+   "speed": 0.029
+  },
+  "en | small-en-in-0.4 | grammar | clean | letter": {
+   "agree": "34/35",
+   "agree_pct": 97.1,
+   "caught": "8/9",
+   "caught_pct": 88.9,
+   "false_alarm": "0/26",
+   "false_alarm_pct": 0.0,
+   "card_right": "7/7",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | child | letter": {
+   "agree": "27/35",
+   "agree_pct": 77.1,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "8/26",
+   "false_alarm_pct": 30.8,
+   "card_right": "5/7",
+   "speed": 0.028
+  },
+  "en | small-en-in-0.4 | grammar | child | letter": {
+   "agree": "32/35",
+   "agree_pct": 91.4,
+   "caught": "7/9",
+   "caught_pct": 77.8,
+   "false_alarm": "1/26",
+   "false_alarm_pct": 3.8,
+   "card_right": "7/7",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | clean_noisy | letter": {
+   "agree": "20/35",
+   "agree_pct": 57.1,
+   "caught": "7/9",
+   "caught_pct": 77.8,
+   "false_alarm": "13/26",
+   "false_alarm_pct": 50.0,
+   "card_right": "3/7",
+   "speed": 0.059
+  },
+  "en | small-en-in-0.4 | grammar | clean_noisy | letter": {
+   "agree": "29/35",
+   "agree_pct": 82.9,
+   "caught": "8/9",
+   "caught_pct": 88.9,
+   "false_alarm": "5/26",
+   "false_alarm_pct": 19.2,
+   "card_right": "3/7",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | child_noisy | letter": {
+   "agree": "12/35",
+   "agree_pct": 34.3,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "23/26",
+   "false_alarm_pct": 88.5,
+   "card_right": "3/7",
+   "speed": 0.051
+  },
+  "en | small-en-in-0.4 | grammar | child_noisy | letter": {
+   "agree": "21/35",
+   "agree_pct": 60.0,
+   "caught": "7/9",
+   "caught_pct": 77.8,
+   "false_alarm": "12/26",
+   "false_alarm_pct": 46.2,
+   "card_right": "3/7",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | clean | word": {
+   "agree": "26/35",
+   "agree_pct": 74.3,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "9/26",
+   "false_alarm_pct": 34.6,
+   "card_right": "5/7",
+   "speed": 0.035
+  },
+  "en | small-en-in-0.4 | grammar | clean | word": {
+   "agree": "31/35",
+   "agree_pct": 88.6,
+   "caught": "5/9",
+   "caught_pct": 55.6,
+   "false_alarm": "0/26",
+   "false_alarm_pct": 0.0,
+   "card_right": "6/7",
+   "speed": 0.003
+  },
+  "en | small-en-in-0.4 | free | child | word": {
+   "agree": "21/35",
+   "agree_pct": 60.0,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "14/26",
+   "false_alarm_pct": 53.8,
+   "card_right": "4/7",
+   "speed": 0.033
+  },
+  "en | small-en-in-0.4 | grammar | child | word": {
+   "agree": "31/35",
+   "agree_pct": 88.6,
+   "caught": "5/9",
+   "caught_pct": 55.6,
+   "false_alarm": "0/26",
+   "false_alarm_pct": 0.0,
+   "card_right": "6/7",
+   "speed": 0.003
+  },
+  "en | small-en-in-0.4 | free | clean_noisy | word": {
+   "agree": "13/35",
+   "agree_pct": 37.1,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "22/26",
+   "false_alarm_pct": 84.6,
+   "card_right": "3/7",
+   "speed": 0.07
+  },
+  "en | small-en-in-0.4 | grammar | clean_noisy | word": {
+   "agree": "23/35",
+   "agree_pct": 65.7,
+   "caught": "6/9",
+   "caught_pct": 66.7,
+   "false_alarm": "9/26",
+   "false_alarm_pct": 34.6,
+   "card_right": "4/7",
+   "speed": 0.004
+  },
+  "en | small-en-in-0.4 | free | child_noisy | word": {
+   "agree": "10/35",
+   "agree_pct": 28.6,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "25/26",
+   "false_alarm_pct": 96.2,
+   "card_right": "3/7",
+   "speed": 0.059
+  },
+  "en | small-en-in-0.4 | grammar | child_noisy | word": {
+   "agree": "22/35",
+   "agree_pct": 62.9,
+   "caught": "7/9",
+   "caught_pct": 77.8,
+   "false_alarm": "11/26",
+   "false_alarm_pct": 42.3,
+   "card_right": "4/7",
+   "speed": 0.003
+  },
+  "en | small-en-us-0.15 | free | clean": {
+   "agree": "167/194",
+   "agree_pct": 86.1,
+   "caught": "32/32",
+   "caught_pct": 100.0,
+   "false_alarm": "27/162",
+   "false_alarm_pct": 16.7,
+   "card_right": "9/20",
+   "speed": 0.046
+  },
+  "en | small-en-us-0.15 | free | clean | paragraph": {
+   "agree": "120/124",
+   "agree_pct": 96.8,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "4/110",
+   "false_alarm_pct": 3.6,
+   "card_right": "3/6",
+   "speed": 0.05
+  },
+  "en | small-en-us-0.15 | grammar | clean": {
+   "agree": "187/194",
+   "agree_pct": 96.4,
+   "caught": "28/32",
+   "caught_pct": 87.5,
+   "false_alarm": "3/162",
+   "false_alarm_pct": 1.9,
+   "card_right": "19/20",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | grammar | clean | paragraph": {
+   "agree": "123/124",
+   "agree_pct": 99.2,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "1/110",
+   "false_alarm_pct": 0.9,
+   "card_right": "6/6",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | child": {
+   "agree": "153/194",
+   "agree_pct": 78.9,
+   "caught": "31/32",
+   "caught_pct": 96.9,
+   "false_alarm": "40/162",
+   "false_alarm_pct": 24.7,
+   "card_right": "8/20",
+   "speed": 0.044
+  },
+  "en | small-en-us-0.15 | free | child | paragraph": {
+   "agree": "108/124",
+   "agree_pct": 87.1,
+   "caught": "13/14",
+   "caught_pct": 92.9,
+   "false_alarm": "15/110",
+   "false_alarm_pct": 13.6,
+   "card_right": "1/6",
+   "speed": 0.047
+  },
+  "en | small-en-us-0.15 | grammar | child": {
+   "agree": "185/194",
+   "agree_pct": 95.4,
+   "caught": "28/32",
+   "caught_pct": 87.5,
+   "false_alarm": "5/162",
+   "false_alarm_pct": 3.1,
+   "card_right": "17/20",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | grammar | child | paragraph": {
+   "agree": "122/124",
+   "agree_pct": 98.4,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "2/110",
+   "false_alarm_pct": 1.8,
+   "card_right": "5/6",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | clean_noisy": {
+   "agree": "115/194",
+   "agree_pct": 59.3,
+   "caught": "28/32",
+   "caught_pct": 87.5,
+   "false_alarm": "75/162",
+   "false_alarm_pct": 46.3,
+   "card_right": "6/20",
+   "speed": 0.082
+  },
+  "en | small-en-us-0.15 | free | clean_noisy | paragraph": {
+   "agree": "86/124",
+   "agree_pct": 69.4,
+   "caught": "12/14",
+   "caught_pct": 85.7,
+   "false_alarm": "36/110",
+   "false_alarm_pct": 32.7,
+   "card_right": "0/6",
+   "speed": 0.08
+  },
+  "en | small-en-us-0.15 | grammar | clean_noisy": {
+   "agree": "175/194",
+   "agree_pct": 90.2,
+   "caught": "24/32",
+   "caught_pct": 75.0,
+   "false_alarm": "11/162",
+   "false_alarm_pct": 6.8,
+   "card_right": "13/20",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | grammar | clean_noisy | paragraph": {
+   "agree": "118/124",
+   "agree_pct": 95.2,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "6/110",
+   "false_alarm_pct": 5.5,
+   "card_right": "4/6",
+   "speed": 0.005
+  },
+  "en | small-en-us-0.15 | free | child_noisy": {
+   "agree": "96/194",
+   "agree_pct": 49.5,
+   "caught": "26/32",
+   "caught_pct": 81.2,
+   "false_alarm": "92/162",
+   "false_alarm_pct": 56.8,
+   "card_right": "6/20",
+   "speed": 0.079
+  },
+  "en | small-en-us-0.15 | free | child_noisy | paragraph": {
+   "agree": "70/124",
+   "agree_pct": 56.5,
+   "caught": "12/14",
+   "caught_pct": 85.7,
+   "false_alarm": "52/110",
+   "false_alarm_pct": 47.3,
+   "card_right": "0/6",
+   "speed": 0.077
+  },
+  "en | small-en-us-0.15 | grammar | child_noisy": {
+   "agree": "155/194",
+   "agree_pct": 79.9,
+   "caught": "21/32",
+   "caught_pct": 65.6,
+   "false_alarm": "28/162",
+   "false_alarm_pct": 17.3,
+   "card_right": "10/20",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | grammar | child_noisy | paragraph": {
+   "agree": "102/124",
+   "agree_pct": 82.3,
+   "caught": "13/14",
+   "caught_pct": 92.9,
+   "false_alarm": "21/110",
+   "false_alarm_pct": 19.1,
+   "card_right": "1/6",
+   "speed": 0.005
+  },
+  "en | small-en-us-0.15 | free | clean | letter": {
+   "agree": "22/35",
+   "agree_pct": 62.9,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "13/26",
+   "false_alarm_pct": 50.0,
+   "card_right": "3/7",
+   "speed": 0.043
+  },
+  "en | small-en-us-0.15 | grammar | clean | letter": {
+   "agree": "32/35",
+   "agree_pct": 91.4,
+   "caught": "8/9",
+   "caught_pct": 88.9,
+   "false_alarm": "2/26",
+   "false_alarm_pct": 7.7,
+   "card_right": "7/7",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | child | letter": {
+   "agree": "25/35",
+   "agree_pct": 71.4,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "10/26",
+   "false_alarm_pct": 38.5,
+   "card_right": "4/7",
+   "speed": 0.041
+  },
+  "en | small-en-us-0.15 | grammar | child | letter": {
+   "agree": "31/35",
+   "agree_pct": 88.6,
+   "caught": "8/9",
+   "caught_pct": 88.9,
+   "false_alarm": "3/26",
+   "false_alarm_pct": 11.5,
+   "card_right": "6/7",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | clean_noisy | letter": {
+   "agree": "18/35",
+   "agree_pct": 51.4,
+   "caught": "7/9",
+   "caught_pct": 77.8,
+   "false_alarm": "15/26",
+   "false_alarm_pct": 57.7,
+   "card_right": "3/7",
+   "speed": 0.079
+  },
+  "en | small-en-us-0.15 | grammar | clean_noisy | letter": {
+   "agree": "27/35",
+   "agree_pct": 77.1,
+   "caught": "4/9",
+   "caught_pct": 44.4,
+   "false_alarm": "3/26",
+   "false_alarm_pct": 11.5,
+   "card_right": "4/7",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | child_noisy | letter": {
+   "agree": "13/35",
+   "agree_pct": 37.1,
+   "caught": "5/9",
+   "caught_pct": 55.6,
+   "false_alarm": "18/26",
+   "false_alarm_pct": 69.2,
+   "card_right": "3/7",
+   "speed": 0.08
+  },
+  "en | small-en-us-0.15 | grammar | child_noisy | letter": {
+   "agree": "24/35",
+   "agree_pct": 68.6,
+   "caught": "4/9",
+   "caught_pct": 44.4,
+   "false_alarm": "6/26",
+   "false_alarm_pct": 23.1,
+   "card_right": "4/7",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | clean | word": {
+   "agree": "25/35",
+   "agree_pct": 71.4,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "10/26",
+   "false_alarm_pct": 38.5,
+   "card_right": "3/7",
+   "speed": 0.046
+  },
+  "en | small-en-us-0.15 | grammar | clean | word": {
+   "agree": "32/35",
+   "agree_pct": 91.4,
+   "caught": "6/9",
+   "caught_pct": 66.7,
+   "false_alarm": "0/26",
+   "false_alarm_pct": 0.0,
+   "card_right": "6/7",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | child | word": {
+   "agree": "20/35",
+   "agree_pct": 57.1,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "15/26",
+   "false_alarm_pct": 57.7,
+   "card_right": "3/7",
+   "speed": 0.045
+  },
+  "en | small-en-us-0.15 | grammar | child | word": {
+   "agree": "32/35",
+   "agree_pct": 91.4,
+   "caught": "6/9",
+   "caught_pct": 66.7,
+   "false_alarm": "0/26",
+   "false_alarm_pct": 0.0,
+   "card_right": "6/7",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | clean_noisy | word": {
+   "agree": "11/35",
+   "agree_pct": 31.4,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "24/26",
+   "false_alarm_pct": 92.3,
+   "card_right": "3/7",
+   "speed": 0.094
+  },
+  "en | small-en-us-0.15 | grammar | clean_noisy | word": {
+   "agree": "30/35",
+   "agree_pct": 85.7,
+   "caught": "6/9",
+   "caught_pct": 66.7,
+   "false_alarm": "2/26",
+   "false_alarm_pct": 7.7,
+   "card_right": "5/7",
+   "speed": 0.004
+  },
+  "en | small-en-us-0.15 | free | child_noisy | word": {
+   "agree": "13/35",
+   "agree_pct": 37.1,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "22/26",
+   "false_alarm_pct": 84.6,
+   "card_right": "3/7",
+   "speed": 0.084
+  },
+  "en | small-en-us-0.15 | grammar | child_noisy | word": {
+   "agree": "29/35",
+   "agree_pct": 82.9,
+   "caught": "4/9",
+   "caught_pct": 44.4,
+   "false_alarm": "1/26",
+   "false_alarm_pct": 3.8,
+   "card_right": "5/7",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | free | clean": {
+   "agree": "191/206",
+   "agree_pct": 92.7,
+   "caught": "34/34",
+   "caught_pct": 100.0,
+   "false_alarm": "15/172",
+   "false_alarm_pct": 8.7,
+   "card_right": "18/21",
+   "speed": 0.042
+  },
+  "hi | small-hi-0.22 | free | clean | paragraph": {
+   "agree": "132/136",
+   "agree_pct": 97.1,
+   "caught": "13/13",
+   "caught_pct": 100.0,
+   "false_alarm": "4/123",
+   "false_alarm_pct": 3.3,
+   "card_right": "5/7",
+   "speed": 0.034
+  },
+  "hi | small-hi-0.22 | grammar | clean": {
+   "agree": "192/206",
+   "agree_pct": 93.2,
+   "caught": "30/34",
+   "caught_pct": 88.2,
+   "false_alarm": "10/172",
+   "false_alarm_pct": 5.8,
+   "card_right": "19/21",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | grammar | clean | paragraph": {
+   "agree": "134/136",
+   "agree_pct": 98.5,
+   "caught": "12/13",
+   "caught_pct": 92.3,
+   "false_alarm": "1/123",
+   "false_alarm_pct": 0.8,
+   "card_right": "7/7",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | free | child": {
+   "agree": "145/206",
+   "agree_pct": 70.4,
+   "caught": "34/34",
+   "caught_pct": 100.0,
+   "false_alarm": "61/172",
+   "false_alarm_pct": 35.5,
+   "card_right": "8/21",
+   "speed": 0.059
+  },
+  "hi | small-hi-0.22 | free | child | paragraph": {
+   "agree": "105/136",
+   "agree_pct": 77.2,
+   "caught": "13/13",
+   "caught_pct": 100.0,
+   "false_alarm": "31/123",
+   "false_alarm_pct": 25.2,
+   "card_right": "0/7",
+   "speed": 0.057
+  },
+  "hi | small-hi-0.22 | grammar | child": {
+   "agree": "176/206",
+   "agree_pct": 85.4,
+   "caught": "30/34",
+   "caught_pct": 88.2,
+   "false_alarm": "26/172",
+   "false_alarm_pct": 15.1,
+   "card_right": "14/21",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | grammar | child | paragraph": {
+   "agree": "127/136",
+   "agree_pct": 93.4,
+   "caught": "12/13",
+   "caught_pct": 92.3,
+   "false_alarm": "8/123",
+   "false_alarm_pct": 6.5,
+   "card_right": "4/7",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | free | clean_noisy": {
+   "agree": "143/206",
+   "agree_pct": 69.4,
+   "caught": "32/34",
+   "caught_pct": 94.1,
+   "false_alarm": "61/172",
+   "false_alarm_pct": 35.5,
+   "card_right": "10/21",
+   "speed": 0.147
+  },
+  "hi | small-hi-0.22 | free | clean_noisy | paragraph": {
+   "agree": "110/136",
+   "agree_pct": 80.9,
+   "caught": "13/13",
+   "caught_pct": 100.0,
+   "false_alarm": "26/123",
+   "false_alarm_pct": 21.1,
+   "card_right": "2/7",
+   "speed": 0.102
+  },
+  "hi | small-hi-0.22 | grammar | clean_noisy": {
+   "agree": "175/206",
+   "agree_pct": 85.0,
+   "caught": "28/34",
+   "caught_pct": 82.4,
+   "false_alarm": "25/172",
+   "false_alarm_pct": 14.5,
+   "card_right": "13/21",
+   "speed": 0.005
+  },
+  "hi | small-hi-0.22 | grammar | clean_noisy | paragraph": {
+   "agree": "122/136",
+   "agree_pct": 89.7,
+   "caught": "12/13",
+   "caught_pct": 92.3,
+   "false_alarm": "13/123",
+   "false_alarm_pct": 10.6,
+   "card_right": "4/7",
+   "speed": 0.005
+  },
+  "hi | small-hi-0.22 | free | child_noisy": {
+   "agree": "87/206",
+   "agree_pct": 42.2,
+   "caught": "32/34",
+   "caught_pct": 94.1,
+   "false_alarm": "117/172",
+   "false_alarm_pct": 68.0,
+   "card_right": "8/21",
+   "speed": 0.145
+  },
+  "hi | small-hi-0.22 | free | child_noisy | paragraph": {
+   "agree": "62/136",
+   "agree_pct": 45.6,
+   "caught": "13/13",
+   "caught_pct": 100.0,
+   "false_alarm": "74/123",
+   "false_alarm_pct": 60.2,
+   "card_right": "0/7",
+   "speed": 0.118
+  },
+  "hi | small-hi-0.22 | grammar | child_noisy": {
+   "agree": "130/206",
+   "agree_pct": 63.1,
+   "caught": "31/34",
+   "caught_pct": 91.2,
+   "false_alarm": "73/172",
+   "false_alarm_pct": 42.4,
+   "card_right": "7/21",
+   "speed": 0.005
+  },
+  "hi | small-hi-0.22 | grammar | child_noisy | paragraph": {
+   "agree": "92/136",
+   "agree_pct": 67.6,
+   "caught": "13/13",
+   "caught_pct": 100.0,
+   "false_alarm": "44/123",
+   "false_alarm_pct": 35.8,
+   "card_right": "0/7",
+   "speed": 0.005
+  },
+  "hi | small-hi-0.22 | free | clean | word": {
+   "agree": "34/35",
+   "agree_pct": 97.1,
+   "caught": "11/11",
+   "caught_pct": 100.0,
+   "false_alarm": "1/24",
+   "false_alarm_pct": 4.2,
+   "card_right": "7/7",
+   "speed": 0.042
+  },
+  "hi | small-hi-0.22 | grammar | clean | word": {
+   "agree": "32/35",
+   "agree_pct": 91.4,
+   "caught": "8/11",
+   "caught_pct": 72.7,
+   "false_alarm": "0/24",
+   "false_alarm_pct": 0.0,
+   "card_right": "6/7",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | free | child | word": {
+   "agree": "20/35",
+   "agree_pct": 57.1,
+   "caught": "11/11",
+   "caught_pct": 100.0,
+   "false_alarm": "15/24",
+   "false_alarm_pct": 62.5,
+   "card_right": "4/7",
+   "speed": 0.068
+  },
+  "hi | small-hi-0.22 | grammar | child | word": {
+   "agree": "31/35",
+   "agree_pct": 88.6,
+   "caught": "9/11",
+   "caught_pct": 81.8,
+   "false_alarm": "2/24",
+   "false_alarm_pct": 8.3,
+   "card_right": "6/7",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | free | clean_noisy | word": {
+   "agree": "14/35",
+   "agree_pct": 40.0,
+   "caught": "9/11",
+   "caught_pct": 81.8,
+   "false_alarm": "19/24",
+   "false_alarm_pct": 79.2,
+   "card_right": "4/7",
+   "speed": 0.171
+  },
+  "hi | small-hi-0.22 | grammar | clean_noisy | word": {
+   "agree": "29/35",
+   "agree_pct": 82.9,
+   "caught": "7/11",
+   "caught_pct": 63.6,
+   "false_alarm": "2/24",
+   "false_alarm_pct": 8.3,
+   "card_right": "5/7",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | free | child_noisy | word": {
+   "agree": "13/35",
+   "agree_pct": 37.1,
+   "caught": "10/11",
+   "caught_pct": 90.9,
+   "false_alarm": "21/24",
+   "false_alarm_pct": 87.5,
+   "card_right": "4/7",
+   "speed": 0.149
+  },
+  "hi | small-hi-0.22 | grammar | child_noisy | word": {
+   "agree": "24/35",
+   "agree_pct": 68.6,
+   "caught": "8/11",
+   "caught_pct": 72.7,
+   "false_alarm": "8/24",
+   "false_alarm_pct": 33.3,
+   "card_right": "3/7",
+   "speed": 0.005
+  },
+  "hi | small-hi-0.22 | free | clean | letter": {
+   "agree": "25/35",
+   "agree_pct": 71.4,
+   "caught": "10/10",
+   "caught_pct": 100.0,
+   "false_alarm": "10/25",
+   "false_alarm_pct": 40.0,
+   "card_right": "6/7",
+   "speed": 0.054
+  },
+  "hi | small-hi-0.22 | grammar | clean | letter": {
+   "agree": "26/35",
+   "agree_pct": 74.3,
+   "caught": "10/10",
+   "caught_pct": 100.0,
+   "false_alarm": "9/25",
+   "false_alarm_pct": 36.0,
+   "card_right": "6/7",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | free | child | letter": {
+   "agree": "20/35",
+   "agree_pct": 57.1,
+   "caught": "10/10",
+   "caught_pct": 100.0,
+   "false_alarm": "15/25",
+   "false_alarm_pct": 60.0,
+   "card_right": "4/7",
+   "speed": 0.063
+  },
+  "hi | small-hi-0.22 | grammar | child | letter": {
+   "agree": "18/35",
+   "agree_pct": 51.4,
+   "caught": "9/10",
+   "caught_pct": 90.0,
+   "false_alarm": "16/25",
+   "false_alarm_pct": 64.0,
+   "card_right": "4/7",
+   "speed": 0.004
+  },
+  "hi | small-hi-0.22 | free | clean_noisy | letter": {
+   "agree": "19/35",
+   "agree_pct": 54.3,
+   "caught": "10/10",
+   "caught_pct": 100.0,
+   "false_alarm": "16/25",
+   "false_alarm_pct": 64.0,
+   "card_right": "4/7",
+   "speed": 0.158
+  },
+  "hi | small-hi-0.22 | grammar | clean_noisy | letter": {
+   "agree": "24/35",
+   "agree_pct": 68.6,
+   "caught": "9/10",
+   "caught_pct": 90.0,
+   "false_alarm": "10/25",
+   "false_alarm_pct": 40.0,
+   "card_right": "4/7",
+   "speed": 0.005
+  },
+  "hi | small-hi-0.22 | free | child_noisy | letter": {
+   "agree": "12/35",
+   "agree_pct": 34.3,
+   "caught": "9/10",
+   "caught_pct": 90.0,
+   "false_alarm": "22/25",
+   "false_alarm_pct": 88.0,
+   "card_right": "4/7",
+   "speed": 0.147
+  },
+  "hi | small-hi-0.22 | grammar | child_noisy | letter": {
+   "agree": "14/35",
+   "agree_pct": 40.0,
+   "caught": "10/10",
+   "caught_pct": 100.0,
+   "false_alarm": "21/25",
+   "false_alarm_pct": 84.0,
+   "card_right": "4/7",
+   "speed": 0.005
+  },
+  "hi | online AI (Sarvam + Azure) | live | clean": {
+   "agree": "204/206",
+   "agree_pct": 99.0,
+   "caught": "34/34",
+   "caught_pct": 100.0,
+   "false_alarm": "2/172",
+   "false_alarm_pct": 1.2,
+   "card_right": "21/21",
+   "speed": null
+  },
+  "hi | online AI (Sarvam + Azure) | live | clean | paragraph": {
+   "agree": "136/136",
+   "agree_pct": 100.0,
+   "caught": "13/13",
+   "caught_pct": 100.0,
+   "false_alarm": "0/123",
+   "false_alarm_pct": 0.0,
+   "card_right": "7/7",
+   "speed": null
+  },
+  "hi | online AI (Sarvam + Azure) | live | clean | word": {
+   "agree": "35/35",
+   "agree_pct": 100.0,
+   "caught": "11/11",
+   "caught_pct": 100.0,
+   "false_alarm": "0/24",
+   "false_alarm_pct": 0.0,
+   "card_right": "7/7",
+   "speed": null
+  },
+  "hi | online AI (Sarvam + Azure) | live | clean | letter": {
+   "agree": "33/35",
+   "agree_pct": 94.3,
+   "caught": "10/10",
+   "caught_pct": 100.0,
+   "false_alarm": "2/25",
+   "false_alarm_pct": 8.0,
+   "card_right": "7/7",
+   "speed": null
+  },
+  "en | online AI (Sarvam + Azure) | live | clean": {
+   "agree": "194/194",
+   "agree_pct": 100.0,
+   "caught": "32/32",
+   "caught_pct": 100.0,
+   "false_alarm": "0/162",
+   "false_alarm_pct": 0.0,
+   "card_right": "20/20",
+   "speed": null
+  },
+  "en | online AI (Sarvam + Azure) | live | clean | paragraph": {
+   "agree": "124/124",
+   "agree_pct": 100.0,
+   "caught": "14/14",
+   "caught_pct": 100.0,
+   "false_alarm": "0/110",
+   "false_alarm_pct": 0.0,
+   "card_right": "6/6",
+   "speed": null
+  },
+  "en | online AI (Sarvam + Azure) | live | clean | letter": {
+   "agree": "35/35",
+   "agree_pct": 100.0,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "0/26",
+   "false_alarm_pct": 0.0,
+   "card_right": "7/7",
+   "speed": null
+  },
+  "en | online AI (Sarvam + Azure) | live | clean | word": {
+   "agree": "35/35",
+   "agree_pct": 100.0,
+   "caught": "9/9",
+   "caught_pct": 100.0,
+   "false_alarm": "0/26",
+   "false_alarm_pct": 0.0,
+   "card_right": "7/7",
+   "speed": null
+  },
+  "hi | online AI (Sarvam + Azure) | live | child_noisy": {
+   "agree": "180/206",
+   "agree_pct": 87.4,
+   "caught": "34/34",
+   "caught_pct": 100.0,
+   "false_alarm": "26/172",
+   "false_alarm_pct": 15.1,
+   "card_right": "15/21",
+   "speed": null
+  },
+  "hi | online AI (Sarvam + Azure) | live | child_noisy | paragraph": {
+   "agree": "131/136",
+   "agree_pct": 96.3,
+   "caught": "13/13",
+   "caught_pct": 100.0,
+   "false_alarm": "5/123",
+   "false_alarm_pct": 4.1,
+   "card_right": "5/7",
+   "speed": null
+  },
+  "hi | online AI (Sarvam + Azure) | live | child_noisy | word": {
+   "agree": "30/35",
+   "agree_pct": 85.7,
+   "caught": "11/11",
+   "caught_pct": 100.0,
+   "false_alarm": "5/24",
+   "false_alarm_pct": 20.8,
+   "card_right": "6/7",
+   "speed": null
+  },
+  "hi | online AI (Sarvam + Azure) | live | child_noisy | letter": {
+   "agree": "19/35",
+   "agree_pct": 54.3,
+   "caught": "10/10",
+   "caught_pct": 100.0,
+   "false_alarm": "16/25",
+   "false_alarm_pct": 64.0,
+   "card_right": "4/7",
+   "speed": null
+  },
+  "en | online AI (Sarvam + Azure) | live | child_noisy": {
+   "agree": "171/194",
+   "agree_pct": 88.1,
+   "caught": "28/32",
+   "caught_pct": 87.5,
+   "false_alarm": "19/162",
+   "false_alarm_pct": 11.7,
+   "card_right": "15/20",
+   "speed": null
+  },
+  "en | online AI (Sarvam + Azure) | live | child_noisy | paragraph": {
+   "agree": "120/124",
+   "agree_pct": 96.8,
+   "caught": "12/14",
+   "caught_pct": 85.7,
+   "false_alarm": "2/110",
+   "false_alarm_pct": 1.8,
+   "card_right": "6/6",
+   "speed": null
+  },
+  "en | online AI (Sarvam + Azure) | live | child_noisy | letter": {
+   "agree": "30/35",
+   "agree_pct": 85.7,
+   "caught": "8/9",
+   "caught_pct": 88.9,
+   "false_alarm": "4/26",
+   "false_alarm_pct": 15.4,
+   "card_right": "6/7",
+   "speed": null
+  },
+  "en | online AI (Sarvam + Azure) | live | child_noisy | word": {
+   "agree": "21/35",
+   "agree_pct": 60.0,
+   "caught": "8/9",
+   "caught_pct": 88.9,
+   "false_alarm": "13/26",
+   "false_alarm_pct": 50.0,
+   "card_right": "3/7",
+   "speed": null
+  }
+ },
+ "oov": {
+  "small-en-in-0.4": [
+   "aa",
+   "buh",
+   "cee",
+   "dabloo",
+   "double u",
+   "doubleu",
+   "ef",
+   "eff",
+   "emm",
+   "enn",
+   "ess",
+   "fuh",
+   "guh",
+   "ih",
+   "juh",
+   "kuh",
+   "muh",
+   "nn",
+   "nuh",
+   "oo",
+   "pe",
+   "puh",
+   "ss",
+   "vuh",
+   "wuh",
+   "yuh"
+  ],
+  "small-en-us-0.15": [
+   "dabloo",
+   "double u",
+   "doubleu",
+   "emm",
+   "enn",
+   "fuh",
+   "guh",
+   "juh",
+   "vuh",
+   "wuh",
+   "yuh"
+  ],
+  "small-hi-0.22": []
+ },
+ "examples": [
+  {
+   "clip": "en-para-a__clean",
+   "model": "small-en-in-0.4",
+   "mode": "free",
+   "said": "I have a red ball. I play with it every day. My dog likes my ball. He runs after it.",
+   "heard": "i have a red ball i play with it every day my dog likes my ball he runs after it"
+  },
+  {
+   "clip": "en-para-a__clean",
+   "model": "small-en-in-0.4",
+   "mode": "grammar",
+   "said": "I have a red ball. I play with it every day. My dog likes my ball. He runs after it.",
+   "heard": "i have a red ball i play with it every day my dog likes my ball he runs after it"
+  },
+  {
+   "clip": "en-para-a__mistakes",
+   "model": "small-en-in-0.4",
+   "mode": "free",
+   "said": "I have a red bell. I play with it day. My dog licks likes my ball. He runs after it.",
+   "heard": "i have a red bell i play with a day my dog licks likes my ball he runs after it"
+  },
+  {
+   "clip": "en-para-a__mistakes",
+   "model": "small-en-in-0.4",
+   "mode": "grammar",
+   "said": "I have a red bell. I play with it day. My dog licks likes my ball. He runs after it.",
+   "heard": "i have a red [unk] i play with a day my dog likes likes my ball he runs after it"
+  },
+  {
+   "clip": "en-letter-b__mistakes",
+   "model": "small-en-in-0.4",
+   "mode": "free",
+   "said": "b d n e g",
+   "heard": "b d n. gee"
+  },
+  {
+   "clip": "en-letter-b__mistakes",
+   "model": "small-en-in-0.4",
+   "mode": "grammar",
+   "said": "b d n e g",
+   "heard": "bee dee n ee jee"
+  },
+  {
+   "clip": "en-word-a__mistakes",
+   "model": "small-en-in-0.4",
+   "mode": "free",
+   "said": "cat sin pin bus hat",
+   "heard": "cat sin pain bus had"
+  },
+  {
+   "clip": "en-word-a__mistakes",
+   "model": "small-en-in-0.4",
+   "mode": "grammar",
+   "said": "cat sin pin bus hat",
+   "heard": "cat sun pen bus hat"
+  },
+  {
+   "clip": "en-para-a__clean",
+   "model": "small-en-us-0.15",
+   "mode": "free",
+   "said": "I have a red ball. I play with it every day. My dog likes my ball. He runs after it.",
+   "heard": "i have a red ball i play with it every day my dog likes my ball he runs after it"
+  },
+  {
+   "clip": "en-para-a__clean",
+   "model": "small-en-us-0.15",
+   "mode": "grammar",
+   "said": "I have a red ball. I play with it every day. My dog likes my ball. He runs after it.",
+   "heard": "i have a red ball i play with it every day my dog likes my ball he runs after it"
+  },
+  {
+   "clip": "en-para-a__mistakes",
+   "model": "small-en-us-0.15",
+   "mode": "free",
+   "said": "I have a red bell. I play with it day. My dog licks likes my ball. He runs after it.",
+   "heard": "i have a red bell i play with the d my dog licks likes my ball he runs after it"
+  },
+  {
+   "clip": "en-para-a__mistakes",
+   "model": "small-en-us-0.15",
+   "mode": "grammar",
+   "said": "I have a red bell. I play with it day. My dog licks likes my ball. He runs after it.",
+   "heard": "i have a red [unk] i play with a day my dog likes likes my ball he runs after it"
+  },
+  {
+   "clip": "en-letter-b__mistakes",
+   "model": "small-en-us-0.15",
+   "mode": "free",
+   "said": "b d n e g",
+   "heard": "be d an he gee"
+  },
+  {
+   "clip": "en-letter-b__mistakes",
+   "model": "small-en-us-0.15",
+   "mode": "grammar",
+   "said": "b d n e g",
+   "heard": "bee dee n ee jee"
+  },
+  {
+   "clip": "en-word-a__mistakes",
+   "model": "small-en-us-0.15",
+   "mode": "free",
+   "said": "cat sin pin bus hat",
+   "heard": "cat sin been bus hat"
+  },
+  {
+   "clip": "en-word-a__mistakes",
+   "model": "small-en-us-0.15",
+   "mode": "grammar",
+   "said": "cat sin pin bus hat",
+   "heard": "cat sun pen bus hat"
+  },
+  {
+   "clip": "hi-para-a__clean",
+   "model": "small-hi-0.22",
+   "mode": "free",
+   "said": "मेरा नाम रीना है। मेरे पास एक गाय है। गाय का रंग सफेद है। वह रोज घास खाती है।",
+   "heard": "मेरा नाम रीना है मेरे पास एक गाय है गाय का रंग सफेद है वह रोज घास खाती है"
+  },
+  {
+   "clip": "hi-para-a__clean",
+   "model": "small-hi-0.22",
+   "mode": "grammar",
+   "said": "मेरा नाम रीना है। मेरे पास एक गाय है। गाय का रंग सफेद है। वह रोज घास खाती है।",
+   "heard": "मेरा नाम रीना है मेरे पास एक गाय है गाय का रंग सफेद है वह रोज घास खाती है"
+  },
+  {
+   "clip": "hi-para-a__mistakes",
+   "model": "small-hi-0.22",
+   "mode": "free",
+   "said": "मेरा मेरा नाम रीना है। मेरे पास गाय है। गाय का रंग सफाद सफेद है। वह रोज घास खाता है।",
+   "heard": "मेरा मेरा नाम रीना है मेरे पास गाय है गाय का रंग सफेद सफेद है वह रोज घास खाता है"
+  },
+  {
+   "clip": "hi-para-a__mistakes",
+   "model": "small-hi-0.22",
+   "mode": "grammar",
+   "said": "मेरा मेरा नाम रीना है। मेरे पास गाय है। गाय का रंग सफाद सफेद है। वह रोज घास खाता है।",
+   "heard": "मेरा मेरा नाम रीना है मेरे पास गाय है गाय का रंग सफेद सफेद है वह रोज घास खाती [unk]"
+  },
+  {
+   "clip": "hi-para-b__halting",
+   "model": "small-hi-0.22",
+   "mode": "free",
+   "said": "आज बहुत बारिश हुई। सड़क पर ⏸ पानी भर गया। मोहन ने ⏸ कागज की नाव बनाई। नाव पानी में ⏸ तैरने लगी।",
+   "heard": "आज बहुत बारिश हुई सड़क पर पानी भर गया मोहन ने कागज की नाव बनाए नाव पानी में पैर में लगी"
+  },
+  {
+   "clip": "hi-para-b__halting",
+   "model": "small-hi-0.22",
+   "mode": "grammar",
+   "said": "आज बहुत बारिश हुई। सड़क पर ⏸ पानी भर गया। मोहन ने ⏸ कागज की नाव बनाई। नाव पानी में ⏸ तैरने लगी।",
+   "heard": "आज बहुत बारिश हुई सड़क पर पानी भर गया मोहन ने कागज की नाव बनाई नाव पानी में तैरने लगी"
+  },
+  {
+   "clip": "hi-word-a__mistakes",
+   "model": "small-hi-0.22",
+   "mode": "free",
+   "said": "गाय पनी मोर केल दिन",
+   "heard": "गाय बनी मोर खेल दिन"
+  },
+  {
+   "clip": "hi-word-a__mistakes",
+   "model": "small-hi-0.22",
+   "mode": "grammar",
+   "said": "गाय पनी मोर केल दिन",
+   "heard": "गाय पानी मोर केला दिन"
+  },
+  {
+   "clip": "hi-letter-a__mistakes",
+   "model": "small-hi-0.22",
+   "mode": "free",
+   "said": "क म श र ल",
+   "heard": "का माँ शा रा ला"
+  },
+  {
+   "clip": "hi-letter-a__mistakes",
+   "model": "small-hi-0.22",
+   "mode": "grammar",
+   "said": "क म श र ल",
+   "heard": "म र ल"
+  }
+ ]
+}
