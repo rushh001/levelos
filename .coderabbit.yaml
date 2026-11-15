@@ -4,6 +4,10 @@ language: en-US
 tone_instructions: "Be brief and concrete. Say what breaks, for whom (a teacher, a child, offline or online), and the fix."
 
 reviews:
+  # The "CodeRabbit" check on each PR is a required check on main (set in GitHub: Settings → Rules → main): a PR
+  # cannot merge while the review is running, and a review that fails keeps it blocked until a later one succeeds.
+  review_progress: true
+  fail_commit_status: true
   profile: chill
   high_level_summary: true
   poem: false
@@ -12,6 +16,32 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+  # Checks on every PR, shown in the review. "error" marks a PR as not ready; one PR can be let through with a comment:
+  # @coderabbitai ignore pre-merge checks
+  pre_merge_checks:
+    title:
+      mode: "warning"
+      requirements: "Plain words saying what changed for a teacher or a child, under 72 characters."
+    description:
+      mode: "error"
+    custom_checks:
+      - name: "Six languages in step"
+        mode: "error"
+        instructions: |
+          Pass if every key added or changed in one of web/src/locales/{en,hi,mr,kn,ta,bn}.json is added or changed
+          in all six, with the same {{placeholders}}, and the non-English files hold no English sentences.
+          Pass if the PR changes no locale file.
+      - name: "Ladder the same on phone and server"
+        mode: "error"
+        instructions: |
+          Pass if the PR changes no ASER ladder rule. If it changes one in api/app/levels/aser_rules.py,
+          web/src/lib/aser.ts or web/src/lib/rescore.ts, pass only if the same rule changes on the other side
+          too (the phone runs the ladder offline and the server replays it when the check is sent).
+      - name: "No hard-coded English in the app"
+        mode: "warning"
+        instructions: |
+          Pass if every text a teacher sees in web/src (JSX text, button labels, aria-labels, messages) goes
+          through i18next t(...). Code comments, test files and developer-only logs do not count.
   path_filters:
     - "!**/package-lock.json"
     - "!eval/vosk/*.json"
