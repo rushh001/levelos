@@ -73,6 +73,8 @@ interface Kept {
   duration: number
 }
 
+const asking = new Map<string, Promise<Kept | null>>() // recordings being fetched right now
+
 /** The server's recording of these parts (from the phone's copy when it has one), or null with no network or voice. */
 export async function serverRecording(ui: string, parts: Part[]): Promise<Recording | null> {
   const key = `speech/${ui}/${fnv(parts.map((p) => p.text).join('\n'))}`
@@ -80,13 +82,22 @@ export async function serverRecording(ui: string, parts: Part[]): Promise<Record
   if (!kept) {
     // The header says Offline: no wait on the network (a request would only time out).
     if (!navigator.onLine || !isReachable()) return null
-    try {
-      kept = await Api.speech(ui, parts.map((p) => p.text))
-    } catch {
-      return null
+    // One request for a recording, however many ask for it at once (a new activity's recording is being kept for
+    // offline as it opens when the teacher presses Listen).
+    let ask = asking.get(key)
+    if (!ask) {
+      ask = Api.speech(ui, parts.map((p) => p.text))
+        .then(async (made) => {
+          await db.cache.put({ key, value: made, updatedAt: Date.now() }).catch(() => undefined)
+          void forgetOld()
+          return made
+        })
+        .catch(() => null)
+        .finally(() => asking.delete(key))
+      asking.set(key, ask)
     }
-    await db.cache.put({ key, value: kept, updatedAt: Date.now() }).catch(() => undefined)
-    void forgetOld()
+    kept = (await ask) ?? undefined
+    if (!kept) return null
   }
   const bytes = Uint8Array.from(atob(kept.audio), (c) => c.charCodeAt(0))
   return { url: URL.createObjectURL(new Blob([bytes], { type: kept.mime })), starts: kept.starts, duration: kept.duration }

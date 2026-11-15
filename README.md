@@ -140,7 +140,7 @@
 | ✅ Card pass / fail correct | **9 / 9** |
 
 - 👧 Also tried with children in a school.
-- 🧪 201 automated API tests, plus browser runs: online check, activity, offline round trip, replay.
+- 🧪 203 automated API tests, plus browser runs: online check, activity, offline round trip, replay.
 - ➡️ [eval/README.md](eval/README.md)
 
 ---

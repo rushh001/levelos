@@ -35,6 +35,66 @@ def test_parts_become_one_clip_with_the_start_of_each(client, monkeypatch, db):
     assert db.query(SpeechClip).count() == 3
 
 
+def test_the_same_activity_asked_twice_at_once_is_made_once_and_both_get_it(client, monkeypatch, db):
+    # A new activity: the app keeps its recording for offline as it opens, and the teacher presses Listen meanwhile.
+    import asyncio
+
+    import httpx
+
+    from app.main import app
+
+    calls = []
+    asked = 0  # clips asked for, by both requests
+    real_clip = speech._clip
+
+    async def counting(*args):
+        nonlocal asked
+        asked += 1
+        return await real_clip(*args)
+
+    async def slow(parts, **kwargs):
+        calls.append(parts[1])
+        for _ in range(500):  # the voice answers once both requests have asked for every clip (at most 5 s)
+            if asked >= 2 * len(PARTS):
+                break
+            await asyncio.sleep(0.01)
+        return b"\xff" * int(speech.MP3_BYTES_PER_S)
+
+    monkeypatch.setattr(speech, "_clip", counting)
+    monkeypatch.setattr(speech.tts, "synthesize", slow)
+    monkeypatch.setattr(settings, "azure_speech_key", "test-key")
+    h = login(client)
+
+    async def both():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+            body = {"language": "hi", "parts": PARTS}
+            return await asyncio.gather(ac.post("/api/speech", json=body, headers=h), ac.post("/api/speech", json=body, headers=h))
+
+    first, second = asyncio.run(both())
+    assert first.status_code == 200 and second.status_code == 200, (first.text, second.text)
+    assert first.json() == second.json()
+    assert sorted(calls) == sorted(PARTS)  # each clip made once
+    assert db.query(SpeechClip).count() == 3
+
+
+def test_a_clip_kept_meanwhile_by_another_server_is_no_error(client, monkeypatch, db):
+    from app.db import SessionLocal
+
+    async def synth(parts, *, voice, **kwargs):
+        # another server process keeps the same clip while this one is being made
+        other = SessionLocal()
+        other.add(SpeechClip(key=speech._key(voice, parts[1]), audio=b"\xff" * int(speech.MP3_BYTES_PER_S)))
+        other.commit()
+        other.close()
+        return b"\xff" * int(speech.MP3_BYTES_PER_S)
+
+    monkeypatch.setattr(speech.tts, "synthesize", synth)
+    monkeypatch.setattr(settings, "azure_speech_key", "test-key")
+    r = client.post("/api/speech", json={"language": "hi", "parts": PARTS[:1]}, headers=login(client))
+    assert r.status_code == 200, r.text
+    assert db.query(SpeechClip).count() == 1
+
+
 def test_speech_needs_a_teacher_a_voice_and_short_parts(client, monkeypatch):
     h = login(client)
     body = {"language": "hi", "parts": PARTS}

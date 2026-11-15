@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isReachable } from '../../api'
 import { phoneVoice, playableClips, serverRecording, type Part, type Recording } from '../../lib/speech'
 
 export interface ListenHandle {
@@ -7,7 +8,9 @@ export interface ListenHandle {
   playPart: (i: number) => void
 }
 
-type Mode = 'idle' | 'loading' | 'server' | 'clips' | 'phone' | 'none'
+// 'retry': online, but the reading could not be had this time (the server failing for a moment): pressing again tries
+// again. 'none': offline with nothing on the phone to read it; when the network is back it can be pressed again.
+type Mode = 'idle' | 'loading' | 'retry' | 'server' | 'clips' | 'phone' | 'none'
 
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
@@ -51,6 +54,11 @@ export const ListenBar = forwardRef<
       [],
     )
     useEffect(() => () => void (rec && URL.revokeObjectURL(rec.url)), [rec])
+    useEffect(() => {
+      const back = () => setMode((m) => (m === 'none' ? 'idle' : m))
+      window.addEventListener('online', back)
+      return () => window.removeEventListener('online', back)
+    }, [])
     useEffect(() => {
       if (audio.current) audio.current.playbackRate = slow ? 0.85 : 1
       if (player.current) player.current.playbackRate = slow ? 0.85 : 1
@@ -171,7 +179,7 @@ export const ListenBar = forwardRef<
         return playClips(i, only)
       }
       voice.current = await phoneVoice(ui)
-      if (!voice.current) return setMode('none')
+      if (!voice.current) return setMode(navigator.onLine && isReachable() ? 'retry' : 'none')
       setMode('phone')
       speakFrom(i, only)
     }
@@ -204,7 +212,7 @@ export const ListenBar = forwardRef<
     const label = (p: Part, i: number) =>
       p.key === 'intro' ? t('activity.listenIntro') : p.key === 'homework' ? '🏠' : p.key === 'tip' ? '💡' : String(i)
 
-    if (mode === 'idle' || mode === 'loading') {
+    if (mode === 'idle' || mode === 'loading' || mode === 'retry') {
       return (
         <button
           onClick={() => void start(0)}
@@ -216,7 +224,9 @@ export const ListenBar = forwardRef<
           </span>
           <span className="min-w-0">
             <span className="block font-semibold text-brand-deep">{t('activity.listen')}</span>
-            <span className="block text-xs text-mute">{mode === 'loading' ? t('activity.listenLoading') : t('activity.listenHint')}</span>
+            <span className="block text-xs text-mute">
+              {mode === 'loading' ? t('activity.listenLoading') : mode === 'retry' ? t('retry') : t('activity.listenHint')}
+            </span>
           </span>
         </button>
       )

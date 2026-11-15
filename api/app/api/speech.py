@@ -12,6 +12,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import delete
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..auth import current_teacher
@@ -45,6 +46,26 @@ async def _synthesize(text: str, voice: str, locale: str) -> bytes:
                                     locale=locale, voice=voice, rate=RATE, output_format=tts.MP3_FORMAT)
 
 
+_making: dict[str, asyncio.Task] = {}  # clips being made right now, by key
+
+
+def _made(key: str, task: asyncio.Task) -> None:
+    _making.pop(key, None)
+    if not task.cancelled():
+        task.exception()  # looked at, so a failure nobody waited for is not reported again as "never retrieved"
+
+
+async def _clip(key: str, text: str, voice: str, locale: str) -> bytes:
+    """One clip, made once even when two requests want it at the same moment (the app keeps a new activity's recording
+    for offline as it opens, and the teacher presses Listen): the second waits for the first's."""
+    task = _making.get(key)
+    if task is None:
+        task = asyncio.ensure_future(_synthesize(text, voice, locale))
+        _making[key] = task
+        task.add_done_callback(lambda t, k=key: _made(k, t))
+    return await asyncio.shield(task)  # a request that goes away does not stop it for the other
+
+
 @router.post("/speech")
 async def speech(body: SpeechIn, teacher: Teacher = Depends(current_teacher), db: Session = Depends(get_db)) -> dict:
     cfg = languages().get(body.language)
@@ -61,13 +82,16 @@ async def speech(body: SpeechIn, teacher: Teacher = Depends(current_teacher), db
     kept = {c.key: c.audio for c in db.query(SpeechClip).filter(SpeechClip.key.in_(set(keys)))}
     missing = list(dict.fromkeys(k for k in keys if k not in kept))
     try:
-        made = await asyncio.gather(*(_synthesize(parts[keys.index(k)], voice, locale) for k in missing))
+        made = await asyncio.gather(*(_clip(k, parts[keys.index(k)], voice, locale) for k in missing))
     except Exception as e:  # noqa: BLE001  (vendor or network: the app falls back to the phone's voice)
         raise HTTPException(502, f"voice unavailable: {type(e).__name__}") from e
     for k, audio in zip(missing, made):
         kept[k] = audio
         db.add(SpeechClip(key=k, audio=audio))
-    db.commit()
+        try:
+            db.commit()
+        except IntegrityError:  # kept a moment ago by another request asking for the same clip: that copy stays
+            db.rollback()
 
     clips = [kept[k] for k in keys]
     starts, t = [], 0.0
