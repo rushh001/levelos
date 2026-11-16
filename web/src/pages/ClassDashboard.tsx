@@ -5,7 +5,7 @@ import { Api } from '../api'
 import { Button, COHORT_STYLE, ChildChip, CohortIcon, ErrorBox, Page, ReadingTestSwitch, Spinner } from '../components/ui'
 import { nameIn } from '../lib/names'
 import { addChild } from '../lib/outbox'
-import { ReadyLine } from '../components/OfflineReady'
+import { InstallCard, ReadyLine } from '../components/OfflineReady'
 import { saveClassPagesNow, useSaveForOffline } from '../lib/saveOffline'
 import { patternKey, useReadingLang } from '../lib/readingLang'
 import { useUiLang } from '../lib/uiLang'
@@ -72,6 +72,7 @@ export default function ClassDashboard() {
       )}
       {data && (
         <>
+          <InstallCard />
           <div className="mb-3">
             <ReadingTestSwitch languages={data.class.languages} value={data.language} onChange={setLang} />
           </div>

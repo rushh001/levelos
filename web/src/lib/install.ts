@@ -22,8 +22,35 @@ window.addEventListener('appinstalled', () => {
   changed()
 })
 
-/** Whether the app can be added to the home screen now (not when it is already open as the installed app). */
-export const canInstall = () => !!offered && !window.matchMedia?.('(display-mode: standalone)').matches
+/** Open as the installed app (from the home screen or the dock): nothing to offer. iOS says so its own way. */
+const installed = () =>
+  !!window.matchMedia?.('(display-mode: standalone)').matches ||
+  (navigator as Navigator & { standalone?: boolean }).standalone === true
+
+/** Whether the browser's own "install" prompt can be shown now (Chromium: Chrome, Edge, Samsung Internet). */
+export const canInstall = () => !!offered && !installed()
+
+/**
+ * How this browser adds the app to the home screen, when it is not installed yet:
+ *   prompt   the browser's own prompt (Chromium);
+ *   ios      iPhone or iPad, any browser (all run on WebKit, which lets no page start an install): Share → Add to
+ *            Home Screen. Also what stops Safari clearing the app's data after 7 days without a visit;
+ *   mac      Safari on a Mac (macOS 14 or later): File → Add to Dock;
+ *   firefox  Firefox on Android: menu → Install;
+ *   null     installed already, or a browser that cannot install a web app (Firefox on a computer).
+ */
+export type InstallHow = 'prompt' | 'ios' | 'mac' | 'firefox' | null
+
+export function installHow(): InstallHow {
+  if (installed()) return null
+  if (offered) return 'prompt'
+  const ua = navigator.userAgent
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  if (ios) return 'ios'
+  if (/Android/.test(ua) && /Firefox\//.test(ua)) return 'firefox'
+  if (/Macintosh/.test(ua) && /Version\/[\d.]+.*Safari\//.test(ua) && !/Chrome|Chromium|Edg|Firefox|OPR/.test(ua)) return 'mac'
+  return null
+}
 
 export function watchInstall(fn: () => void): () => void {
   watchers.add(fn)

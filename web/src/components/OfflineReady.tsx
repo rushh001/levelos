@@ -1,9 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { db } from '../db'
 import { aliases } from '../lib/idmap'
-import { canInstall, install, watchInstall } from '../lib/install'
+import { canInstall, install, installHow, watchInstall } from '../lib/install'
 import { useNetState } from './ui'
 
 /** When the class was last saved on the phone for use with no network (lib/saveOffline.ts), if ever. */
@@ -83,9 +83,22 @@ export function ReadyTag({ classId }: { classId: string }) {
 const DISMISSED = 'levelos.installDismissed'
 
 /** "Add LevelOS to your home screen", once, until the teacher installs it or says not now. */
+/** The iPhone's Share icon (a box with an arrow up), as the teacher will see it on their screen. */
+function ShareIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="inline h-4 w-4 align-[-2px]" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M12 3v12M8 7l4-4 4 4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/** "Add LevelOS to your home screen", once, until the teacher installs it or says not now. Chromium shows its own
+ * prompt from the button; WebKit (Safari, and every browser on iPhone and iPad) lets no page start an install, so
+ * there, as on Firefox for Android and Safari on a Mac, the card shows the browser's own two steps. */
 export function InstallCard() {
   const { t } = useTranslation()
-  const installable = useCanInstall()
+  const how = useSyncExternalStore(watchInstall, installHow)
   const [dismissed, setDismissed] = useState(() => {
     try {
       return localStorage.getItem(DISMISSED) === '1'
@@ -93,7 +106,7 @@ export function InstallCard() {
       return false
     }
   })
-  if (!installable || dismissed) return null
+  if (!how || dismissed) return null
   const later = () => {
     setDismissed(true)
     try {
@@ -102,20 +115,33 @@ export function InstallCard() {
       /* asked again next time */
     }
   }
+  const steps: Record<Exclude<typeof how, 'prompt' | null>, [ReactNode, string]> = {
+    ios: [<>{t('install.ios1')} <ShareIcon /></>, t('install.ios2')],
+    mac: [t('install.mac1'), t('install.mac2')],
+    firefox: [`${t('install.ff1')} ⋮`, t('install.ff2')],
+  }
   return (
-    <section className="mb-3 flex items-center gap-3 rounded-2xl bg-brand-soft px-4 py-3">
+    <section className="mb-3 flex items-start gap-3 rounded-2xl bg-brand-soft px-4 py-3" role="note">
       <span className="text-2xl" aria-hidden>
         📲
       </span>
       <div className="min-w-0 flex-1">
         <div className="text-sm font-semibold text-brand-deep">{t('install.title')}</div>
-        <div className="text-xs text-ink">{t('install.why')}</div>
+        <div className="text-xs text-ink">{t(how === 'ios' ? 'install.iosWhy' : 'install.why')}</div>
+        {how !== 'prompt' && (
+          <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-sm text-ink">
+            <li>{steps[how][0]}</li>
+            <li>{steps[how][1]}</li>
+          </ol>
+        )}
         <div className="mt-2 flex gap-3">
-          <button onClick={() => void install()} className="rounded-full bg-brand px-3 py-1 text-sm font-semibold text-white">
-            {t('install.button')}
-          </button>
+          {how === 'prompt' && (
+            <button onClick={() => void install()} className="rounded-full bg-brand px-3 py-1 text-sm font-semibold text-white">
+              {t('install.button')}
+            </button>
+          )}
           <button onClick={later} className="text-sm text-mute underline underline-offset-2">
-            {t('install.later')}
+            {t(how === 'prompt' ? 'install.later' : 'install.gotIt')}
           </button>
         </div>
       </div>
