@@ -428,7 +428,15 @@
     "title": "Add LevelOS to your home screen",
     "why": "It opens like an app, works without network, and keeps your checks safe until they are sent.",
     "button": "Add to home screen",
-    "later": "Not now"
+    "later": "Not now",
+    "ios1": "Tap the Share button",
+    "ios2": "Choose “Add to Home Screen”",
+    "mac1": "In the menu bar, open File",
+    "mac2": "Choose “Add to Dock”",
+    "ff1": "Open the browser menu",
+    "ff2": "Choose “Install”",
+    "gotIt": "Got it",
+    "iosWhy": "It opens like an app and works without network. On iPhone it also keeps checks not yet sent safe: Safari clears a website’s data after 7 days without a visit."
   },
   "pending": {
     "title": "Waiting to be sent",
