@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'https' && basicSsl(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'LevelOS',
         short_name: 'LevelOS',
@@ -55,7 +55,13 @@ export default defineConfig(({ mode }) => ({
         orientation: 'portrait',
         lang: 'en',
         start_url: '/',
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        // The app's parrot. PNGs too: an installed app's icon on Android, and iOS ignores SVG icons.
+        icons: [
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
       },
       workbox: {
         // App shell + item banks + instruction audio are precached so a check-in works with no network.
